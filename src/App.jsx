@@ -148,14 +148,15 @@ const Hero = () => {
           <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-6 inline-block backdrop-blur-sm">
             Strictly for Adults (18+)
           </span>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-            NEETCHANIME <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-orange-500">
+          <h1 className="font-extrabold text-white mb-6 tracking-tight leading-tight">
+            <span className="block text-5xl md:text-7xl">NEETCHANIME</span>
+            {/* UPDATED: Shiny Silver Gradient Text */}
+            <span className="block text-3xl md:text-5xl mt-2 text-transparent bg-clip-text bg-gradient-to-r from-slate-400 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
               Platform R34 Terbaik
             </span>
           </h1>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-            Platform eksklusif penyedia aset digital dan animasi premium dengan harga terjangkau. 
+            Platform eksklusif penyedia aset digital dan animasi premium. 
             Jelajahi koleksi terkurasi untuk kolektor yang menghargai keindahan estetika sepenuhnya.
           </p>
           
@@ -164,7 +165,7 @@ const Hero = () => {
               onClick={() => smoothScroll('shop')}
               className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1"
             >
-              Lihat Produk
+              Lihat Koleksi
             </button>
             <button 
               onClick={() => smoothScroll('faq')}
