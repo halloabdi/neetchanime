@@ -273,7 +273,7 @@ const ShopSection = ({ addToCart }) => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
-        setItemsPerPage(6); // Mobile: 6 items (3 cols x 2 rows)
+        setItemsPerPage(6); // Mobile: 6 items (2 cols x 3 rows)
       } else {
         setItemsPerPage(10); // Desktop: 10 items (5 cols x 2 rows)
       }
@@ -353,8 +353,8 @@ const ShopSection = ({ addToCart }) => {
             initial="hidden"
             animate="show"
             exit="hidden"
-            // Mobile: grid-cols-3 (3 kolom), gap-3 (lebih rapat). Desktop: grid-cols-5, gap-6.
-            className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
+            // Mobile: grid-cols-2 (2 kolom), gap-3. Desktop: grid-cols-5, gap-6.
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
           >
             {currentProducts.map((product) => (
               <ProductCard 
