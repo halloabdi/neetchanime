@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -121,44 +121,63 @@ const Header = ({ cartCount, openCart }) => (
   </nav>
 );
 
-const Hero = () => (
-  <section className="relative pt-32 pb-20 overflow-hidden">
-    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
-    <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10"></div>
-    <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10"></div>
-    
-    <div className="max-w-4xl mx-auto px-4 text-center z-10 relative">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-6 inline-block backdrop-blur-sm">
-          Strictly for Adults (18+)
-        </span>
-        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-          Seni Visual <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-orange-500">
-            Tanpa Batas
+const Hero = () => {
+  const smoothScroll = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      // Menggunakan scrollIntoView dengan behavior smooth
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
+  return (
+    <section className="relative pt-32 pb-20 overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+      <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10"></div>
+      
+      <div className="max-w-4xl mx-auto px-4 text-center z-10 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-6 inline-block backdrop-blur-sm">
+            Strictly for Adults (18+)
           </span>
-        </h1>
-        <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-          Platform eksklusif penyedia aset digital dan animasi premium. 
-          Jelajahi koleksi terkurasi untuk kolektor yang menghargai keindahan estetika sepenuhnya.
-        </p>
-        
-        <div className="flex justify-center gap-4">
-          <a href="#shop" className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1">
-            Lihat Koleksi
-          </a>
-          <a href="#faq" className="px-8 py-3 border border-slate-700 text-white rounded-full font-bold hover:border-red-500 hover:text-red-400 transition-all">
-            Info Legal
-          </a>
-        </div>
-      </motion.div>
-    </div>
-  </section>
-);
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
+            Seni Visual <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-orange-500">
+              Tanpa Batas
+            </span>
+          </h1>
+          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
+            Platform eksklusif penyedia aset digital dan animasi premium. 
+            Jelajahi koleksi terkurasi untuk kolektor yang menghargai keindahan estetika sepenuhnya.
+          </p>
+          
+          <div className="flex justify-center gap-4">
+            <button 
+              onClick={() => smoothScroll('shop')}
+              className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1"
+            >
+              Lihat Koleksi
+            </button>
+            <button 
+              onClick={() => smoothScroll('faq')}
+              className="px-8 py-3 border border-slate-700 text-white rounded-full font-bold hover:border-red-500 hover:text-red-400 transition-all"
+            >
+              Info Legal
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
 
 const ProductCard = ({ product, onAdd, variants }) => (
   <motion.div 
@@ -167,7 +186,7 @@ const ProductCard = ({ product, onAdd, variants }) => (
     className="bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative"
   >
     {/* Image Container */}
-    <div className="relative h-48 overflow-hidden">
+    <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
         alt={product.title} 
@@ -175,27 +194,27 @@ const ProductCard = ({ product, onAdd, variants }) => (
       />
       
       {/* LEFT TOP: Type Badge */}
-      <div className="absolute top-3 left-3 z-10">
-        <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
+      <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
+        <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
           product.type === 'Foto' 
             ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' // Foto: Dark Green Gradient, Text White
             : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' // Video: Dark Purple Gradient
         }`}>
-          {product.type === 'Video' ? <Video size={14} /> : <ImageIcon size={14} />}
+          {product.type === 'Video' ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
           {product.type}
         </span>
       </div>
 
       {/* RIGHT TOP: Category Badge (Safe / 18+) */}
-      <div className="absolute top-3 right-3 z-10">
+      <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
         {product.isNSFW ? (
-          <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
-            <ShieldAlert size={14} />
+          <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
+            <ShieldAlert size={10} className="md:w-[14px] md:h-[14px]" />
             18+
           </span>
         ) : (
-          <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow-lg backdrop-blur-md bg-gradient-to-r from-blue-400 to-cyan-400 border border-blue-400/30">
-            <ShieldCheck size={14} />
+          <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white shadow-lg backdrop-blur-md bg-gradient-to-r from-blue-400 to-cyan-400 border border-blue-400/30">
+            <ShieldCheck size={10} className="md:w-[14px] md:h-[14px]" />
             Safe
           </span>
         )}
@@ -205,34 +224,38 @@ const ProductCard = ({ product, onAdd, variants }) => (
     </div>
 
     {/* Content */}
-    <div className="p-5 flex-1 flex flex-col">
-      <div className="flex items-center gap-2 mb-2 text-slate-500 text-xs font-medium">
+    <div className="p-3 md:p-5 flex-1 flex flex-col">
+      <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
-          <Star size={12} fill="currentColor" />
+          <Star size={10} className="md:w-[12px] md:h-[12px]" fill="currentColor" />
           <span className="ml-1 text-slate-300">{product.rating}</span>
         </div>
         <span>•</span>
         <span>{product.buyers} buyers</span>
       </div>
 
-      <h3 className="text-slate-100 font-bold text-lg leading-snug mb-3 line-clamp-2 group-hover:text-red-400 transition-colors">
+      <h3 className="text-slate-100 font-bold text-sm md:text-lg leading-snug mb-1 md:mb-3 line-clamp-2 group-hover:text-red-400 transition-colors">
         {product.title}
       </h3>
 
-      <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between">
+      <p className="text-slate-500 text-[10px] md:text-xs mb-3 font-mono">
+        Artist: <span className="text-slate-400">Anonymous</span>
+      </p>
+
+      <div className="mt-auto pt-3 md:pt-4 border-t border-slate-800 flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="text-slate-500 text-[10px] uppercase tracking-wider">Harga</span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400 font-bold text-lg">
+          <span className="text-slate-500 text-[8px] md:text-[10px] uppercase tracking-wider">Harga</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400 font-bold text-sm md:text-lg">
             Rp{product.price.toLocaleString('id-ID')}
           </span>
         </div>
         
         <button 
           onClick={() => onAdd(product)}
-          className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5"
+          className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-2 md:p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5"
           title="Tambahkan ke Keranjang"
         >
-          <ShoppingCart size={18} />
+          <ShoppingCart size={16} className="md:w-[18px] md:h-[18px]" />
         </button>
       </div>
     </div>
@@ -247,7 +270,7 @@ const ShopSection = ({ addToCart }) => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
-        setItemsPerPage(2); // Mobile: 2 items (2 cols x 1 row)
+        setItemsPerPage(6); // Mobile: 6 items (3 cols x 2 rows)
       } else {
         setItemsPerPage(10); // Desktop: 10 items (5 cols x 2 rows)
       }
@@ -327,7 +350,8 @@ const ShopSection = ({ addToCart }) => {
             initial="hidden"
             animate="show"
             exit="hidden"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
+            // Mobile: grid-cols-3 (3 kolom), gap-3 (lebih rapat). Desktop: grid-cols-5, gap-6.
+            className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
           >
             {currentProducts.map((product) => (
               <ProductCard 
@@ -416,13 +440,14 @@ const CartModal = ({ isOpen, onClose, cart, removeFromCart, clearCart }) => {
     const itemsList = cart.map((item, idx) => `${idx + 1}. ${item.title} ${item.isNSFW ? '[18+]' : '[Safe]'}`).join('\n');
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     
+    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
     const message = `Hai Mimin NEETCHANIME!
 Saya ${formData.name} dengan email ${formData.email}.
 Saya telah membeli produk berupa:
 ${itemsList}
-dst
-Senilai ${formattedTotal}
-Saya memilih metode pembayaran ${formData.payment}.
+
+Senilai *${formattedTotal}*
+Saya memilih metode pembayaran *${formData.payment}*.
 Terima Kasih, ditunggu min.`;
 
     const whatsappUrl = `https://wa.me/6285169992275?text=${encodeURIComponent(message)}`;
@@ -453,6 +478,7 @@ Terima Kasih, ditunggu min.`;
           <X size={24} />
         </button>
 
+        {/* Left: Cart Items */}
         <div className="flex-1 p-6 overflow-y-auto bg-slate-900 md:border-r border-slate-800">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <ShoppingCart className="text-red-500" />
@@ -492,6 +518,7 @@ Terima Kasih, ditunggu min.`;
           )}
         </div>
 
+        {/* Right: Checkout Form */}
         <div className="flex-1 p-6 bg-slate-950 overflow-y-auto">
           <h2 className="text-xl font-bold text-white mb-6">Konfirmasi Pembeli</h2>
           
@@ -646,23 +673,32 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
+  
+  // Ref untuk menyimpan ID timeout agar bisa di-reset
+  const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
     const newCart = [...cart, product];
     setCart(newCart);
 
-    // Hitung berapa kali item ini sudah ada di keranjang BARU (termasuk yang barusan ditambah)
     const count = newCart.filter(item => item.id === product.id).length;
 
+    // Clear timeout sebelumnya jika ada, agar notifikasi tidak hilang tiba-tiba
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
+
     setNotification({
-      id: Date.now(), // Memaksa re-render animasi jika diklik cepat
+      id: Date.now(),
       title: product.title,
       count: count,
       image: product.image
     });
 
-    // Hilangkan notifikasi setelah 3 detik
-    setTimeout(() => setNotification(null), 3000);
+    // Set timeout baru selama 4 detik
+    notificationTimeoutRef.current = setTimeout(() => {
+      setNotification(null);
+    }, 4000);
   };
 
   const removeFromCart = (index) => {
