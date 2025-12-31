@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check } from 'lucide-react';
+import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- DATA MOCKUP GENERATOR ---
@@ -125,7 +125,6 @@ const Hero = () => {
   const smoothScroll = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      // Menggunakan scrollIntoView dengan behavior smooth
       element.scrollIntoView({ 
         behavior: 'smooth',
         block: 'start'
@@ -149,11 +148,9 @@ const Hero = () => {
             Strictly for Adults (18+)
           </span>
           <h1 className="font-extrabold mb-6 tracking-tight leading-tight">
-            {/* UPDATED: Custom Gradients per Word */}
             <span className="block text-5xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
               NEETCHANIME
             </span>
-            {/* UPDATED: Font weight changed to font-extrabold to match title */}
             <span className="block text-3xl md:text-5xl mt-2 font-extrabold">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-900 mr-2">Platform</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mr-2">R34</span>
@@ -191,7 +188,6 @@ const ProductCard = ({ product, onAdd, variants }) => (
     whileHover={{ y: -8 }}
     className="bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative"
   >
-    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -199,19 +195,17 @@ const ProductCard = ({ product, onAdd, variants }) => (
         className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
       />
       
-      {/* LEFT TOP: Type Badge */}
       <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
         <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
           product.type === 'Foto' 
-            ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' // Foto: Dark Green Gradient, Text White
-            : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' // Video: Dark Purple Gradient
+            ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' 
+            : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' 
         }`}>
           {product.type === 'Video' ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
           {product.type}
         </span>
       </div>
 
-      {/* RIGHT TOP: Category Badge (Safe / 18+) */}
       <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
         {product.isNSFW ? (
           <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
@@ -229,7 +223,6 @@ const ProductCard = ({ product, onAdd, variants }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
     </div>
 
-    {/* Content */}
     <div className="p-3 md:p-5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
@@ -270,19 +263,18 @@ const ProductCard = ({ product, onAdd, variants }) => (
 
 const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Default desktop
+  const [itemsPerPage, setItemsPerPage] = useState(10); 
 
-  // Responsive items per page logic
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
-        setItemsPerPage(6); // Mobile: 6 items (3 cols x 2 rows)
+        setItemsPerPage(6); 
       } else {
-        setItemsPerPage(10); // Desktop: 10 items (5 cols x 2 rows)
+        setItemsPerPage(10); 
       }
     };
 
-    handleResize(); // Initial check
+    handleResize(); 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -294,7 +286,6 @@ const ShopSection = ({ addToCart }) => {
     return PRODUCTS.slice(start, start + itemsPerPage);
   }, [page, itemsPerPage]);
 
-  // ANIMATION VARIANTS
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -330,7 +321,6 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
           
-          {/* Pagination Controls */}
           <div className="flex flex-wrap gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
               <button
@@ -348,15 +338,13 @@ const ShopSection = ({ addToCart }) => {
           </div>
         </div>
 
-        {/* Product Grid with Staggered Animation */}
         <AnimatePresence mode='wait'>
           <motion.div 
-            key={page} // Forces re-animation on page change
+            key={page} 
             variants={containerVariants}
             initial="hidden"
             animate="show"
             exit="hidden"
-            // Mobile: grid-cols-3 (3 kolom), gap-3 (lebih rapat). Desktop: grid-cols-5, gap-6.
             className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
           >
             {currentProducts.map((product) => (
@@ -431,10 +419,10 @@ const FAQSection = () => (
   </section>
 );
 
-const CartModal = ({ isOpen, onClose, cart, removeFromCart, clearCart }) => {
+const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem }) => {
   const [formData, setFormData] = useState({ name: '', email: '', payment: '' });
 
-  const total = cart.reduce((acc, item) => acc + item.price, 0);
+  const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = (e) => {
     e.preventDefault();
@@ -443,10 +431,12 @@ const CartModal = ({ isOpen, onClose, cart, removeFromCart, clearCart }) => {
       return;
     }
 
-    const itemsList = cart.map((item, idx) => `${idx + 1}. ${item.title} ${item.isNSFW ? '[18+]' : '[Safe]'}`).join('\n');
+    const itemsList = cart.map((item, idx) => 
+      `${idx + 1}. ${item.title} ${item.isNSFW ? '[18+]' : '[Safe]'} (x${item.quantity})`
+    ).join('\n');
+    
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     
-    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
     const message = `Hai Mimin NEETCHANIME!
 Saya ${formData.name} dengan email ${formData.email}.
 Saya telah membeli produk berupa:
@@ -498,22 +488,46 @@ Terima Kasih, ditunggu min.`;
             </div>
           ) : (
             <div className="space-y-4">
-              {cart.map((item, idx) => (
-                <div key={`${item.id}-${idx}`} className="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                  <div className="relative">
-                     <img src={item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
-                     {item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}
+              {cart.map((item) => (
+                <div key={item.id} className="flex flex-col gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                       <img src={item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                       {item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-white text-sm font-medium truncate">{item.title}</h4>
+                      <p className="text-red-400 font-bold text-sm">Rp{item.price.toLocaleString('id-ID')}</p>
+                    </div>
+                    {/* Delete Button (Trash) */}
+                    <button 
+                      onClick={() => removeItem(item.id)}
+                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                      title="Hapus Produk"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-white text-sm font-medium truncate">{item.title}</h4>
-                    <p className="text-red-400 font-bold text-sm">Rp{item.price.toLocaleString('id-ID')}</p>
+                  
+                  {/* Quantity Controls */}
+                  <div className="flex items-center justify-between border-t border-slate-700/50 pt-2">
+                    <span className="text-xs text-slate-400">Jumlah:</span>
+                    <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-1">
+                      <button 
+                        onClick={() => updateQuantity(item.id, -1)}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="text-sm font-bold text-white min-w-[20px] text-center">{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item.id, 1)}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => removeFromCart(idx)}
-                    className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
                 </div>
               ))}
               <div className="pt-4 border-t border-slate-800 flex justify-between items-center">
@@ -679,43 +693,83 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
-  
-  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
-    const newCart = [...cart, product];
-    setCart(newCart);
+    // Check if item already exists
+    setCart(prevCart => {
+      const existingItemIndex = prevCart.findIndex(item => item.id === product.id);
+      
+      let newCount = 1;
+      let newCart;
 
-    const count = newCart.filter(item => item.id === product.id).length;
+      if (existingItemIndex > -1) {
+        // Item exists, increment quantity
+        newCart = [...prevCart];
+        newCart[existingItemIndex].quantity += 1;
+        newCount = newCart[existingItemIndex].quantity;
+      } else {
+        // New item, add with quantity 1
+        newCart = [...prevCart, { ...product, quantity: 1 }];
+      }
 
-    // Clear timeout sebelumnya jika ada, agar notifikasi tidak hilang tiba-tiba
-    if (notificationTimeoutRef.current) {
-      clearTimeout(notificationTimeoutRef.current);
-    }
+      // Handle notification
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+      }
 
-    setNotification({
-      id: Date.now(),
-      title: product.title,
-      count: count,
-      image: product.image
+      setNotification({
+        id: Date.now(),
+        title: product.title,
+        count: newCount,
+        image: product.image
+      });
+
+      notificationTimeoutRef.current = setTimeout(() => {
+        setNotification(null);
+      }, 4000);
+
+      return newCart;
     });
-
-    // Set timeout baru selama 4 detik
-    notificationTimeoutRef.current = setTimeout(() => {
-      setNotification(null);
-    }, 4000);
   };
 
-  const removeFromCart = (index) => {
-    const newCart = [...cart];
-    newCart.splice(index, 1);
-    setCart(newCart);
+  const updateQuantity = (id, delta) => {
+    setCart(prevCart => {
+      return prevCart.map(item => {
+        if (item.id === id) {
+          const newQty = item.quantity + delta;
+          return newQty > 0 ? { ...item, quantity: newQty } : null;
+        }
+        return item;
+      }).filter(Boolean); // Remove nulls (items with qty 0)
+    });
+  };
+
+  const removeItem = (id) => {
+    setCart(prevCart => prevCart.filter(item => item.id !== id));
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-red-500/30">
-      <Header cartCount={cart.length} openCart={() => setIsCartOpen(true)} />
+      {/* Modern Scrollbar Styles */}
+      <style>{`
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #334155; 
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #475569; 
+        }
+      `}</style>
+
+      <Header cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)} openCart={() => setIsCartOpen(true)} />
+      
       <main>
         <Hero />
         <ShopSection addToCart={addToCart} />
@@ -729,24 +783,22 @@ export default function App() {
           {notification && (
             <motion.div
               key={notification.id}
-              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              layout // Smooth layout transition
+              initial={{ y: 100, opacity: 0, scale: 0.9 }} // Start from bottom
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
               
-              drag // Allow drag in any direction
-              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Returns to center if not dismissed
-              dragElastic={0.7} // Feel elastis saat ditarik
+              drag
+              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+              dragElastic={0.7}
               onDragEnd={(e, { offset }) => {
-                // Dismiss if swiped more than 50px in any direction (lebih sensitif)
                 if (Math.abs(offset.x) > 50 || Math.abs(offset.y) > 50) {
                   setNotification(null);
                 }
               }}
               
-              // Added 'touch-none' to prevent scrolling while dragging on mobile
               className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 px-5 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-4 w-[90%] max-w-sm pointer-events-auto cursor-grab active:cursor-grabbing touch-none"
             >
-              {/* Count Circle */}
               <div className="flex-shrink-0 bg-white/30 backdrop-blur-sm w-12 h-12 rounded-xl flex items-center justify-center border border-white/40 shadow-inner">
                  <span className="font-extrabold text-lg text-amber-900 drop-shadow-sm">{notification.count}x</span>
               </div>
@@ -770,8 +822,8 @@ export default function App() {
             isOpen={isCartOpen} 
             onClose={() => setIsCartOpen(false)} 
             cart={cart}
-            removeFromCart={removeFromCart}
-            clearCart={() => setCart([])}
+            updateQuantity={updateQuantity}
+            removeItem={removeItem}
           />
         )}
       </AnimatePresence>
