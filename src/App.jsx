@@ -188,6 +188,7 @@ const ProductCard = ({ product, onAdd, variants }) => (
     whileHover={{ y: -8 }}
     className="bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative"
   >
+    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -195,17 +196,19 @@ const ProductCard = ({ product, onAdd, variants }) => (
         className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
       />
       
+      {/* LEFT TOP: Type Badge */}
       <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
         <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
           product.type === 'Foto' 
-            ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' 
-            : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' 
+            ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' // Foto: Dark Green Gradient, Text White
+            : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' // Video: Dark Purple Gradient
         }`}>
           {product.type === 'Video' ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
           {product.type}
         </span>
       </div>
 
+      {/* RIGHT TOP: Category Badge (Safe / 18+) */}
       <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
         {product.isNSFW ? (
           <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
@@ -223,6 +226,7 @@ const ProductCard = ({ product, onAdd, variants }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
     </div>
 
+    {/* Content */}
     <div className="p-3 md:p-5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
@@ -237,11 +241,11 @@ const ProductCard = ({ product, onAdd, variants }) => (
         {product.title}
       </h3>
 
-      <p className="text-slate-500 text-[10px] md:text-xs mb-3 font-mono">
+      <p className="text-slate-500 text-[10px] md:text-xs mb-3 font-mono mt-auto">
         Artist: <span className="text-slate-400">Anonymous</span>
       </p>
 
-      <div className="mt-auto pt-3 md:pt-4 border-t border-slate-800 flex items-center justify-between">
+      <div className="pt-3 md:pt-4 border-t border-slate-800 flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-slate-500 text-[8px] md:text-[10px] uppercase tracking-wider">Harga</span>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400 font-bold text-sm md:text-lg">
@@ -263,18 +267,19 @@ const ProductCard = ({ product, onAdd, variants }) => (
 
 const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); 
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default desktop
 
+  // Responsive items per page logic
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
-        setItemsPerPage(6); 
+        setItemsPerPage(6); // Mobile: 6 items (3 cols x 2 rows)
       } else {
-        setItemsPerPage(10); 
+        setItemsPerPage(10); // Desktop: 10 items (5 cols x 2 rows)
       }
     };
 
-    handleResize(); 
+    handleResize(); // Initial check
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -286,6 +291,7 @@ const ShopSection = ({ addToCart }) => {
     return PRODUCTS.slice(start, start + itemsPerPage);
   }, [page, itemsPerPage]);
 
+  // ANIMATION VARIANTS
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -321,6 +327,7 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
           
+          {/* Pagination Controls */}
           <div className="flex flex-wrap gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
               <button
@@ -338,13 +345,15 @@ const ShopSection = ({ addToCart }) => {
           </div>
         </div>
 
+        {/* Product Grid with Staggered Animation */}
         <AnimatePresence mode='wait'>
           <motion.div 
-            key={page} 
+            key={page} // Forces re-animation on page change
             variants={containerVariants}
             initial="hidden"
             animate="show"
             exit="hidden"
+            // Mobile: grid-cols-3 (3 kolom), gap-3 (lebih rapat). Desktop: grid-cols-5, gap-6.
             className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
           >
             {currentProducts.map((product) => (
@@ -419,7 +428,7 @@ const FAQSection = () => (
   </section>
 );
 
-const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem }) => {
+const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQuantity }) => {
   const [formData, setFormData] = useState({ name: '', email: '', payment: '' });
 
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -437,6 +446,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem }) => {
     
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     
+    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
     const message = `Hai Mimin NEETCHANIME!
 Saya ${formData.name} dengan email ${formData.email}.
 Saya telah membeli produk berupa:
@@ -450,10 +460,14 @@ Terima Kasih, ditunggu min.`;
     window.open(whatsappUrl, '_blank');
   };
 
-  if (!isOpen) return null;
-
+  // We are animating the wrapper div now so AnimatePresence in App works perfectly for the whole modal
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+    >
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -465,7 +479,8 @@ Terima Kasih, ditunggu min.`;
       <motion.div 
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl border border-slate-700 shadow-2xl overflow-hidden relative flex flex-col md:flex-row"
+        exit={{ scale: 0.95, opacity: 0, y: 20, transition: { duration: 0.2 } }}
+        className="bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl border border-slate-700 shadow-2xl overflow-hidden relative flex flex-col md:flex-row z-10"
       >
         <button 
           onClick={onClose}
@@ -512,14 +527,23 @@ Terima Kasih, ditunggu min.`;
                   {/* Quantity Controls */}
                   <div className="flex items-center justify-between border-t border-slate-700/50 pt-2">
                     <span className="text-xs text-slate-400">Jumlah:</span>
-                    <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-1">
+                    <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1">
                       <button 
                         onClick={() => updateQuantity(item.id, -1)}
                         className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
                       >
                         <Minus size={14} />
                       </button>
-                      <span className="text-sm font-bold text-white min-w-[20px] text-center">{item.quantity}</span>
+                      
+                      {/* EDITABLE INPUT FOR QUANTITY */}
+                      <input 
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => setCartQuantity(item.id, parseInt(e.target.value) || 1)}
+                        className="w-12 bg-transparent text-center text-sm font-bold text-white focus:outline-none appearance-none"
+                      />
+
                       <button 
                         onClick={() => updateQuantity(item.id, 1)}
                         className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
@@ -607,7 +631,7 @@ Terima Kasih, ditunggu min.`;
           </form>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -725,6 +749,7 @@ export default function App() {
         image: product.image
       });
 
+      // Set timeout baru selama 4 detik
       notificationTimeoutRef.current = setTimeout(() => {
         setNotification(null);
       }, 4000);
@@ -741,7 +766,19 @@ export default function App() {
           return newQty > 0 ? { ...item, quantity: newQty } : null;
         }
         return item;
-      }).filter(Boolean); // Remove nulls (items with qty 0)
+      }).filter(Boolean); 
+    });
+  };
+
+  // NEW: Directly set quantity (for input field)
+  const setCartQuantity = (id, quantity) => {
+    setCart(prevCart => {
+      return prevCart.map(item => {
+        if (item.id === id) {
+          return quantity > 0 ? { ...item, quantity: quantity } : item;
+        }
+        return item;
+      });
     });
   };
 
@@ -766,6 +803,12 @@ export default function App() {
         ::-webkit-scrollbar-thumb:hover {
           background: #475569; 
         }
+        /* Hide arrows in input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
       `}</style>
 
       <Header cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)} openCart={() => setIsCartOpen(true)} />
@@ -783,10 +826,12 @@ export default function App() {
           {notification && (
             <motion.div
               key={notification.id}
-              layout // Smooth layout transition
-              initial={{ y: 100, opacity: 0, scale: 0.9 }} // Start from bottom
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              layout
+              // FIX: Start from 'y: 100' means 100px below its final position (0). 
+              // Since it is fixed bottom, 'y: 100' pushes it OFF screen downwards.
+              initial={{ y: 200, opacity: 0, scale: 0.8, x: 0 }} 
+              animate={{ y: 0, opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 100, transition: { duration: 0.2 } }}
               
               drag
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -823,6 +868,7 @@ export default function App() {
             onClose={() => setIsCartOpen(false)} 
             cart={cart}
             updateQuantity={updateQuantity}
+            setCartQuantity={setCartQuantity}
             removeItem={removeItem}
           />
         )}
