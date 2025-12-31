@@ -149,13 +149,13 @@ const Hero = () => {
             Strictly for Adults (18+)
           </span>
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-            Seni Visual <br />
+            NEETCHANIME <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-orange-500">
-              Tanpa Batas
+              Platform R34 Terbaik
             </span>
           </h1>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-            Platform eksklusif penyedia aset digital dan animasi premium. 
+            Platform eksklusif penyedia aset digital dan animasi premium dengan harga terjangkau. 
             Jelajahi koleksi terkurasi untuk kolektor yang menghargai keindahan estetika sepenuhnya.
           </p>
           
@@ -164,7 +164,7 @@ const Hero = () => {
               onClick={() => smoothScroll('shop')}
               className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1"
             >
-              Lihat Koleksi
+              Lihat Produk
             </button>
             <button 
               onClick={() => smoothScroll('faq')}
