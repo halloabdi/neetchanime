@@ -718,18 +718,28 @@ export default function App() {
       </main>
       <Footer />
       
-      {/* Golden Gradient Notification */}
-      <AnimatePresence>
-        {notification && (
-          <motion.div
-            key={notification.id}
-            initial={{ y: 50, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 50, opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-6 left-0 right-0 z-[70] flex justify-center pointer-events-none"
-          >
-            <div className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 px-5 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-4 w-[90%] max-w-sm pointer-events-auto">
+      {/* Golden Gradient Notification - Swipeable */}
+      <div className="fixed bottom-6 left-0 right-0 z-[70] flex justify-center pointer-events-none">
+        <AnimatePresence>
+          {notification && (
+            <motion.div
+              key={notification.id}
+              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              
+              drag // Allow drag in any direction
+              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Returns to center if not dismissed
+              dragElastic={0.7}
+              onDragEnd={(e, { offset }) => {
+                // Dismiss if swiped more than 100px in any direction
+                if (Math.abs(offset.x) > 100 || Math.abs(offset.y) > 100) {
+                  setNotification(null);
+                }
+              }}
+              
+              className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 px-5 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-4 w-[90%] max-w-sm pointer-events-auto cursor-grab active:cursor-grabbing"
+            >
               {/* Count Circle */}
               <div className="flex-shrink-0 bg-white/30 backdrop-blur-sm w-12 h-12 rounded-xl flex items-center justify-center border border-white/40 shadow-inner">
                  <span className="font-extrabold text-lg text-amber-900 drop-shadow-sm">{notification.count}x</span>
@@ -743,10 +753,10 @@ export default function App() {
               <div className="flex-shrink-0 bg-white/20 p-1 rounded-full">
                 <Check size={18} className="text-amber-900" />
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <AnimatePresence>
         {isCartOpen && (
