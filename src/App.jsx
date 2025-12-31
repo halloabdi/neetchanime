@@ -153,7 +153,8 @@ const Hero = () => {
             <span className="block text-5xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
               NEETCHANIME
             </span>
-            <span className="block text-3xl md:text-5xl mt-2 font-bold">
+            {/* UPDATED: Font weight changed to font-extrabold to match title */}
+            <span className="block text-3xl md:text-5xl mt-2 font-extrabold">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-900 mr-2">Platform</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mr-2">R34</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
@@ -734,15 +735,16 @@ export default function App() {
               
               drag // Allow drag in any direction
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Returns to center if not dismissed
-              dragElastic={0.7}
+              dragElastic={0.7} // Feel elastis saat ditarik
               onDragEnd={(e, { offset }) => {
-                // Dismiss if swiped more than 100px in any direction
-                if (Math.abs(offset.x) > 100 || Math.abs(offset.y) > 100) {
+                // Dismiss if swiped more than 50px in any direction (lebih sensitif)
+                if (Math.abs(offset.x) > 50 || Math.abs(offset.y) > 50) {
                   setNotification(null);
                 }
               }}
               
-              className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 px-5 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-4 w-[90%] max-w-sm pointer-events-auto cursor-grab active:cursor-grabbing"
+              // Added 'touch-none' to prevent scrolling while dragging on mobile
+              className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 px-5 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-4 w-[90%] max-w-sm pointer-events-auto cursor-grab active:cursor-grabbing touch-none"
             >
               {/* Count Circle */}
               <div className="flex-shrink-0 bg-white/30 backdrop-blur-sm w-12 h-12 rounded-xl flex items-center justify-center border border-white/40 shadow-inner">
