@@ -148,11 +148,15 @@ const Hero = () => {
           <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-6 inline-block backdrop-blur-sm">
             Strictly for Adults (18+)
           </span>
-          <h1 className="font-extrabold text-white mb-6 tracking-tight leading-tight">
-            <span className="block text-5xl md:text-7xl">NEETCHANIME</span>
-            {/* UPDATED: Shiny Silver Gradient Text */}
-            <span className="block text-3xl md:text-5xl mt-2 text-transparent bg-clip-text bg-gradient-to-r from-slate-400 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-              Platform R34 Terbaik
+          <h1 className="font-extrabold mb-6 tracking-tight leading-tight">
+            {/* UPDATED: Custom Gradients per Word */}
+            <span className="block text-5xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+              NEETCHANIME
+            </span>
+            <span className="block text-3xl md:text-5xl mt-2 font-bold">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-900 mr-2">Platform</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mr-2">R34</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
             </span>
           </h1>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
