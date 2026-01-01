@@ -561,7 +561,8 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
           
-          <div className="flex items-center gap-2">
+          {/* UPDATED: Added 'w-full md:w-auto' and 'justify-between' to push filter to right edge on mobile */}
+          <div className="flex items-center justify-between w-full md:w-auto gap-2">
             <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
               {showArrows && (
                 <button
