@@ -95,7 +95,9 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-2xl">
+  // OPTIMIZATION: Removed 'backdrop-blur-md' and increased opacity to 'bg-slate-900/95' for better scroll performance on mobile.
+  // Added 'transform-gpu' to force hardware acceleration.
+  <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
         <div className="flex items-center gap-2">
@@ -109,7 +111,8 @@ const Header = ({ cartCount, openCart }) => (
         
         <button 
           onClick={openCart}
-          className="relative p-2 text-slate-300 hover:text-white transition-colors group"
+          // OPTIMIZATION: Added 'touch-manipulation' for faster tap response
+          className="relative p-2 text-slate-300 hover:text-white transition-colors group touch-manipulation"
         >
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md animate-pulse">
             {cartCount}
@@ -165,13 +168,13 @@ const Hero = () => {
           <div className="flex justify-center gap-4">
             <button 
               onClick={() => smoothScroll('shop')}
-              className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1"
+              className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1 touch-manipulation"
             >
               Lihat Koleksi
             </button>
             <button 
               onClick={() => smoothScroll('faq')}
-              className="px-8 py-3 border border-slate-700 text-white rounded-full font-bold hover:border-red-500 hover:text-red-400 transition-all"
+              className="px-8 py-3 border border-slate-700 text-white rounded-full font-bold hover:border-red-500 hover:text-red-400 transition-all touch-manipulation"
             >
               Info Legal
             </button>
@@ -194,6 +197,7 @@ const ProductCard = ({ product, onAdd, variants }) => (
         src={product.image} 
         alt={product.title} 
         loading="lazy"
+        decoding="async" // OPTIMIZATION: Non-blocking image decoding
         className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
       />
       
@@ -254,7 +258,7 @@ const ProductCard = ({ product, onAdd, variants }) => (
         
         <button 
           onClick={() => onAdd(product)}
-          className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-2 md:p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5"
+          className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-2 md:p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5 touch-manipulation"
           title="Tambahkan ke Keranjang"
         >
           <ShoppingCart size={16} className="md:w-[18px] md:h-[18px]" />
@@ -354,7 +358,7 @@ const ShopSection = ({ addToCart }) => {
               <button
                 onClick={() => setPage(prev => Math.max(prev - 1, 1))}
                 disabled={page === 1}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
                   page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
@@ -362,30 +366,42 @@ const ShopSection = ({ addToCart }) => {
               </button>
             )}
 
-            {paginationGroup.map((num) => (
-              <button
-                key={num}
-                onClick={() => setPage(num)}
-                className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm transition-all"
-              >
-                {page === num && (
-                  <motion.div
-                    layoutId="activePage"
-                    className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
-                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  />
-                )}
-                <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
-                  {num}
-                </span>
-              </button>
-            ))}
+            <AnimatePresence mode='popLayout' initial={false}>
+                {paginationGroup.map((num) => (
+                  <motion.button
+                    key={num}
+                    layout
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 500, 
+                      damping: 30,
+                      mass: 0.5 
+                    }}
+                    onClick={() => setPage(num)}
+                    className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation"
+                  >
+                    {page === num && (
+                      <motion.div
+                        layoutId="activePage"
+                        className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                      />
+                    )}
+                    <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
+                      {num}
+                    </span>
+                  </motion.button>
+                ))}
+            </AnimatePresence>
 
             {showArrows && (
               <button
                 onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={page === totalPages}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
                   page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
@@ -427,7 +443,7 @@ const FAQItem = ({ faq }) => {
     <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden transition-colors duration-300 hover:border-slate-700">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-left p-6 flex items-start justify-between gap-4 hover:bg-slate-800/40 transition-colors focus:outline-none"
+        className="w-full text-left p-6 flex items-start justify-between gap-4 hover:bg-slate-800/40 transition-colors focus:outline-none touch-manipulation"
       >
         <h3 className="text-white font-bold text-lg flex items-start gap-3">
           <span className="text-red-500 font-serif italic">Q.</span>
@@ -563,7 +579,7 @@ Terima Kasih, ditunggu min.`;
                     </div>
                     <button 
                       onClick={() => removeItem(item.id)}
-                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors touch-manipulation"
                       title="Hapus Produk"
                     >
                       <Trash2 size={18} />
@@ -575,7 +591,7 @@ Terima Kasih, ditunggu min.`;
                     <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1">
                       <button 
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"
                       >
                         <Minus size={14} />
                       </button>
@@ -590,7 +606,7 @@ Terima Kasih, ditunggu min.`;
 
                       <button 
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"
                       >
                         <Plus size={14} />
                       </button>
@@ -649,7 +665,7 @@ Terima Kasih, ditunggu min.`;
                     key={method}
                     type="button"
                     onClick={() => setFormData({...formData, payment: method})}
-                    className={`px-2 py-2 text-xs font-bold rounded-lg border transition-all ${
+                    className={`px-2 py-2 text-xs font-bold rounded-lg border transition-all touch-manipulation ${
                       formData.payment === method 
                         ? 'bg-red-600 border-red-600 text-white' 
                         : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
@@ -665,7 +681,7 @@ Terima Kasih, ditunggu min.`;
               <button 
                 type="submit"
                 disabled={cart.length === 0}
-                className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
               >
                 <span>Proses di WhatsApp</span>
                 <ChevronRight size={18} />
@@ -699,7 +715,7 @@ const Footer = () => (
             href="https://youtube.com/@neetchanime" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c4302b]/20 hover:bg-[#c4302b] text-white transition-all duration-300 hover:scale-105 group border border-[#c4302b]/30"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c4302b]/20 hover:bg-[#c4302b] text-white transition-all duration-300 hover:scale-105 group border border-[#c4302b]/30 touch-manipulation"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 group-hover:animate-pulse">
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.498-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -711,7 +727,7 @@ const Footer = () => (
             href="https://instagram.com/neetchanime" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d6249f]/20 hover:bg-gradient-to-tr hover:from-[#fd5949] hover:to-[#d6249f] text-white transition-all duration-300 hover:scale-105 group border border-[#d6249f]/30"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d6249f]/20 hover:bg-gradient-to-tr hover:from-[#fd5949] hover:to-[#d6249f] text-white transition-all duration-300 hover:scale-105 group border border-[#d6249f]/30 touch-manipulation"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -725,7 +741,7 @@ const Footer = () => (
             href="https://x.com/neetchanime" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-black text-white transition-all duration-300 hover:scale-105 group border border-slate-700"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-black text-white transition-all duration-300 hover:scale-105 group border border-slate-700 touch-manipulation"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -737,7 +753,7 @@ const Footer = () => (
             href="https://discord.com/channels/@me" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#5865F2]/20 hover:bg-[#5865F2] text-white transition-all duration-300 hover:scale-105 group border border-[#5865F2]/30"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#5865F2]/20 hover:bg-[#5865F2] text-white transition-all duration-300 hover:scale-105 group border border-[#5865F2]/30 touch-manipulation"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
               <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z"/>
@@ -754,8 +770,6 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
-  
-  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
