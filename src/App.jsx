@@ -148,7 +148,7 @@ const Hero = () => {
             Strictly for Adults (18+)
           </span>
           <h1 className="font-extrabold mb-6 tracking-tighter leading-tight md:leading-none">
-            <span className="block text-4xl sm:text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-2 break-words">
+            <span className="block text-5xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-2 break-words tracking-tighter">
               NEETCHANIME
             </span>
             <span className="block text-2xl sm:text-4xl md:text-5xl mt-1 md:mt-2 font-extrabold tracking-tight">
@@ -495,6 +495,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
     
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     
+    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
     const message = `Hai Mimin NEETCHANIME!
 Saya ${formData.name} dengan email ${formData.email}.
 Saya telah membeli produk berupa:
@@ -859,23 +860,22 @@ export default function App() {
       <Footer />
       
       {/* Golden Gradient Notification - Swipeable */}
-      <div className="fixed bottom-6 left-0 right-0 z-[70] flex justify-center pointer-events-none">
-        <AnimatePresence>
+      <div className="fixed bottom-6 left-0 right-0 z-[70] flex flex-col items-center justify-end pointer-events-none space-y-2">
+        <AnimatePresence mode="popLayout">
           {notification && (
             <motion.div
               key={notification.id}
-              layout
-              // FIX: Start from 'y: 100' means 100px below its final position (0). 
-              // Since it is fixed bottom, 'y: 100' pushes it OFF screen downwards.
-              initial={{ y: 200, opacity: 0, scale: 0.8, x: 0 }} 
-              animate={{ y: 0, opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: 100, transition: { duration: 0.2 } }}
+              // Remove layout prop to prevent horizontal shift
+              initial={{ y: 150, opacity: 0, scale: 0.9 }} 
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 150, opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               
-              drag
-              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 100 }}
               dragElastic={0.7}
               onDragEnd={(e, { offset }) => {
-                if (Math.abs(offset.x) > 50 || Math.abs(offset.y) > 50) {
+                if (offset.y > 50) {
                   setNotification(null);
                 }
               }}
