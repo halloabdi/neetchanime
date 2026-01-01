@@ -272,6 +272,7 @@ const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
   const [isMobile, setIsMobile] = useState(false);
+  const [direction, setDirection] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -295,6 +296,15 @@ const ShopSection = ({ addToCart }) => {
     const start = (page - 1) * itemsPerPage;
     return PRODUCTS.slice(start, start + itemsPerPage);
   }, [page, itemsPerPage]);
+
+  const changePage = (newPage) => {
+    if (newPage > page) {
+      setDirection(1);
+    } else if (newPage < page) {
+      setDirection(-1);
+    }
+    setPage(newPage);
+  };
 
   // Handle Pagination Logic
   const getPaginationGroup = () => {
@@ -341,6 +351,33 @@ const ShopSection = ({ addToCart }) => {
     }
   };
 
+  // ANIMATION VARIANTS FOR PAGINATION NUMBERS
+  const paginationVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 15 : -15, // Masuk dari kanan/kiri
+      opacity: 0,
+      scale: 0.8, // Mengecil saat baru masuk
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1, // Ukuran normal saat aktif/tampil
+      transition: {
+        x: { type: "spring", stiffness: 400, damping: 30 },
+        opacity: { duration: 0.1 },
+        scale: { duration: 0.2 } 
+      }
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction > 0 ? -15 : 15, // Keluar ke kiri/kanan
+      opacity: 0,
+      scale: 0.8, // Mengecil saat keluar
+      transition: { duration: 0.15 }
+    })
+  };
+
   return (
     <section id="shop" className="py-20 bg-slate-950 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -353,10 +390,17 @@ const ShopSection = ({ addToCart }) => {
           </div>
           
           {/* Pagination Controls */}
-          <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl">
+          <motion.div 
+            // Animate container slightly when page changes ("sedikit membesar")
+            key={paginationGroup[0]} // Trigger anim when group start changes
+            initial={{ scale: 0.98 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 20 }}
+            className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden"
+          >
             {showArrows && (
               <button
-                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => changePage(Math.max(page - 1, 1))}
                 disabled={page === 1}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
                   page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -366,40 +410,38 @@ const ShopSection = ({ addToCart }) => {
               </button>
             )}
 
-            <AnimatePresence mode='popLayout' initial={false}>
-                {paginationGroup.map((num) => (
-                  <motion.button
-                    key={num}
-                    layout
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ 
-                      type: "spring", 
-                      stiffness: 500, 
-                      damping: 30,
-                      mass: 0.5 
-                    }}
-                    onClick={() => setPage(num)}
-                    className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation"
-                  >
-                    {page === num && (
-                      <motion.div
-                        layoutId="activePage"
-                        className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
-                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                      />
-                    )}
-                    <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
-                      {num}
-                    </span>
-                  </motion.button>
-                ))}
-            </AnimatePresence>
+            <div className="flex items-center gap-1 h-9">
+              <AnimatePresence mode='popLayout' custom={direction} initial={false}>
+                  {paginationGroup.map((num) => (
+                    <motion.button
+                      key={num}
+                      layout // Smooth layout position changes
+                      custom={direction}
+                      variants={paginationVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      onClick={() => changePage(num)}
+                      className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation"
+                    >
+                      {page === num && (
+                        <motion.div
+                          layoutId="activePage"
+                          className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
+                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        />
+                      )}
+                      <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
+                        {num}
+                      </span>
+                    </motion.button>
+                  ))}
+              </AnimatePresence>
+            </div>
 
             {showArrows && (
               <button
-                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => changePage(Math.min(page + 1, totalPages))}
                 disabled={page === totalPages}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
                   page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -408,7 +450,7 @@ const ShopSection = ({ addToCart }) => {
                 <ChevronRight size={18} />
               </button>
             )}
-          </div>
+          </motion.div>
         </div>
 
         {/* Product Grid with Staggered Animation */}
@@ -770,6 +812,8 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
+  
+  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
