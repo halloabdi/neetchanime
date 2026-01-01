@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- DATA MOCKUP GENERATOR ---
@@ -34,7 +34,8 @@ const generateProducts = () => {
       buyers: buyers,
       reviews: reviews,
       rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1),
-      isNSFW: isNSFW
+      isNSFW: isNSFW,
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit."
     };
   });
 };
@@ -95,8 +96,7 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  // OPTIMIZATION: Removed 'backdrop-blur-md' and increased opacity to 'bg-slate-900/95' for better scroll performance on mobile.
-  // Added 'transform-gpu' to force hardware acceleration.
+  // Optimization: bg-slate-900/95 for performance, z-50 to stay on top of modal backdrop
   <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -111,7 +111,6 @@ const Header = ({ cartCount, openCart }) => (
         
         <button 
           onClick={openCart}
-          // OPTIMIZATION: Added 'touch-manipulation' for faster tap response
           className="relative p-2 text-slate-300 hover:text-white transition-colors group touch-manipulation"
         >
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md animate-pulse">
@@ -185,11 +184,14 @@ const Hero = () => {
   );
 };
 
-const ProductCard = ({ product, onAdd, variants }) => (
+// Updated ProductCard with onClick trigger for preview
+const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
   <motion.div 
     variants={variants}
     whileHover={{ y: -8 }}
-    className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu"
+    // Added cursor-pointer and onClick handler
+    onClick={() => onOpenPreview(product)}
+    className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
     {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
@@ -197,7 +199,7 @@ const ProductCard = ({ product, onAdd, variants }) => (
         src={product.image} 
         alt={product.title} 
         loading="lazy"
-        decoding="async" // OPTIMIZATION: Non-blocking image decoding
+        decoding="async"
         className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
       />
       
@@ -257,7 +259,10 @@ const ProductCard = ({ product, onAdd, variants }) => (
         </div>
         
         <button 
-          onClick={() => onAdd(product)}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent opening preview when clicking add to cart
+            onAdd(product);
+          }}
           className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-2 md:p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5 touch-manipulation"
           title="Tambahkan ke Keranjang"
         >
@@ -268,11 +273,126 @@ const ProductCard = ({ product, onAdd, variants }) => (
   </motion.div>
 );
 
+// NEW: Product Preview Modal Component
+const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
+  if (!product) return null;
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          // z-40 so it is below Header (z-50) but above everything else
+          className="fixed inset-0 z-40 flex items-center justify-center p-4 md:p-6"
+        >
+          {/* Backdrop Blur - Covers everything except header */}
+          <div 
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" 
+            onClick={onClose} 
+          />
+
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            className="relative bg-slate-900 w-full max-w-4xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row z-50 max-h-[85vh]"
+          >
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 z-20 p-2 bg-black/40 hover:bg-red-500/80 rounded-full text-white transition-colors backdrop-blur-sm border border-white/10"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Image Section */}
+            <div className="w-full md:w-[55%] bg-slate-950 flex items-center justify-center p-0 md:p-0 relative overflow-hidden group">
+               <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-64 md:h-full object-cover md:max-h-full"
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
+               
+               {/* 18+ Badge if needed */}
+               {product.isNSFW && (
+                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-red-600 text-white text-xs font-extrabold rounded-lg shadow-lg border border-red-400 animate-pulse-slow">
+                    18+ CONTENT
+                  </div>
+               )}
+            </div>
+
+            {/* Details Section */}
+            <div className="w-full md:w-[45%] flex flex-col bg-slate-900 overflow-hidden">
+                <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{product.title}</h2>
+
+                    <div className="flex items-center gap-3 text-xs md:text-sm text-slate-400 mb-6 pb-4 border-b border-slate-800">
+                        <div className="flex items-center text-amber-400">
+                            <Star size={16} fill="currentColor" />
+                            <span className="ml-1 font-bold text-white">{product.rating}</span>
+                        </div>
+                        <span>•</span>
+                        <span>{product.buyers} buyers</span>
+                        <span>•</span>
+                        <span className="font-mono text-slate-300">Artist: Anonymous</span>
+                    </div>
+
+                    <div className="prose prose-invert prose-sm text-slate-300 leading-relaxed mb-6">
+                        <p>{product.description}</p>
+                    </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="p-6 bg-slate-900/90 border-t border-slate-800 backdrop-blur-sm mt-auto">
+                    <div className="flex items-end justify-between mb-4">
+                        <div>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Harga</p>
+                            <p className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400">
+                                Rp{product.price.toLocaleString('id-ID')}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => {
+                                onAdd(product);
+                            }}
+                            className="flex-1 py-3.5 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white rounded-xl font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            <ShoppingCart size={20} />
+                            <span>Add to Cart</span>
+                        </button>
+
+                        {/* Category Badge next to Add Card */}
+                        <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
+                            product.type === 'Video' 
+                            ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
+                            : 'bg-gradient-to-br from-slate-800 to-emerald-900/50 text-emerald-200'
+                        }`}>
+                            {product.type === 'Video' ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
+                            {product.type}
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
   const [isMobile, setIsMobile] = useState(false);
   const [direction, setDirection] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState(null); // State for Preview Modal
 
   useEffect(() => {
     const handleResize = () => {
@@ -299,9 +419,9 @@ const ShopSection = ({ addToCart }) => {
 
   const changePage = (newPage) => {
     if (newPage > page) {
-      setDirection(1); // Geser ke Kiri (Next)
+      setDirection(1); 
     } else if (newPage < page) {
-      setDirection(-1); // Geser ke Kanan (Prev)
+      setDirection(-1); 
     }
     setPage(newPage);
   };
@@ -345,12 +465,11 @@ const ShopSection = ({ addToCart }) => {
     }
   };
 
-  // UPDATED: Sharper scroll animation for numbers
   const paginationVariants = {
     enter: (direction) => ({
-      x: direction > 0 ? 20 : -20, // Jarak geser masuk lebih jauh
+      x: direction > 0 ? 20 : -20, 
       opacity: 0,
-      scale: 0.5, // Lebih kecil saat masuk
+      scale: 0.5,
     }),
     center: {
       zIndex: 1,
@@ -365,9 +484,9 @@ const ShopSection = ({ addToCart }) => {
     },
     exit: (direction) => ({
       zIndex: 0,
-      x: direction > 0 ? -20 : 20, // Jarak geser keluar lebih jauh
+      x: direction > 0 ? -20 : 20, 
       opacity: 0,
-      scale: 0.5, // Lebih kecil saat keluar
+      scale: 0.5,
       transition: { duration: 0.2 }
     })
   };
@@ -383,7 +502,6 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
           
-          {/* UPDATED: Pagination Container - Removed motion scaling, now it is static div */}
           <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
             {showArrows && (
               <button
@@ -415,16 +533,9 @@ const ShopSection = ({ addToCart }) => {
                         <motion.div
                           layoutId="activePage"
                           className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
-                          // UPDATED: Box "Sedikit Membesar" (Pop Effect) Animation
                           initial={{ scale: 0.8 }}
-                          animate={{ scale: 1.15 }} // Sedikit membesar melebihi ukuran normal sebentar
-                          transition={{ 
-                            type: "spring", 
-                            stiffness: 500, 
-                            damping: 15,
-                            mass: 0.5
-                          }}
-                          // Kembali ke ukuran normal setelah pop
+                          animate={{ scale: 1.15 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 15, mass: 0.5 }}
                           whileTap={{ scale: 0.9 }}
                         />
                       )}
@@ -450,7 +561,6 @@ const ShopSection = ({ addToCart }) => {
           </div>
         </div>
 
-        {/* Product Grid with Staggered Animation */}
         <AnimatePresence mode='wait'>
           <motion.div 
             key={page} 
@@ -465,12 +575,21 @@ const ShopSection = ({ addToCart }) => {
                 key={product.id} 
                 product={product} 
                 onAdd={addToCart} 
+                onOpenPreview={setSelectedProduct} // Trigger Preview
                 variants={itemVariants}
               />
             ))}
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Render Product Preview Modal */}
+      <ProductPreviewModal 
+        product={selectedProduct} 
+        isOpen={!!selectedProduct} 
+        onClose={() => setSelectedProduct(null)} 
+        onAdd={addToCart}
+      />
     </section>
   );
 };
@@ -809,8 +928,6 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
-  
-  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
