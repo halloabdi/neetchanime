@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- DATA MOCKUP GENERATOR ---
@@ -148,12 +148,10 @@ const Hero = () => {
             Strictly for Adults (18+)
           </span>
           <h1 className="font-extrabold mb-6 tracking-tighter leading-tight md:leading-none">
-            {/* UPDATED: Main Title - Adjusted mobile size & tracking to match desktop feel */}
-            <span className="block text-6xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-2">
+            <span className="block text-4xl sm:text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-2 break-words">
               NEETCHANIME
             </span>
-            {/* UPDATED: Sub Title - Consistent weight and gradients */}
-            <span className="block text-3xl sm:text-4xl md:text-5xl mt-1 md:mt-2 font-extrabold tracking-tight">
+            <span className="block text-2xl sm:text-4xl md:text-5xl mt-1 md:mt-2 font-extrabold tracking-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-900 mr-2">Platform</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mr-2">R34</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
@@ -188,8 +186,6 @@ const ProductCard = ({ product, onAdd, variants }) => (
   <motion.div 
     variants={variants}
     whileHover={{ y: -8 }}
-    // OPTIMIZATION: Removed 'backdrop-blur-sm' and increased opacity to 'bg-slate-900/95'. 
-    // Added 'transform-gpu' to force hardware acceleration.
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu"
   >
     {/* Image Container */}
@@ -197,23 +193,21 @@ const ProductCard = ({ product, onAdd, variants }) => (
       <img 
         src={product.image} 
         alt={product.title} 
-        loading="lazy" // OPTIMIZATION: Lazy load images
+        loading="lazy"
         className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
       />
       
-      {/* LEFT TOP: Type Badge */}
       <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
         <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
           product.type === 'Foto' 
-            ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' // Foto: Dark Green Gradient, Text White
-            : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' // Video: Dark Purple Gradient
+            ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' 
+            : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' 
         }`}>
           {product.type === 'Video' ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
           {product.type}
         </span>
       </div>
 
-      {/* RIGHT TOP: Category Badge (Safe / 18+) */}
       <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
         {product.isNSFW ? (
           <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
@@ -272,19 +266,21 @@ const ProductCard = ({ product, onAdd, variants }) => (
 
 const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Default desktop
+  const [itemsPerPage, setItemsPerPage] = useState(10); 
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Responsive items per page logic
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
         setItemsPerPage(6); // Mobile: 6 items (2 cols x 3 rows)
       } else {
         setItemsPerPage(10); // Desktop: 10 items (5 cols x 2 rows)
       }
     };
 
-    handleResize(); // Initial check
+    handleResize(); 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -295,6 +291,26 @@ const ShopSection = ({ addToCart }) => {
     const start = (page - 1) * itemsPerPage;
     return PRODUCTS.slice(start, start + itemsPerPage);
   }, [page, itemsPerPage]);
+
+  // Handle Pagination Logic
+  const getPaginationGroup = () => {
+    const maxVisibleButtons = isMobile ? 3 : 5;
+    
+    // Simple windowing logic
+    let startPage = Math.max(1, page - Math.floor(maxVisibleButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+
+    // Adjust if we are near the end
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+        startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+
+    return new Array(endPage - startPage + 1).fill().map((_, idx) => startPage + idx);
+  };
+
+  const paginationGroup = getPaginationGroup();
+  // Desktop only shows arrows if total pages > 5. Mobile always shows arrows if total pages > 1.
+  const showArrows = isMobile || totalPages > 5;
 
   // ANIMATION VARIANTS
   const containerVariants = {
@@ -333,32 +349,60 @@ const ShopSection = ({ addToCart }) => {
           </div>
           
           {/* Pagination Controls */}
-          <div className="flex flex-wrap gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+          <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl">
+            {showArrows && (
+              <button
+                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                  page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+            )}
+
+            {paginationGroup.map((num) => (
               <button
                 key={num}
                 onClick={() => setPage(num)}
-                className={`w-10 h-10 rounded-lg font-bold text-sm transition-all ${
-                  page === num 
-                  ? 'bg-gradient-to-br from-red-600 to-pink-600 text-white shadow-lg' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
+                className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm transition-all"
               >
-                {num}
+                {page === num && (
+                  <motion.div
+                    layoutId="activePage"
+                    className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  />
+                )}
+                <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
+                  {num}
+                </span>
               </button>
             ))}
+
+            {showArrows && (
+              <button
+                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={page === totalPages}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                  page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Product Grid with Staggered Animation */}
         <AnimatePresence mode='wait'>
           <motion.div 
-            key={page} // Forces re-animation on page change
+            key={page} 
             variants={containerVariants}
             initial="hidden"
             animate="show"
             exit="hidden"
-            // Mobile: grid-cols-2 (2 kolom), gap-3. Desktop: grid-cols-5, gap-6.
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6 transform-gpu"
           >
             {currentProducts.map((product) => (
@@ -451,7 +495,6 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
     
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     
-    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
     const message = `Hai Mimin NEETCHANIME!
 Saya ${formData.name} dengan email ${formData.email}.
 Saya telah membeli produk berupa:
@@ -465,7 +508,6 @@ Terima Kasih, ditunggu min.`;
     window.open(whatsappUrl, '_blank');
   };
 
-  // We are animating the wrapper div now so AnimatePresence in App works perfectly for the whole modal
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -494,7 +536,6 @@ Terima Kasih, ditunggu min.`;
           <X size={24} />
         </button>
 
-        {/* Left: Cart Items */}
         <div className="flex-1 p-6 overflow-y-auto bg-slate-900 md:border-r border-slate-800">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <ShoppingCart className="text-red-500" />
@@ -519,7 +560,6 @@ Terima Kasih, ditunggu min.`;
                       <h4 className="text-white text-sm font-medium truncate">{item.title}</h4>
                       <p className="text-red-400 font-bold text-sm">Rp{item.price.toLocaleString('id-ID')}</p>
                     </div>
-                    {/* Delete Button (Trash) */}
                     <button 
                       onClick={() => removeItem(item.id)}
                       className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
@@ -529,7 +569,6 @@ Terima Kasih, ditunggu min.`;
                     </button>
                   </div>
                   
-                  {/* Quantity Controls */}
                   <div className="flex items-center justify-between border-t border-slate-700/50 pt-2">
                     <span className="text-xs text-slate-400">Jumlah:</span>
                     <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1">
@@ -540,7 +579,6 @@ Terima Kasih, ditunggu min.`;
                         <Minus size={14} />
                       </button>
                       
-                      {/* EDITABLE INPUT FOR QUANTITY */}
                       <input 
                         type="number"
                         min="1"
@@ -567,7 +605,6 @@ Terima Kasih, ditunggu min.`;
           )}
         </div>
 
-        {/* Right: Checkout Form */}
         <div className="flex-1 p-6 bg-slate-950 overflow-y-auto">
           <h2 className="text-xl font-bold text-white mb-6">Konfirmasi Pembeli</h2>
           
@@ -644,7 +681,6 @@ const Footer = () => (
   <footer className="bg-slate-950 border-t border-slate-900 pt-16 pb-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-        {/* Left Side: Brand & Copyright */}
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <span className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white">
@@ -657,9 +693,7 @@ const Footer = () => (
           </p>
         </div>
 
-        {/* Right Side: Social Media Buttons */}
         <div className="flex flex-wrap justify-center gap-4">
-          {/* YouTube */}
           <a 
             href="https://youtube.com/@neetchanime" 
             target="_blank" 
@@ -672,7 +706,6 @@ const Footer = () => (
             <span className="font-bold text-sm">YouTube</span>
           </a>
 
-          {/* Instagram */}
           <a 
             href="https://instagram.com/neetchanime" 
             target="_blank" 
@@ -687,7 +720,6 @@ const Footer = () => (
             <span className="font-bold text-sm">Instagram</span>
           </a>
 
-          {/* Twitter / X */}
           <a 
             href="https://x.com/neetchanime" 
             target="_blank" 
@@ -700,7 +732,6 @@ const Footer = () => (
             <span className="font-bold text-sm">Twitter</span>
           </a>
 
-          {/* Discord */}
           <a 
             href="https://discord.com/channels/@me" 
             target="_blank" 
@@ -722,6 +753,8 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
+  
+  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
