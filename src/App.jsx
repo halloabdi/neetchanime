@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Info } from 'lucide-react';
+import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Info, Filter, Flame, TrendingUp, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- DATA MOCKUP GENERATOR ---
@@ -303,12 +303,11 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
               <X size={20} />
             </button>
 
-            {/* UPDATED: Image width decreased to 65% (md:w-[65%]) */}
-            <div className="w-full md:w-[65%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto">
+            <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto aspect-video md:aspect-auto">
                <img
                   src={product.image}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover md:absolute md:inset-0"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
                
@@ -319,8 +318,7 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                )}
             </div>
 
-            {/* UPDATED: Details width increased to 35% (md:w-[35%]) */}
-            <div className="w-full md:w-[35%] flex flex-col bg-slate-900 overflow-hidden flex-1">
+            <div className="w-full md:w-[40%] flex flex-col bg-slate-900 overflow-hidden flex-1">
                 <div className="p-5 md:p-6 overflow-y-auto custom-scrollbar flex-1">
                     <h2 className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">{product.title}</h2>
 
@@ -350,7 +348,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                         </div>
                     </div>
 
-                    {/* UPDATED: Swapped Buttons - Category left, Cart right */}
                     <div className="flex gap-3">
                         {/* Category Button (Left) */}
                         <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
@@ -389,6 +386,10 @@ const ShopSection = ({ addToCart }) => {
   const [direction, setDirection] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null); 
 
+  // Filter States
+  const [activeFilters, setActiveFilters] = useState([]); // Array of strings: 'best_selling', 'top_rated', 'newest'
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
@@ -404,13 +405,76 @@ const ShopSection = ({ addToCart }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Filter Logic
+  const toggleFilter = (filterType) => {
+    if (filterType === 'default') {
+      setActiveFilters([]);
+      return;
+    }
+
+    setActiveFilters(prev => {
+      // If currently selecting a normal filter, remove 'default' implicit behavior (empty array)
+      
+      const exists = prev.includes(filterType);
+      if (exists) {
+        return prev.filter(f => f !== filterType);
+      } else {
+        // Max 2 filters. If 2 already selected, remove the first one (FIFO)
+        if (prev.length >= 2) {
+          return [...prev.slice(1), filterType];
+        }
+        return [...prev, filterType];
+      }
+    });
+  };
+
+  // Processing Products (Filter -> Sort -> Pagination)
+  const processedProducts = useMemo(() => {
+    let result = [...PRODUCTS];
+
+    // Sorting Logic based on activeFilters
+    // If activeFilters is empty, it means "Default" (ID ascending / insertion order)
+    if (activeFilters.length > 0) {
+      result.sort((a, b) => {
+        for (const filter of activeFilters) {
+          let comparison = 0;
+          switch (filter) {
+            case 'best_selling': // Terlaris (Most Buyers)
+              comparison = b.buyers - a.buyers;
+              break;
+            case 'top_rated': // Terbaik (Highest Rating)
+              comparison = parseFloat(b.rating) - parseFloat(a.rating);
+              break;
+            case 'newest': // Terupdate (Highest ID assumed newest)
+              comparison = b.id - a.id;
+              break;
+            default:
+              break;
+          }
+          if (comparison !== 0) return comparison;
+        }
+        return 0;
+      });
+    } else {
+       // Default Sort: ID Ascending (restore original order if mixed)
+       result.sort((a, b) => a.id - b.id); 
+    }
+
+    return result;
+  }, [activeFilters]);
   
-  const totalPages = Math.ceil(PRODUCTS.length / itemsPerPage); 
+  const totalPages = Math.ceil(processedProducts.length / itemsPerPage); 
   
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilters]);
+
   const currentProducts = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
-    return PRODUCTS.slice(start, start + itemsPerPage);
-  }, [page, itemsPerPage]);
+    return processedProducts.slice(start, start + itemsPerPage);
+  }, [page, itemsPerPage, processedProducts]);
 
   const changePage = (newPage) => {
     if (newPage > page) {
@@ -497,62 +561,159 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
           
-          <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
-            {showArrows && (
-              <button
-                onClick={() => changePage(Math.max(page - 1, 1))}
-                disabled={page === 1}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
-                  page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                <ChevronLeft size={18} />
-              </button>
-            )}
+          <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
+              {showArrows && (
+                <button
+                  onClick={() => changePage(Math.max(page - 1, 1))}
+                  disabled={page === 1}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
+                    page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              )}
 
-            <div className="flex items-center gap-1 h-9">
-              <AnimatePresence mode='popLayout' custom={direction} initial={false}>
-                  {paginationGroup.map((num) => (
-                    <motion.button
-                      key={num}
-                      layout
-                      custom={direction}
-                      variants={paginationVariants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      onClick={() => changePage(num)}
-                      className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation overflow-visible"
-                    >
-                      {page === num && (
-                        <motion.div
-                          layoutId="activePage"
-                          className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
-                          initial={{ scale: 0.8 }}
-                          animate={{ scale: 1.15 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 15, mass: 0.5 }}
-                          whileTap={{ scale: 0.9 }}
-                        />
-                      )}
-                      <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
-                        {num}
-                      </span>
-                    </motion.button>
-                  ))}
-              </AnimatePresence>
+              <div className="flex items-center gap-1 h-9">
+                <AnimatePresence mode='popLayout' custom={direction} initial={false}>
+                    {paginationGroup.map((num) => (
+                      <motion.button
+                        key={num}
+                        layout
+                        custom={direction}
+                        variants={paginationVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        onClick={() => changePage(num)}
+                        className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation overflow-visible"
+                      >
+                        {page === num && (
+                          <motion.div
+                            layoutId="activePage"
+                            className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1.15 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 15, mass: 0.5 }}
+                            whileTap={{ scale: 0.9 }}
+                          />
+                        )}
+                        <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
+                          {num}
+                        </span>
+                      </motion.button>
+                    ))}
+                </AnimatePresence>
+              </div>
+
+              {showArrows && (
+                <button
+                  onClick={() => changePage(Math.min(page + 1, totalPages))}
+                  disabled={page === totalPages}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
+                    page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <ChevronRight size={18} />
+                </button>
+              )}
             </div>
 
-            {showArrows && (
-              <button
-                onClick={() => changePage(Math.min(page + 1, totalPages))}
-                disabled={page === totalPages}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
-                  page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            {/* MODERN FILTER BUTTON & DROPDOWN */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`h-[52px] w-[52px] flex items-center justify-center rounded-xl border transition-all ${
+                  isFilterOpen || activeFilters.length > 0
+                    ? 'bg-slate-800 border-pink-500/50 text-pink-400 shadow-lg shadow-pink-500/10' 
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
-                <ChevronRight size={18} />
+                <Filter size={20} />
+                {activeFilters.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                    {activeFilters.length}
+                  </span>
+                )}
               </button>
-            )}
+
+              <AnimatePresence>
+                {isFilterOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden"
+                  >
+                    <div className="p-2 space-y-1">
+                       <button
+                          onClick={() => toggleFilter('best_selling')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('best_selling') 
+                              ? 'bg-orange-500/10 text-orange-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} />
+                            <span>Terlaris</span>
+                          </div>
+                          {activeFilters.includes('best_selling') && <Check size={14} />}
+                        </button>
+
+                        <button
+                          onClick={() => toggleFilter('top_rated')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('top_rated') 
+                              ? 'bg-yellow-500/10 text-yellow-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} />
+                            <span>Terbaik</span>
+                          </div>
+                          {activeFilters.includes('top_rated') && <Check size={14} />}
+                        </button>
+
+                        <button
+                          onClick={() => toggleFilter('newest')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('newest') 
+                              ? 'bg-emerald-500/10 text-emerald-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} />
+                            <span>Terupdate</span>
+                          </div>
+                          {activeFilters.includes('newest') && <Check size={14} />}
+                        </button>
+
+                        <div className="h-px bg-slate-800 my-1" />
+
+                        <button
+                          onClick={() => toggleFilter('default')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.length === 0
+                              ? 'bg-amber-500/10 text-amber-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} />
+                            <span>Default</span>
+                          </div>
+                          {activeFilters.length === 0 && <Check size={14} />}
+                        </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
 
