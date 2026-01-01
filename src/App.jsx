@@ -279,9 +279,9 @@ const ShopSection = ({ addToCart }) => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       if (mobile) {
-        setItemsPerPage(6); // Mobile: 6 items (2 cols x 3 rows)
+        setItemsPerPage(6); 
       } else {
-        setItemsPerPage(10); // Desktop: 10 items (5 cols x 2 rows)
+        setItemsPerPage(10); 
       }
     };
 
@@ -299,22 +299,18 @@ const ShopSection = ({ addToCart }) => {
 
   const changePage = (newPage) => {
     if (newPage > page) {
-      setDirection(1);
+      setDirection(1); // Geser ke Kiri (Next)
     } else if (newPage < page) {
-      setDirection(-1);
+      setDirection(-1); // Geser ke Kanan (Prev)
     }
     setPage(newPage);
   };
 
-  // Handle Pagination Logic
   const getPaginationGroup = () => {
     const maxVisibleButtons = isMobile ? 3 : 5;
-    
-    // Simple windowing logic
     let startPage = Math.max(1, page - Math.floor(maxVisibleButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
 
-    // Adjust if we are near the end
     if (endPage - startPage + 1 < maxVisibleButtons) {
         startPage = Math.max(1, endPage - maxVisibleButtons + 1);
     }
@@ -323,10 +319,8 @@ const ShopSection = ({ addToCart }) => {
   };
 
   const paginationGroup = getPaginationGroup();
-  // Desktop only shows arrows if total pages > 5. Mobile always shows arrows if total pages > 1.
   const showArrows = isMobile || totalPages > 5;
 
-  // ANIMATION VARIANTS
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -351,30 +345,30 @@ const ShopSection = ({ addToCart }) => {
     }
   };
 
-  // ANIMATION VARIANTS FOR PAGINATION NUMBERS
+  // UPDATED: Sharper scroll animation for numbers
   const paginationVariants = {
     enter: (direction) => ({
-      x: direction > 0 ? 15 : -15, // Masuk dari kanan/kiri
+      x: direction > 0 ? 20 : -20, // Jarak geser masuk lebih jauh
       opacity: 0,
-      scale: 0.8, // Mengecil saat baru masuk
+      scale: 0.5, // Lebih kecil saat masuk
     }),
     center: {
       zIndex: 1,
       x: 0,
       opacity: 1,
-      scale: 1, // Ukuran normal saat aktif/tampil
+      scale: 1,
       transition: {
-        x: { type: "spring", stiffness: 400, damping: 30 },
-        opacity: { duration: 0.1 },
+        x: { type: "spring", stiffness: 300, damping: 30 },
+        opacity: { duration: 0.2 },
         scale: { duration: 0.2 } 
       }
     },
     exit: (direction) => ({
       zIndex: 0,
-      x: direction > 0 ? -15 : 15, // Keluar ke kiri/kanan
+      x: direction > 0 ? -20 : 20, // Jarak geser keluar lebih jauh
       opacity: 0,
-      scale: 0.8, // Mengecil saat keluar
-      transition: { duration: 0.15 }
+      scale: 0.5, // Lebih kecil saat keluar
+      transition: { duration: 0.2 }
     })
   };
 
@@ -389,15 +383,8 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
           
-          {/* Pagination Controls */}
-          <motion.div 
-            // Animate container slightly when page changes ("sedikit membesar")
-            key={paginationGroup[0]} // Trigger anim when group start changes
-            initial={{ scale: 0.98 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 20 }}
-            className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden"
-          >
+          {/* UPDATED: Pagination Container - Removed motion scaling, now it is static div */}
+          <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
             {showArrows && (
               <button
                 onClick={() => changePage(Math.max(page - 1, 1))}
@@ -415,20 +402,30 @@ const ShopSection = ({ addToCart }) => {
                   {paginationGroup.map((num) => (
                     <motion.button
                       key={num}
-                      layout // Smooth layout position changes
+                      layout
                       custom={direction}
                       variants={paginationVariants}
                       initial="enter"
                       animate="center"
                       exit="exit"
                       onClick={() => changePage(num)}
-                      className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation"
+                      className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation overflow-visible"
                     >
                       {page === num && (
                         <motion.div
                           layoutId="activePage"
                           className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
-                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                          // UPDATED: Box "Sedikit Membesar" (Pop Effect) Animation
+                          initial={{ scale: 0.8 }}
+                          animate={{ scale: 1.15 }} // Sedikit membesar melebihi ukuran normal sebentar
+                          transition={{ 
+                            type: "spring", 
+                            stiffness: 500, 
+                            damping: 15,
+                            mass: 0.5
+                          }}
+                          // Kembali ke ukuran normal setelah pop
+                          whileTap={{ scale: 0.9 }}
                         />
                       )}
                       <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
@@ -450,7 +447,7 @@ const ShopSection = ({ addToCart }) => {
                 <ChevronRight size={18} />
               </button>
             )}
-          </motion.div>
+          </div>
         </div>
 
         {/* Product Grid with Staggered Animation */}
