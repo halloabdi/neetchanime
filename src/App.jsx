@@ -96,6 +96,8 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
+  // Optimization: bg-slate-900/80 with backdrop-blur-md restores the glass effect without being too heavy.
+  // transform-gpu ensures the GPU handles the rendering.
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -190,6 +192,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
+    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -227,6 +230,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
     </div>
 
+    {/* Content */}
     <div className="p-3 md:p-5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
@@ -299,7 +303,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
               <X size={20} />
             </button>
 
-            <div className="w-full md:w-[70%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto">
+            {/* UPDATED: Image width decreased to 65% (md:w-[65%]) */}
+            <div className="w-full md:w-[65%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto">
                <img
                   src={product.image}
                   alt={product.title}
@@ -314,7 +319,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                )}
             </div>
 
-            <div className="w-full md:w-[30%] flex flex-col bg-slate-900 overflow-hidden flex-1">
+            {/* UPDATED: Details width increased to 35% (md:w-[35%]) */}
+            <div className="w-full md:w-[35%] flex flex-col bg-slate-900 overflow-hidden flex-1">
                 <div className="p-5 md:p-6 overflow-y-auto custom-scrollbar flex-1">
                     <h2 className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">{product.title}</h2>
 
@@ -344,25 +350,28 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <button
-                            onClick={() => {
-                                onAdd(product);
-                            }}
-                            className="w-full py-3 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white rounded-xl font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
-                        >
-                            <ShoppingCart size={18} />
-                            <span>Add to Cart</span>
-                        </button>
-
-                        <div className={`py-2 w-full flex items-center justify-center rounded-xl font-bold text-xs border border-white/10 ${
+                    {/* UPDATED: Swapped Buttons - Category left, Cart right */}
+                    <div className="flex gap-3">
+                        {/* Category Button (Left) */}
+                        <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
                             product.type === 'Video' 
                             ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
                             : 'bg-gradient-to-br from-slate-800 to-emerald-900/50 text-emerald-200'
                         }`}>
-                            {product.type === 'Video' ? <Video size={14} className="mr-1.5"/> : <ImageIcon size={14} className="mr-1.5"/>}
+                            {product.type === 'Video' ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
                             {product.type} Only
                         </div>
+
+                        {/* Add to Cart Button (Right) */}
+                        <button
+                            onClick={() => {
+                                onAdd(product);
+                            }}
+                            className="flex-1 py-3.5 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white rounded-xl font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
+                        >
+                            <ShoppingCart size={18} />
+                            <span>Add to Cart</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -920,9 +929,11 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
   
+  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
+    // Check if item already exists
     setCart(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => item.id === product.id);
       
@@ -930,13 +941,16 @@ export default function App() {
       let newCart;
 
       if (existingItemIndex > -1) {
+        // Item exists, increment quantity
         newCart = [...prevCart];
         newCart[existingItemIndex].quantity += 1;
         newCount = newCart[existingItemIndex].quantity;
       } else {
+        // New item, add with quantity 1
         newCart = [...prevCart, { ...product, quantity: 1 }];
       }
 
+      // Handle notification
       if (notificationTimeoutRef.current) {
         clearTimeout(notificationTimeoutRef.current);
       }
@@ -948,6 +962,7 @@ export default function App() {
         image: product.image
       });
 
+      // Set timeout baru selama 4 detik
       notificationTimeoutRef.current = setTimeout(() => {
         setNotification(null);
       }, 4000);
@@ -968,6 +983,7 @@ export default function App() {
     });
   };
 
+  // NEW: Directly set quantity (for input field)
   const setCartQuantity = (id, quantity) => {
     setCart(prevCart => {
       return prevCart.map(item => {
@@ -985,6 +1001,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-red-500/30">
+      {/* Modern Scrollbar Styles */}
       <style>{`
         ::-webkit-scrollbar {
           width: 8px;
@@ -999,6 +1016,7 @@ export default function App() {
         ::-webkit-scrollbar-thumb:hover {
           background: #475569; 
         }
+        /* Hide arrows in input number */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
           -webkit-appearance: none; 
@@ -1015,11 +1033,13 @@ export default function App() {
       </main>
       <Footer />
       
+      {/* Golden Gradient Notification - Swipeable */}
       <div className="fixed bottom-6 left-0 right-0 z-[70] flex flex-col items-center justify-end pointer-events-none space-y-2">
         <AnimatePresence mode="popLayout">
           {notification && (
             <motion.div
               key={notification.id}
+              // Remove layout prop to prevent horizontal shift
               initial={{ y: 150, opacity: 0, scale: 0.9 }} 
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 150, opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
