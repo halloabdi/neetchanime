@@ -96,8 +96,6 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  // UPDATED: Z-Index 60 to stay above modal (Z-50)
-  // Re-added backdrop-blur-md for glass effect
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -192,7 +190,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
-    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -230,7 +227,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
     </div>
 
-    {/* Content */}
     <div className="p-3 md:p-5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
@@ -282,7 +278,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          // UPDATED: Added top padding (pt-24 mobile, pt-28 desktop) so modal appears below header
           className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-24 md:p-6 md:pt-28"
         >
           <div 
@@ -295,7 +290,7 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            className="relative bg-slate-900 w-full max-w-6xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row z-50 h-auto max-h-[calc(100vh-140px)]"
+            className="relative bg-slate-900 w-full max-w-6xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row z-50 h-[80vh] md:h-auto md:max-h-[calc(100vh-140px)]"
           >
             <button
               onClick={onClose}
@@ -304,12 +299,11 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
               <X size={20} />
             </button>
 
-            {/* UPDATED: Image width 70% and closed correctly */}
-            <div className="w-full md:w-[70%] bg-slate-950 flex items-center justify-center p-0 md:p-0 relative overflow-hidden group aspect-video md:aspect-auto">
+            <div className="w-full md:w-[70%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto">
                <img
                   src={product.image}
                   alt={product.title}
-                  className="w-full h-full object-cover md:absolute md:inset-0"
+                  className="w-full h-full object-cover"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
                
@@ -320,9 +314,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                )}
             </div>
 
-            {/* UPDATED: Details width 30% */}
-            <div className="w-full md:w-[30%] flex flex-col bg-slate-900 overflow-hidden">
-                <div className="p-6 md:p-6 overflow-y-auto custom-scrollbar flex-1">
+            <div className="w-full md:w-[30%] flex flex-col bg-slate-900 overflow-hidden flex-1">
+                <div className="p-5 md:p-6 overflow-y-auto custom-scrollbar flex-1">
                     <h2 className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">{product.title}</h2>
 
                     <div className="flex items-center gap-2 text-xs text-slate-400 mb-4 pb-3 border-b border-slate-800 flex-wrap">
@@ -336,12 +329,11 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                         <span className="font-mono text-slate-300">Anon</span>
                     </div>
 
-                    <div className="prose prose-invert prose-xs text-slate-300 leading-relaxed mb-6">
+                    <div className="prose prose-invert prose-xs text-slate-300 leading-relaxed mb-6 text-sm">
                         <p>{product.description}</p>
                     </div>
                 </div>
 
-                {/* UPDATED: Reduced padding gap */}
                 <div className="px-5 py-3 bg-slate-900/90 border-t border-slate-800 backdrop-blur-sm mt-auto">
                     <div className="flex items-end justify-between mb-3">
                         <div>
@@ -928,11 +920,9 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
   
-  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
-    // Check if item already exists
     setCart(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => item.id === product.id);
       
@@ -940,16 +930,13 @@ export default function App() {
       let newCart;
 
       if (existingItemIndex > -1) {
-        // Item exists, increment quantity
         newCart = [...prevCart];
         newCart[existingItemIndex].quantity += 1;
         newCount = newCart[existingItemIndex].quantity;
       } else {
-        // New item, add with quantity 1
         newCart = [...prevCart, { ...product, quantity: 1 }];
       }
 
-      // Handle notification
       if (notificationTimeoutRef.current) {
         clearTimeout(notificationTimeoutRef.current);
       }
@@ -961,7 +948,6 @@ export default function App() {
         image: product.image
       });
 
-      // Set timeout baru selama 4 detik
       notificationTimeoutRef.current = setTimeout(() => {
         setNotification(null);
       }, 4000);
@@ -982,7 +968,6 @@ export default function App() {
     });
   };
 
-  // NEW: Directly set quantity (for input field)
   const setCartQuantity = (id, quantity) => {
     setCart(prevCart => {
       return prevCart.map(item => {
@@ -1000,7 +985,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-red-500/30">
-      {/* Modern Scrollbar Styles */}
       <style>{`
         ::-webkit-scrollbar {
           width: 8px;
@@ -1015,7 +999,6 @@ export default function App() {
         ::-webkit-scrollbar-thumb:hover {
           background: #475569; 
         }
-        /* Hide arrows in input number */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
           -webkit-appearance: none; 
@@ -1032,13 +1015,11 @@ export default function App() {
       </main>
       <Footer />
       
-      {/* Golden Gradient Notification - Swipeable */}
       <div className="fixed bottom-6 left-0 right-0 z-[70] flex flex-col items-center justify-end pointer-events-none space-y-2">
         <AnimatePresence mode="popLayout">
           {notification && (
             <motion.div
               key={notification.id}
-              // Remove layout prop to prevent horizontal shift
               initial={{ y: 150, opacity: 0, scale: 0.9 }} 
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 150, opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
