@@ -96,8 +96,8 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  // UPDATED: Changed z-index to 30 to be BELOW the modal (z-50)
-  <nav className="fixed top-0 left-0 right-0 z-30 bg-slate-900/95 border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
+  // UPDATED: Changed z-index to 60 to be ABOVE the modal (z-50) so it remains visible
+  <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
         <div className="flex items-center gap-2">
@@ -275,7 +275,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        // UPDATED: Modal wrapper z-index set to z-50 to be above the header (z-30)
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -301,8 +300,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
               <X size={20} />
             </button>
 
-            {/* UPDATED: Increased image width slightly (md:w-[60%]) */}
-            <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 md:p-0 relative overflow-hidden group">
+            {/* UPDATED: Increased image width to 65% (md:w-[65%]) */}
+            <div className="w-full md:w-[65%] bg-slate-950 flex items-center justify-center p-0 md:p-0 relative overflow-hidden group">
                <img
                   src={product.image}
                   alt={product.title}
@@ -317,8 +316,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                )}
             </div>
 
-            {/* UPDATED: Adjusted details width (md:w-[40%]) */}
-            <div className="w-full md:w-[40%] flex flex-col bg-slate-900 overflow-hidden">
+            {/* UPDATED: Decreased details width to 35% (md:w-[35%]) to maintain layout integrity */}
+            <div className="w-full md:w-[35%] flex flex-col bg-slate-900 overflow-hidden">
                 <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1">
                     <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{product.title}</h2>
 
@@ -658,6 +657,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
     
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     
+    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
     const message = `Hai Mimin NEETCHANIME!
 Saya ${formData.name} dengan email ${formData.email}.
 Saya telah membeli produk berupa:
@@ -844,6 +844,7 @@ const Footer = () => (
   <footer className="bg-slate-950 border-t border-slate-900 pt-16 pb-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+        {/* Left Side: Brand & Copyright */}
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <span className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white">
@@ -856,7 +857,9 @@ const Footer = () => (
           </p>
         </div>
 
+        {/* Right Side: Social Media Buttons */}
         <div className="flex flex-wrap justify-center gap-4">
+          {/* YouTube */}
           <a 
             href="https://youtube.com/@neetchanime" 
             target="_blank" 
@@ -869,6 +872,7 @@ const Footer = () => (
             <span className="font-bold text-sm">YouTube</span>
           </a>
 
+          {/* Instagram */}
           <a 
             href="https://instagram.com/neetchanime" 
             target="_blank" 
@@ -883,6 +887,7 @@ const Footer = () => (
             <span className="font-bold text-sm">Instagram</span>
           </a>
 
+          {/* Twitter / X */}
           <a 
             href="https://x.com/neetchanime" 
             target="_blank" 
@@ -895,6 +900,7 @@ const Footer = () => (
             <span className="font-bold text-sm">Twitter</span>
           </a>
 
+          {/* Discord */}
           <a 
             href="https://discord.com/channels/@me" 
             target="_blank" 
@@ -916,6 +922,8 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
+  
+  // Ref untuk menyimpan ID timeout agar bisa di-reset
   const notificationTimeoutRef = useRef(null);
 
   const addToCart = (product) => {
