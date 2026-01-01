@@ -96,8 +96,8 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  // Optimization: bg-slate-900/95 for performance, z-50 to stay on top of modal backdrop
-  <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
+  // UPDATED: Changed z-index to 30 to be BELOW the modal (z-50)
+  <nav className="fixed top-0 left-0 right-0 z-30 bg-slate-900/95 border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
         <div className="flex items-center gap-2">
@@ -184,16 +184,13 @@ const Hero = () => {
   );
 };
 
-// Updated ProductCard with onClick trigger for preview
 const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
   <motion.div 
     variants={variants}
     whileHover={{ y: -8 }}
-    // Added cursor-pointer and onClick handler
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
-    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -231,7 +228,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
     </div>
 
-    {/* Content */}
     <div className="p-3 md:p-5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
@@ -260,7 +256,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
         
         <button 
           onClick={(e) => {
-            e.stopPropagation(); // Prevent opening preview when clicking add to cart
+            e.stopPropagation(); 
             onAdd(product);
           }}
           className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-2 md:p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5 touch-manipulation"
@@ -273,21 +269,19 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
   </motion.div>
 );
 
-// NEW: Product Preview Modal Component
 const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
   if (!product) return null;
 
   return (
     <AnimatePresence>
       {isOpen && (
+        // UPDATED: Modal wrapper z-index set to z-50 to be above the header (z-30)
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          // z-40 so it is below Header (z-50) but above everything else
-          className="fixed inset-0 z-40 flex items-center justify-center p-4 md:p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6"
         >
-          {/* Backdrop Blur - Covers everything except header */}
           <div 
             className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" 
             onClick={onClose} 
@@ -300,7 +294,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
             className="relative bg-slate-900 w-full max-w-4xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row z-50 max-h-[85vh]"
           >
-            {/* Close Button */}
             <button
               onClick={onClose}
               className="absolute top-3 right-3 z-20 p-2 bg-black/40 hover:bg-red-500/80 rounded-full text-white transition-colors backdrop-blur-sm border border-white/10"
@@ -308,8 +301,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
               <X size={20} />
             </button>
 
-            {/* Image Section */}
-            <div className="w-full md:w-[55%] bg-slate-950 flex items-center justify-center p-0 md:p-0 relative overflow-hidden group">
+            {/* UPDATED: Increased image width slightly (md:w-[60%]) */}
+            <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 md:p-0 relative overflow-hidden group">
                <img
                   src={product.image}
                   alt={product.title}
@@ -317,7 +310,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
                
-               {/* 18+ Badge if needed */}
                {product.isNSFW && (
                   <div className="absolute top-4 left-4 px-3 py-1.5 bg-red-600 text-white text-xs font-extrabold rounded-lg shadow-lg border border-red-400 animate-pulse-slow">
                     18+ CONTENT
@@ -325,8 +317,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                )}
             </div>
 
-            {/* Details Section */}
-            <div className="w-full md:w-[45%] flex flex-col bg-slate-900 overflow-hidden">
+            {/* UPDATED: Adjusted details width (md:w-[40%]) */}
+            <div className="w-full md:w-[40%] flex flex-col bg-slate-900 overflow-hidden">
                 <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1">
                     <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{product.title}</h2>
 
@@ -346,7 +338,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                     </div>
                 </div>
 
-                {/* Footer Action */}
                 <div className="p-6 bg-slate-900/90 border-t border-slate-800 backdrop-blur-sm mt-auto">
                     <div className="flex items-end justify-between mb-4">
                         <div>
@@ -368,7 +359,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                             <span>Add to Cart</span>
                         </button>
 
-                        {/* Category Badge next to Add Card */}
                         <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
                             product.type === 'Video' 
                             ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
@@ -392,7 +382,7 @@ const ShopSection = ({ addToCart }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10); 
   const [isMobile, setIsMobile] = useState(false);
   const [direction, setDirection] = useState(0);
-  const [selectedProduct, setSelectedProduct] = useState(null); // State for Preview Modal
+  const [selectedProduct, setSelectedProduct] = useState(null); 
 
   useEffect(() => {
     const handleResize = () => {
@@ -575,7 +565,7 @@ const ShopSection = ({ addToCart }) => {
                 key={product.id} 
                 product={product} 
                 onAdd={addToCart} 
-                onOpenPreview={setSelectedProduct} // Trigger Preview
+                onOpenPreview={setSelectedProduct} 
                 variants={itemVariants}
               />
             ))}
@@ -583,7 +573,6 @@ const ShopSection = ({ addToCart }) => {
         </AnimatePresence>
       </div>
 
-      {/* Render Product Preview Modal */}
       <ProductPreviewModal 
         product={selectedProduct} 
         isOpen={!!selectedProduct} 
@@ -669,7 +658,6 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
     
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     
-    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
     const message = `Hai Mimin NEETCHANIME!
 Saya ${formData.name} dengan email ${formData.email}.
 Saya telah membeli produk berupa:
