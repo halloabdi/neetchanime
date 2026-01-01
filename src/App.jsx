@@ -135,8 +135,8 @@ const Hero = () => {
   return (
     <section className="relative pt-32 pb-20 overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
-      <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu"></div>
+      <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu"></div>
       
       <div className="max-w-4xl mx-auto px-4 text-center z-10 relative">
         <motion.div
@@ -147,11 +147,13 @@ const Hero = () => {
           <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-6 inline-block backdrop-blur-sm">
             Strictly for Adults (18+)
           </span>
-          <h1 className="font-extrabold mb-6 tracking-tight leading-tight">
-            <span className="block text-5xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+          <h1 className="font-extrabold mb-6 tracking-tighter leading-tight md:leading-none">
+            {/* UPDATED: Main Title - Adjusted mobile size & tracking to match desktop feel */}
+            <span className="block text-6xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-2">
               NEETCHANIME
             </span>
-            <span className="block text-3xl md:text-5xl mt-2 font-extrabold">
+            {/* UPDATED: Sub Title - Consistent weight and gradients */}
+            <span className="block text-3xl sm:text-4xl md:text-5xl mt-1 md:mt-2 font-extrabold tracking-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-900 mr-2">Platform</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mr-2">R34</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
@@ -186,13 +188,16 @@ const ProductCard = ({ product, onAdd, variants }) => (
   <motion.div 
     variants={variants}
     whileHover={{ y: -8 }}
-    className="bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative"
+    // OPTIMIZATION: Removed 'backdrop-blur-sm' and increased opacity to 'bg-slate-900/95'. 
+    // Added 'transform-gpu' to force hardware acceleration.
+    className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu"
   >
     {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
         alt={product.title} 
+        loading="lazy" // OPTIMIZATION: Lazy load images
         className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
       />
       
@@ -354,7 +359,7 @@ const ShopSection = ({ addToCart }) => {
             animate="show"
             exit="hidden"
             // Mobile: grid-cols-2 (2 kolom), gap-3. Desktop: grid-cols-5, gap-6.
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6 transform-gpu"
           >
             {currentProducts.map((product) => (
               <ProductCard 
