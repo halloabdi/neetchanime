@@ -96,8 +96,6 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  // Optimization: bg-slate-900/95 for performance
-  // Z-Index 60 ensures Header stays ON TOP of the modal backdrop and modal itself if they overlap
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -192,7 +190,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
-    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -230,7 +227,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
     </div>
 
-    {/* Content */}
     <div className="p-3 md:p-5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
@@ -282,8 +278,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          // UPDATED: Added top padding (pt-24 mobile, pt-28 desktop) to push modal down below header
-          // The modal wrapper is z-50, but we use flex centering with padding to position the box
           className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-24 md:p-6 md:pt-28"
         >
           <div 
@@ -296,9 +290,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            // UPDATED: Adjusted max-height to calculate based on viewport minus header space
-            // This prevents cutting off on small screens.
-            className="relative bg-slate-900 w-full max-w-4xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row z-50 h-auto max-h-[calc(100vh-140px)]"
+            // UPDATED: Increased max-w to 6xl for wider modal. 
+            className="relative bg-slate-900 w-full max-w-6xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row z-50 h-auto max-h-[calc(100vh-140px)]"
           >
             <button
               onClick={onClose}
@@ -307,12 +300,12 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
               <X size={20} />
             </button>
 
-            {/* UPDATED: Increased image width to 70% (md:w-[70%]) */}
-            <div className="w-full md:w-[70%] bg-slate-950 flex items-center justify-center p-0 md:p-0 relative overflow-hidden group">
+            {/* UPDATED: Increased image width ratio (60%) and enforce 16:9 aspect ratio */}
+            <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center relative overflow-hidden group aspect-video md:aspect-auto">
                <img
                   src={product.image}
                   alt={product.title}
-                  className="w-full h-48 md:h-full object-cover md:max-h-full"
+                  className="w-full h-full object-cover md:absolute md:inset-0"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
                
@@ -323,54 +316,54 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                )}
             </div>
 
-            {/* UPDATED: Decreased details width to 30% (md:w-[30%]) */}
-            <div className="w-full md:w-[30%] flex flex-col bg-slate-900 overflow-hidden">
-                <div className="p-6 md:p-6 overflow-y-auto custom-scrollbar flex-1">
-                    <h2 className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">{product.title}</h2>
+            {/* UPDATED: Decreased details width to 40% */}
+            <div className="w-full md:w-[40%] flex flex-col bg-slate-900 overflow-hidden">
+                <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{product.title}</h2>
 
-                    <div className="flex items-center gap-2 text-xs text-slate-400 mb-4 pb-3 border-b border-slate-800 flex-wrap">
+                    <div className="flex items-center gap-3 text-xs md:text-sm text-slate-400 mb-6 pb-4 border-b border-slate-800 flex-wrap">
                         <div className="flex items-center text-amber-400">
-                            <Star size={14} fill="currentColor" />
+                            <Star size={16} fill="currentColor" />
                             <span className="ml-1 font-bold text-white">{product.rating}</span>
                         </div>
                         <span>•</span>
                         <span>{product.buyers} bought</span>
                         <span>•</span>
-                        <span className="font-mono text-slate-300">Anon</span>
+                        <span className="font-mono text-slate-300">Artist: Anonymous</span>
                     </div>
 
-                    <div className="prose prose-invert prose-xs text-slate-300 leading-relaxed mb-6">
+                    <div className="prose prose-invert prose-sm text-slate-300 leading-relaxed mb-6">
                         <p>{product.description}</p>
                     </div>
                 </div>
 
-                <div className="p-5 bg-slate-900/90 border-t border-slate-800 backdrop-blur-sm mt-auto">
-                    <div className="flex items-end justify-between mb-3">
+                <div className="p-6 bg-slate-900/90 border-t border-slate-800 backdrop-blur-sm mt-auto">
+                    <div className="flex items-end justify-between mb-4">
                         <div>
-                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total</p>
-                            <p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400">
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Harga</p>
+                            <p className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400">
                                 Rp{product.price.toLocaleString('id-ID')}
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex gap-3">
                         <button
                             onClick={() => {
                                 onAdd(product);
                             }}
-                            className="w-full py-3 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white rounded-xl font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
+                            className="flex-1 py-3.5 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white rounded-xl font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
-                            <ShoppingCart size={18} />
+                            <ShoppingCart size={20} />
                             <span>Add to Cart</span>
                         </button>
 
-                        <div className={`py-2 w-full flex items-center justify-center rounded-xl font-bold text-xs border border-white/10 ${
+                        <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
                             product.type === 'Video' 
                             ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
                             : 'bg-gradient-to-br from-slate-800 to-emerald-900/50 text-emerald-200'
                         }`}>
-                            {product.type === 'Video' ? <Video size={14} className="mr-1.5"/> : <ImageIcon size={14} className="mr-1.5"/>}
+                            {product.type === 'Video' ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
                             {product.type} Only
                         </div>
                     </div>
