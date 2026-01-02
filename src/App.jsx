@@ -72,7 +72,7 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
+  <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300 w-full">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
         <div className="flex items-center gap-2">
@@ -111,10 +111,10 @@ const Hero = () => {
 
   return (
     // UPDATED: Adjusted top padding from pt-36 to pt-32 for balanced spacing
-    <section className="relative pt-32 pb-12 overflow-hidden">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
-      <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu"></div>
-      <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu"></div>
+    <section className="relative pt-32 pb-12 overflow-hidden w-full">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
+      <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu pointer-events-none"></div>
+      <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu pointer-events-none"></div>
       
       <div className="max-w-6xl mx-auto px-4 text-center z-10 relative">
         <motion.div
@@ -172,7 +172,7 @@ const Hero = () => {
             </motion.div>
 
             {/* Added py-4 to container to ensure glow isn't cut off vertically */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4 w-full">
               {/* Box 1: Booster */}
               <motion.div 
                 initial={{ opacity: 0, y: 50 }}
@@ -596,7 +596,7 @@ const ShopSection = ({ addToCart }) => {
 
   return (
     // UPDATED: Reduced padding-bottom (pb-8) to decrease space to FAQ
-    <section id="shop" className="pt-12 pb-8 bg-slate-950 relative">
+    <section id="shop" className="pt-12 pb-8 bg-slate-950 relative w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           {/* UPDATED: Improved entry animation */}
@@ -850,7 +850,7 @@ const FAQItem = ({ faq }) => {
 
 const FAQSection = () => (
   // UPDATED: Changed top padding (pt-10) to reduce space from content, bottom remains pb-20
-  <section id="faq" className="pt-10 pb-20 bg-slate-950 relative">
+  <section id="faq" className="pt-10 pb-20 bg-slate-950 relative w-full">
     <div className="max-w-3xl mx-auto px-4 relative z-10">
       <div className="text-center mb-12">
         <HelpCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -1105,7 +1105,8 @@ const App = () => {
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200">
+    // FIXED: Added overflow-x-hidden and w-full to prevent horizontal scrolling whitespace
+    <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200 overflow-x-hidden w-full">
       <Header cartCount={cartCount} openCart={() => setIsCartOpen(true)} />
       <Hero />
       <ShopSection addToCart={addToCart} />
