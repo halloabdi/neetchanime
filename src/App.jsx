@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 // ==========================================
 // CONFIGURATION
 // ==========================================
-// URL Script Updated ke Versi 2
-const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzACphCv9bhXkX0XUXPiiM0VQMxghge3hAnQof7Xhu5VlxqqW6O34gmMG1YjIviFD5xXg/exec";
+// PENTING: URL Script Updated ke Versi 4 (Terbaru per 2 Jan 2026)
+const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbw_UIGlOEktoLOEBm-UnM-09ch4OtK__X6LiazsoR4B3NJK_Y7V9y9gm61Z2IUsE_sljw/exec";
 
 // --- UTILS & PARSERS ---
 
@@ -40,16 +40,20 @@ const parseCustomDescription = (text) => {
 const isProductNew = (dateString) => {
   if (!dateString) return false;
   
+  // dateString dari script formatnya YYYY-MM-DD (ISO)
   const createdDate = new Date(dateString);
   const today = new Date();
   
+  // Set waktu ke 00:00:00 untuk perbandingan tanggal murni
   createdDate.setHours(0,0,0,0);
   today.setHours(0,0,0,0);
   
-  const diffTime = Math.abs(today - createdDate);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  const diffTime = today - createdDate; 
+  // Menggunakan Math.floor/ceil untuk menghitung selisih hari
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
   
-  return diffDays <= 3;
+  // Muncul jika selisih hari <= 3 dan >= 0 (tidak di masa depan)
+  return diffDays >= 0 && diffDays <= 3;
 };
 
 // --- DATA MOCKUP GENERATOR (Data Fake - Cadangan) ---
@@ -274,7 +278,7 @@ const Hero = () => {
   );
 };
 
-// --- UPDATED PRODUCT CARD COMPONENT ---
+// --- PRODUCT CARD ---
 const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
   const isNew = useMemo(() => {
     if (product.source === 'google_sheet') {
@@ -291,16 +295,17 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
       className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
     >
       <div className="relative h-32 md:h-48 overflow-hidden">
-        {/* Use imageCrop from sheets, fallback to image */}
+        {/* LOGIC: Crop Image Priority */}
         <img 
-          src={product.imageCrop || product.image} 
+          src={product.imageCrop || product.imageFull || product.image || 'https://placehold.co/600x400/1a1a2e/e94560?text=No+Image'} 
           alt={product.title} 
           loading="lazy"
           decoding="async"
-          className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
+          onError={(e) => { e.target.src = 'https://placehold.co/600x400/1a1a2e/e94560?text=Image+Error'; }}
+          // STYLE: object-cover + object-top
+          className={`w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
         />
         
-        {/* Type Badge */}
         <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
           <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
             (product.type === 'Foto' || product.type === 'foto') 
@@ -312,7 +317,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
           </span>
         </div>
 
-        {/* Safety Badge */}
         <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
           {(product.isNSFW || product.safety === 'NSFW') ? (
             <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
@@ -327,7 +331,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
           )}
         </div>
 
-        {/* --- TERBARU BADGE (Google Sheets Only) --- */}
         {isNew && (
           <div className="absolute bottom-2 left-2 md:left-3 z-10">
              <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white shadow-[0_0_15px_rgba(59,130,246,0.6)] backdrop-blur-md bg-gradient-to-r from-blue-900 to-blue-800 border border-blue-400/50">
@@ -340,7 +343,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
       </div>
       
-      {/* Content */}
       <div className="p-3 md:p-5 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
           <div className="flex items-center text-amber-400">
@@ -360,7 +362,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
           <div className="flex flex-col">
             <span className="text-slate-500 text-[8px] md:text-[10px] uppercase tracking-wider">Harga</span>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400 font-bold text-sm md:text-lg">
-              Rp{product.price.toLocaleString('id-ID')}
+              Rp{Number(product.price).toLocaleString('id-ID')}
             </span>
           </div>
           <button 
@@ -411,10 +413,12 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
             </button>
 
             <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto aspect-video md:aspect-auto">
+               {/* LOGIC: Full Image Priority + Object Contain */}
                <img
-                  src={product.imageFull || product.image}
+                  src={product.imageFull || product.image || 'https://placehold.co/600x400/1a1a2e/e94560?text=No+Image'}
                   alt={product.title}
-                  className="w-full h-full object-cover md:absolute md:inset-0"
+                  onError={(e) => { e.target.src = 'https://placehold.co/600x400/1a1a2e/e94560?text=Image+Error'; }}
+                  className="w-full h-full object-contain object-center md:absolute md:inset-0"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
                
@@ -450,7 +454,7 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                         <div>
                             <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total</p>
                             <p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400">
-                                Rp{product.price.toLocaleString('id-ID')}
+                                Rp{Number(product.price).toLocaleString('id-ID')}
                             </p>
                         </div>
                     </div>
@@ -504,12 +508,8 @@ const ShopSection = ({ addToCart }) => {
             const response = await fetch(GOOGLE_SHEET_API_URL);
             const data = await response.json();
             if (Array.isArray(data)) {
-                const enrichedData = data.map(item => ({
-                    ...item,
-                    rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1),
-                    buyers: Math.floor(Math.random() * 5) + 1
-                }));
-                setSheetProducts(enrichedData);
+                // Gunakan data dari Sheet langsung, buyers sudah ada dari script
+                setSheetProducts(data);
             }
         } catch (error) {
             console.error("Failed to fetch sheet data", error);
@@ -820,6 +820,7 @@ const ShopSection = ({ addToCart }) => {
         </div>
 
         <AnimatePresence mode='wait'>
+          {/* UPDATED: Changed animate to whileInView to trigger on scroll */}
           <motion.div 
             key={page} 
             variants={containerVariants}
