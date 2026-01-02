@@ -46,58 +46,33 @@ const PAYMENT_METHODS = [
   "QRIS", "DANA", "OVO", "BNI", "MANDIRI", "SEABANK", "BSI", "VISA", "PAYPAL"
 ];
 
+// UPDATED: FAQ Content Replaced
 const FAQS = [
   {
-    q: "Apakah konten di NEETCHANIME aman & legal?",
-    a: "Kami menjamin keamanan privasi setiap pembeli. Semua konten yang tersedia merupakan karya seni orisinal dan berlisensi yang dikurasi dengan ketat."
+    q: "Apa sih NEETCHANIME itu?",
+    a: "NEETCHANIME adalah tempat seru buat kamu yang suka banget sama anime dan game dewasa! Kami jual berbagai konten anime dan game dengan kualitas resolusi tinggi dari 2K hingga 4K. Gak cuma itu, semua file yang kamu beli di sini sudah dioptimalkan untuk berbagai perangkat, jadi gak perlu khawatir nonton atau mainnya nge-lag!"
   },
   {
-    q: "Apa itu NEETCHANIME?",
-    a: "NEETCHANIME adalah galeri digital premium yang menyediakan aset visual dan animasi tanpa batas, fokus pada estetika visual dewasa (18+) dan artistik."
+    q: "Kenapa sih resolusi konten di NEETCHANIME tinggi banget?",
+    a: "Mimin tahu banget kalau kamu suka yang tajam dan detail, makanya kami pastikan semua konten yang tersedia di NEETCHANIME punya kualitas 2K hingga 4K. Jadi, siap-siap aja nonton anime atau main game dengan gambar super jelas, yang bikin pengalaman makin asik!"
   },
   {
-    q: "Bagaimana sistem pengiriman file?",
-    a: "Akses ke Private Vault (GDrive/Mega) dikirimkan personal ke WhatsApp/Email Anda setelah verifikasi pembayaran."
+    q: "Apakah ada batasan kecepatan unduhan?",
+    a: "Tenang aja, gak ada limit kecepatan unduhan di NEETCHANIME! Kamu bisa download sepuasnya tanpa takut internet lemot atau terhenti di tengah jalan. Cukup klik tautan unduhan yang tersedia, dan biarkan Mimin urus sisanya!"
   },
   {
-    q: "Apakah identitas pembeli dirahasiakan?",
-    a: "100% Rahasia. Kami tidak membagikan data pelanggan ke pihak ketiga. Anda bahkan bisa menggunakan nama samaran saat checkout."
+    q: "Apa saya bisa akses NEETCHANIME di semua perangkat?",
+    a: "Bener banget! Semua konten di NEETCHANIME sudah dioptimalkan untuk berbagai perangkat. Entah itu di PC, laptop, atau handphone, kamu tetap bisa menikmati konten anime dan game kesukaanmu dengan nyaman, tanpa masalah resolusi atau loading yang lama!"
   },
   {
-    q: "Berapa lama link download aktif?",
-    a: "Link download yang kami berikan berlaku selamanya (Lifetime Access). Jika link mati, Anda bisa request ulang ke admin."
-  },
-  {
-    q: "Apakah ada garansi jika file rusak?",
-    a: "Ya, kami bergaransi penuh. Jika file korup atau tidak bisa dibuka, kami akan mengirimkan link pengganti atau refund dana Anda."
-  },
-  {
-    q: "Apakah menerima pembayaran pulsa?",
-    a: "Saat ini kami hanya menerima pembayaran via E-Wallet (DANA, OVO, QRIS) dan Transfer Bank untuk memudahkan verifikasi otomatis."
-  },
-  {
-    q: "Apakah konten bisa digunakan untuk komersial?",
-    a: "Tergantung lisensi per produk. Sebagian besar adalah Personal Use Only. Untuk lisensi komersial (Vtuber/Game Dev), silakan hubungi admin untuk harga khusus."
-  },
-  {
-    q: "Bagaimana jika saya di bawah 18 tahun?",
-    a: "Kami sangat ketat. Jika Anda di bawah 18 tahun, Anda hanya diperbolehkan membeli konten berlabel 'Safe'. Verifikasi umur mungkin dilakukan random."
-  },
-  {
-    q: "Apakah bisa request konten/commission?",
-    a: "Bisa! Kami bekerja sama dengan banyak artist. Silakan chat admin via WhatsApp untuk mendiskusikan detail commission custom Anda."
-  },
-  {
-    q: "Format file apa yang akan saya terima?",
-    a: "Umumnya .ZIP atau .RAR yang berisi PNG/JPG (High Res) untuk Foto, dan MP4/MOV (1080p/4K) untuk Video."
+    q: "Bagaimana cara membeli dan mengunduh konten di NEETCHANIME?",
+    a: "Gampang banget! Kamu tinggal pilih konten yang kamu suka di situs NEETCHANIME, klik beli, dan ikuti petunjuk untuk pembayaran. Setelah itu, Mimin bakal kirimkan tautan unduhan tanpa limit kecepatan. Kamu tinggal klik dan langsung nikmatin konten seru tanpa ribet!"
   }
 ];
 
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  // Optimization: bg-slate-900/80 with backdrop-blur-md restores the glass effect without being too heavy.
-  // transform-gpu ensures the GPU handles the rendering.
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -192,7 +167,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
-    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
