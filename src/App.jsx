@@ -122,12 +122,6 @@ const ToastNotification = ({ data, onClose }) => {
       // Fixed: Box shape logic and centering
       className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
-      {/* UPDATED: 
-          - Removed min-w/max-w fixed values to allow auto-fitting
-          - Increased padding (p-5) for larger feel
-          - Increased font sizes
-          - w-auto inline-flex ensures it wraps content tightly 
-      */}
       <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
@@ -1030,14 +1024,16 @@ Terima Kasih, ditunggu min.`;
           <X size={24} />
         </button>
 
-        <div className="flex-1 p-6 overflow-y-auto bg-slate-900 md:border-r border-slate-800">
+        {/* UPDATED: Added flex-col to the container to ensure correct layout */}
+        <div className="flex-1 p-6 overflow-y-auto bg-slate-900 md:border-r border-slate-800 flex flex-col">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <ShoppingCart className="text-red-500" />
             Keranjang
           </h2>
 
           {cart.length === 0 ? (
-            <div className="text-center py-20 text-slate-500">
+            // UPDATED: Used flex-1 and flex-col to center content vertically and horizontally
+            <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500 min-h-[300px]">
               <p>Keranjang kosong...</p>
               <button onClick={onClose} className="mt-4 text-red-400 hover:underline text-sm">Lihat Koleksi</button>
             </div>
@@ -1233,8 +1229,8 @@ const App = () => {
       <style>{`
         /* Webkit browsers (Chrome, Safari, Edge) */
         ::-webkit-scrollbar {
-          width: 8px; /* Sedikit lebih tebal dari sebelumnya (4px -> 8px) */
-          height: 8px;
+          width: 10px; /* Lebar lebih tebal sesuai permintaan */
+          height: 10px;
         }
         
         ::-webkit-scrollbar-track {
@@ -1242,23 +1238,31 @@ const App = () => {
         }
         
         ::-webkit-scrollbar-thumb {
-          background-color: #475569; /* Slate-600 for better visibility */
-          border-radius: 4px; /* Rounded corners */
+          background-color: #334155; /* Slate-700 */
+          border-radius: 10px; /* Rounded corners */
+          border: 2px solid transparent; /* Padding trick */
+          background-clip: content-box;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background-color: #64748b; /* Slate-500 hover */
+          background-color: #475569; /* Slate-600 */
         }
 
-        /* Hapus tombol panah/segitiga */
+        /* Hapus tombol panah/segitiga secara eksplisit */
         ::-webkit-scrollbar-button {
           display: none;
+          width: 0;
+          height: 0;
+        }
+        
+        ::-webkit-scrollbar-corner {
+          background: transparent;
         }
         
         /* Firefox support */
         * {
           scrollbar-width: thin;
-          scrollbar-color: #475569 transparent;
+          scrollbar-color: #334155 transparent;
         }
       `}</style>
       
