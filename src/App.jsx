@@ -71,6 +71,66 @@ const FAQS = [
 
 // --- COMPONENTS ---
 
+// --- TOAST NOTIFICATION COMPONENT ---
+const ToastNotification = ({ message, onClose }) => {
+  // State untuk arah animasi keluar (default: ke atas/fade out)
+  const [exitVariant, setExitVariant] = useState({ y: -100, opacity: 0, scale: 0.9 });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Default exit animation (jika timeout)
+      setExitVariant({ y: -100, opacity: 0, scale: 0.9 }); 
+      onClose();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const handleDragEnd = (event, info) => {
+    const { offset } = info;
+    const threshold = 50; // Jarak swipe minimal untuk dismiss
+
+    if (Math.abs(offset.x) > threshold || Math.abs(offset.y) > threshold) {
+      let newExit = { opacity: 0, scale: 0.9, transition: { duration: 0.3 } };
+
+      // Tentukan arah swipe dominan
+      if (Math.abs(offset.x) > Math.abs(offset.y)) {
+        // Horizontal (Kanan/Kiri)
+        newExit.x = offset.x > 0 ? 300 : -300;
+        newExit.y = 0; // Reset Y agar lurus
+      } else {
+        // Vertikal (Bawah/Atas)
+        newExit.y = offset.y > 0 ? 300 : -300;
+        newExit.x = 0; // Reset X agar lurus
+      }
+
+      setExitVariant(newExit);
+      onClose();
+    }
+  };
+
+  return (
+    <motion.div
+      layout
+      initial={{ y: 100, opacity: 0, scale: 0.8 }} // Masuk dari bawah
+      animate={{ y: 0, opacity: 1, scale: 1 }}
+      exit={exitVariant} // Keluar sesuai arah swipe atau default (ke atas)
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      drag // Enable drag
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Snap back jika tidak dilempar
+      dragElastic={0.7} // Rasa karet saat ditarik
+      onDragEnd={handleDragEnd}
+      className="fixed bottom-8 left-0 right-0 mx-auto w-max max-w-[90vw] z-[100] cursor-grab active:cursor-grabbing touch-none"
+    >
+      <div className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 text-black px-6 py-3.5 rounded-full font-bold shadow-[0_0_25px_rgba(251,191,36,0.6)] flex items-center gap-3 border border-yellow-500/50 backdrop-blur-md">
+        <div className="bg-black/10 p-1 rounded-full">
+          <Check size={18} className="stroke-3 text-black" />
+        </div>
+        <span className="text-sm md:text-base tracking-wide">{message}</span>
+      </div>
+    </motion.div>
+  );
+};
+
 const Header = ({ cartCount, openCart }) => (
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300 w-full">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1072,8 +1132,19 @@ Terima Kasih, ditunggu min.`;
 const App = () => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [notification, setNotification] = useState(null); // State notifikasi
 
   const addToCart = (product) => {
+    // Tampilkan notifikasi
+    // Reset dulu agar animasi ter-trigger ulang jika user menekan tombol dengan cepat
+    setNotification(null);
+    setTimeout(() => {
+        setNotification({
+            id: Date.now(),
+            message: `${product.title} telah ditambahkan ke keranjang!`
+        });
+    }, 10);
+
     setCart(prev => {
       const existing = prev.find(p => p.id === product.id);
       if (existing) {
@@ -1112,6 +1183,17 @@ const App = () => {
       <ShopSection addToCart={addToCart} />
       <FAQSection />
       
+      {/* Toast Notification Container */}
+      <AnimatePresence>
+        {notification && (
+          <ToastNotification 
+            key={notification.id}
+            message={notification.message} 
+            onClose={() => setNotification(null)} 
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {isCartOpen && (
           <CartModal 
