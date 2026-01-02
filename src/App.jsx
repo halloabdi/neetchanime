@@ -242,8 +242,8 @@ const Hero = () => {
                 // Increased shadow spread and blur for stronger glow, added overflow-visible to safe-guard
                 className="bg-slate-900/40 border border-pink-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(236,72,153,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
               >
-                  {/* Changed to items-center for better vertical alignment since description is gone */}
-                  <div className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-4 h-full">
+                  {/* UPDATED: Changed flex direction to row for all breakpoints to ensure side-by-side on mobile */}
+                  <div className="flex flex-row items-center text-left gap-4 h-full">
                     <div className="bg-pink-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-pink-500/30 shadow-[inset_0_0_10px_rgba(236,72,153,0.2)] group-hover:bg-pink-500/20 transition-colors">
                         <Rocket className="text-pink-500 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" size={32} />
                     </div>
@@ -261,7 +261,7 @@ const Hero = () => {
                 transition={{ delay: 0.2, duration: 0.5 }}
                 className="bg-slate-900/40 border border-violet-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
               >
-                  <div className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-4 h-full">
+                  <div className="flex flex-row items-center text-left gap-4 h-full">
                     <div className="bg-violet-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-violet-500/30 shadow-[inset_0_0_10px_rgba(139,92,246,0.2)] group-hover:bg-violet-500/20 transition-colors">
                         <Puzzle className="text-violet-500 drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" size={32} />
                     </div>
@@ -279,7 +279,7 @@ const Hero = () => {
                  transition={{ delay: 0.3, duration: 0.5 }}
                  className="bg-slate-900/40 border border-cyan-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
               >
-                  <div className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-4 h-full">
+                  <div className="flex flex-row items-center text-left gap-4 h-full">
                     <div className="bg-cyan-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.2)] group-hover:bg-cyan-500/20 transition-colors">
                         <Monitor className="text-cyan-500 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" size={32} />
                     </div>
@@ -672,15 +672,16 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </motion.div>
           
-          {/* UPDATED: Improved entry animation */}
-          <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-            className="flex items-center justify-between w-full md:w-auto gap-2"
-          >
-            <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
+          {/* UPDATED: Separate animations for controls */}
+          <div className="flex items-center justify-between w-full md:w-auto gap-2">
+            {/* Pagination: From Left */}
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden"
+            >
               {showArrows && (
                 <button
                   onClick={() => changePage(Math.max(page - 1, 1))}
@@ -736,10 +737,16 @@ const ShopSection = ({ addToCart }) => {
                   <ChevronRight size={18} />
                 </button>
               )}
-            </div>
+            </motion.div>
 
-            {/* MODERN FILTER BUTTON & DROPDOWN */}
-            <div className="relative">
+            {/* Filter: From Right */}
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              className="relative"
+            >
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className={`h-[52px] w-[52px] flex items-center justify-center rounded-xl border transition-all ${
@@ -831,8 +838,8 @@ const ShopSection = ({ addToCart }) => {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
 
         <AnimatePresence mode='wait'>
