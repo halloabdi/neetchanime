@@ -410,16 +410,17 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
               <X size={20} />
             </button>
 
-            <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto aspect-video md:aspect-auto">
+            {/* UPDATED: Removed aspect-video and changed fixed height to accommodate various image sizes */}
+            <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-72 md:h-auto">
                {/* LOGIC: Prioritas Full Image (16:9), fallback ke Crop, lalu Mock */}
                <img
                   src={product.imageFull || product.imageCrop || product.image || 'https://placehold.co/600x400/1a1a2e/e94560?text=No+Image'}
                   alt={product.title}
                   onError={(e) => { e.target.src = 'https://placehold.co/600x400/1a1a2e/e94560?text=Image+Error'; }}
-                  // Style Object Contain untuk Full Preview (Gambar Utuh di Tengah)
-                  className="w-full h-full object-contain object-center md:absolute md:inset-0 aspect-video"
+                  // UPDATED: Removed aspect-video to let object-contain show the true image size
+                  className="w-full h-full object-contain object-center md:absolute md:inset-0"
                />
-               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
+               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30 pointer-events-none"></div>
                
                {(product.category2 === 'NSFW' || product.isNSFW) && (
                   <div className="absolute top-4 left-4 px-3 py-1.5 bg-red-600 text-white text-xs font-extrabold rounded-lg shadow-lg border border-red-400 animate-pulse-slow">
@@ -661,16 +662,14 @@ const ShopSection = ({ addToCart }) => {
             
             {/* Pagination Box */}
             <motion.div 
-              // Desktop: From Right (50), Mobile: From Left (-50)
+              // LOGIC: Mobile (Left to Right) vs Desktop (Right to Left)
               initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.4 (appears after filter)
-              // Mobile: Delay 0.2 (appears same time)
+              // Desktop: Filter appears first (0.2s), then Pagination (0.4s)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              // UPDATED: flex: 1 for mobile to fill space but respect filter, max-width calc ensures filter has room
+              // LAYOUT: flex-1 ensures it takes available space on mobile, prevents filter push-out
               className="flex flex-1 md:flex-none flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden min-w-0"
-              style={{ maxWidth: isMobile ? 'calc(100% - 60px)' : 'none' }} 
             >
               {showArrows && (
                 <button
@@ -735,8 +734,9 @@ const ShopSection = ({ addToCart }) => {
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.2 (First), Mobile: Delay 0.2 (Same start)
+              // Desktop: Delay 0.2 (First), Mobile: Delay 0.2 (Same start as pagination)
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              // LAYOUT: flex-shrink-0 ensures it never shrinks/disappears
               className="relative flex-shrink-0"
             >
               <button 
