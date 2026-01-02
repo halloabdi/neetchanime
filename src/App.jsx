@@ -912,6 +912,265 @@ const ShopSection = ({ addToCart }) => {
   );
 };
 
+const FAQItem = ({ faq }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden transition-colors duration-300 hover:border-slate-700">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full text-left p-6 flex items-start justify-between gap-4 hover:bg-slate-800/40 transition-colors focus:outline-none touch-manipulation"
+      >
+        <h3 className="text-white font-bold text-lg flex items-start gap-3">
+          <span className="text-red-500 font-serif italic">Q.</span>
+          {faq.q}
+        </h3>
+        <ChevronDown 
+          className={`text-slate-500 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-red-400' : ''}`} 
+        />
+      </button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="px-6 pb-6 pl-12">
+              <p className="text-slate-400 leading-relaxed text-sm md:text-base border-l-2 border-red-500/30 pl-4">
+                {faq.a}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const FAQSection = () => (
+  // UPDATED: Changed top padding (pt-10) to reduce space from content, bottom remains pb-20
+  <section id="faq" className="pt-10 pb-20 bg-slate-950 relative w-full">
+    <div className="max-w-3xl mx-auto px-4 relative z-10">
+      <div className="text-center mb-12">
+        <HelpCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <h2 className="text-3xl font-bold text-white mb-4">Informasi Penting</h2>
+        <p className="text-slate-400">Harap dibaca sebelum melakukan transaksi</p>
+      </div>
+      
+      <div className="space-y-4">
+        {FAQS.map((faq, idx) => (
+          <FAQItem key={idx} faq={faq} />
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQuantity }) => {
+  const [formData, setFormData] = useState({ name: '', email: '', payment: '' });
+
+  const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+  const handleCheckout = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.payment) {
+      alert("Mohon lengkapi semua data!");
+      return;
+    }
+
+    const itemsList = cart.map((item, idx) => 
+      `${idx + 1}. ${item.title} ${item.isNSFW ? '[18+]' : '[Safe]'} (x${item.quantity})`
+    ).join('\n');
+    
+    const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
+    
+    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
+    const message = `Hai Mimin NEETCHANIME!
+Saya ${formData.name} dengan email ${formData.email}.
+Saya telah membeli produk berupa:
+${itemsList}
+
+Senilai *${formattedTotal}*
+Saya memilih metode pembayaran *${formData.payment}*.
+Terima Kasih, ditunggu min.`;
+
+    const whatsappUrl = `https://wa.me/6285169992275?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+    >
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+      />
+      
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20, transition: { duration: 0.2 } }}
+        className="bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl border border-slate-700 shadow-2xl overflow-hidden relative flex flex-col md:flex-row z-10"
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-white z-10"
+        >
+          <X size={24} />
+        </button>
+
+        <div className="flex-1 p-6 overflow-y-auto bg-slate-900 md:border-r border-slate-800">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <ShoppingCart className="text-red-500" />
+            Keranjang
+          </h2>
+
+          {cart.length === 0 ? (
+            <div className="text-center py-20 text-slate-500">
+              <p>Keranjang kosong...</p>
+              <button onClick={onClose} className="mt-4 text-red-400 hover:underline text-sm">Lihat Koleksi</button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {cart.map((item) => (
+                <div key={item.id} className="flex flex-col gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                       <img src={item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                       {item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-white text-sm font-medium truncate">{item.title}</h4>
+                      <p className="text-red-400 font-bold text-sm">Rp{item.price.toLocaleString('id-ID')}</p>
+                    </div>
+                    <button 
+                      onClick={() => removeItem(item.id)}
+                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors touch-manipulation"
+                      title="Hapus Produk"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between border-t border-slate-700/50 pt-2">
+                    <span className="text-xs text-slate-400">Jumlah:</span>
+                    <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1">
+                      <button 
+                        onClick={() => updateQuantity(item.id, -1)}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      
+                      <input 
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => setCartQuantity(item.id, parseInt(e.target.value) || 1)}
+                        className="w-12 bg-transparent text-center text-sm font-bold text-white focus:outline-none appearance-none"
+                      />
+
+                      <button 
+                        onClick={() => updateQuantity(item.id, 1)}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className="pt-4 border-t border-slate-800 flex justify-between items-center">
+                <span className="text-slate-400">Total</span>
+                <span className="text-2xl font-bold text-white">Rp{total.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 p-6 bg-slate-950 overflow-y-auto">
+          <h2 className="text-xl font-bold text-white mb-6">Konfirmasi Pembeli</h2>
+          
+          <form onSubmit={handleCheckout} className="space-y-4">
+            <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg flex gap-3 mb-4">
+              <AlertCircle className="text-red-500 flex-shrink-0" size={20} />
+              <p className="text-[10px] text-red-200/80 leading-relaxed">
+                Dengan melanjutkan, Anda menyatakan bahwa Anda berusia 18 tahun ke atas dan setuju dengan kebijakan privasi kami.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Nama Lengkap</label>
+              <input 
+                type="text" 
+                required
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-500 transition-colors"
+                placeholder="Nama samaran diperbolehkan"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Email</label>
+              <input 
+                type="email" 
+                required
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-500 transition-colors"
+                placeholder="Untuk pengiriman file"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-2">Metode Pembayaran</label>
+              <div className="grid grid-cols-3 gap-2">
+                {PAYMENT_METHODS.map(method => (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => setFormData({...formData, payment: method})}
+                    className={`px-2 py-2 text-xs font-bold rounded-lg border transition-all touch-manipulation ${
+                      formData.payment === method 
+                        ? 'bg-red-600 border-red-600 text-white' 
+                        : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                    }`}
+                  >
+                    {method}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <button 
+                type="submit"
+                disabled={cart.length === 0}
+                className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
+              >
+                <span>Proses di WhatsApp</span>
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 // --- MAIN APP ---
 const App = () => {
   const [cart, setCart] = useState([]);
@@ -974,32 +1233,38 @@ const App = () => {
       <style>{`
         /* Webkit browsers (Chrome, Safari, Edge) */
         ::-webkit-scrollbar {
-          width: 8px; /* Sedikit lebih tebal dari sebelumnya (4px -> 8px) */
-          height: 8px;
+          width: 4px; /* Sangat tipis, hanya garis */
+          height: 4px;
         }
         
         ::-webkit-scrollbar-track {
-          background: transparent; 
+          background: transparent; /* Track benar-benar transparan */
         }
         
         ::-webkit-scrollbar-thumb {
-          background-color: #475569; /* Slate-600 for better visibility */
-          border-radius: 4px; /* Rounded corners */
+          background-color: #334155; /* Warna garis slate-700 */
+          border-radius: 0; /* Kotak/Garis tegas tanpa lengkungan berlebih */
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background-color: #64748b; /* Slate-500 hover */
+          background-color: #94a3b8; /* Lebih terang saat di-hover (slate-400) */
         }
 
-        /* Hapus tombol panah/segitiga */
+        /* Menghilangkan tombol panah atas/bawah secara eksplisit */
         ::-webkit-scrollbar-button {
           display: none;
+          width: 0;
+          height: 0;
+        }
+        
+        ::-webkit-scrollbar-corner {
+          background: transparent;
         }
         
         /* Firefox support */
         * {
           scrollbar-width: thin;
-          scrollbar-color: #475569 transparent;
+          scrollbar-color: #334155 transparent;
         }
       `}</style>
       
