@@ -122,6 +122,12 @@ const ToastNotification = ({ data, onClose }) => {
       // Fixed: Box shape logic and centering
       className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
+      {/* UPDATED: 
+          - Removed min-w/max-w fixed values to allow auto-fitting
+          - Increased padding (p-5) for larger feel
+          - Increased font sizes
+          - w-auto inline-flex ensures it wraps content tightly 
+      */}
       <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
