@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Info, Filter, Flame, TrendingUp, BookOpen } from 'lucide-react';
+import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Filter, Flame, TrendingUp, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- DATA MOCKUP GENERATOR ---
@@ -46,7 +46,6 @@ const PAYMENT_METHODS = [
   "QRIS", "DANA", "OVO", "BNI", "MANDIRI", "SEABANK", "BSI", "VISA", "PAYPAL"
 ];
 
-// UPDATED: FAQ Content Replaced
 const FAQS = [
   {
     q: "Apa sih NEETCHANIME itu?",
@@ -167,6 +166,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
+    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -388,13 +388,10 @@ const ShopSection = ({ addToCart }) => {
     }
 
     setActiveFilters(prev => {
-      // If currently selecting a normal filter, remove 'default' implicit behavior (empty array)
-      
       const exists = prev.includes(filterType);
       if (exists) {
         return prev.filter(f => f !== filterType);
       } else {
-        // Max 2 filters. If 2 already selected, remove the first one (FIFO)
         if (prev.length >= 2) {
           return [...prev.slice(1), filterType];
         }
@@ -403,24 +400,21 @@ const ShopSection = ({ addToCart }) => {
     });
   };
 
-  // Processing Products (Filter -> Sort -> Pagination)
   const processedProducts = useMemo(() => {
     let result = [...PRODUCTS];
 
-    // Sorting Logic based on activeFilters
-    // If activeFilters is empty, it means "Default" (ID ascending / insertion order)
     if (activeFilters.length > 0) {
       result.sort((a, b) => {
         for (const filter of activeFilters) {
           let comparison = 0;
           switch (filter) {
-            case 'best_selling': // Terlaris (Most Buyers)
+            case 'best_selling': 
               comparison = b.buyers - a.buyers;
               break;
-            case 'top_rated': // Terbaik (Highest Rating)
+            case 'top_rated': 
               comparison = parseFloat(b.rating) - parseFloat(a.rating);
               break;
-            case 'newest': // Terupdate (Highest ID assumed newest)
+            case 'newest': 
               comparison = b.id - a.id;
               break;
             default:
@@ -431,7 +425,6 @@ const ShopSection = ({ addToCart }) => {
         return 0;
       });
     } else {
-       // Default Sort: ID Ascending (restore original order if mixed)
        result.sort((a, b) => a.id - b.id); 
     }
 
@@ -440,7 +433,6 @@ const ShopSection = ({ addToCart }) => {
   
   const totalPages = Math.ceil(processedProducts.length / itemsPerPage); 
   
-  // Reset page when filters change
   useEffect(() => {
     setPage(1);
   }, [activeFilters]);
@@ -530,12 +522,11 @@ const ShopSection = ({ addToCart }) => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
-              Koleksi Premium <span className="text-red-500 text-sm border border-red-500/50 px-2 py-0.5 rounded uppercase">Mature</span>
+              Koleksi Konten <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-lg shadow-amber-500/20 tracking-wider">PREMIUM</span>
             </h2>
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
           
-          {/* UPDATED: Added 'w-full md:w-auto' and 'justify-between' to push filter to right edge on mobile */}
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
             <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
               {showArrows && (
@@ -551,7 +542,7 @@ const ShopSection = ({ addToCart }) => {
               )}
 
               <div className="flex items-center gap-1 h-9">
-                <AnimatePresence mode='popLayout' custom={direction} initial={false}>
+                <AnimatePresence mode='wait' custom={direction} initial={false}>
                     {paginationGroup.map((num) => (
                       <motion.button
                         key={num}
@@ -595,7 +586,6 @@ const ShopSection = ({ addToCart }) => {
               )}
             </div>
 
-            {/* MODERN FILTER BUTTON & DROPDOWN */}
             <div className="relative">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
