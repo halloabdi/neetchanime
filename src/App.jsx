@@ -74,10 +74,12 @@ const FAQS = [
 
 // --- TOAST NOTIFICATION COMPONENT ---
 const ToastNotification = ({ data, onClose }) => {
+  // State untuk arah animasi keluar (default: ke atas/fade out)
   const [exitVariant, setExitVariant] = useState({ y: -100, opacity: 0, scale: 0.9 });
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      // Default exit animation (jika timeout)
       setExitVariant({ y: -100, opacity: 0, scale: 0.9 }); 
       onClose();
     }, 5000);
@@ -86,17 +88,20 @@ const ToastNotification = ({ data, onClose }) => {
 
   const handleDragEnd = (event, info) => {
     const { offset } = info;
-    const threshold = 50; 
+    const threshold = 50; // Jarak swipe minimal untuk dismiss
 
     if (Math.abs(offset.x) > threshold || Math.abs(offset.y) > threshold) {
       let newExit = { opacity: 0, scale: 0.9, transition: { duration: 0.3 } };
 
+      // Tentukan arah swipe dominan
       if (Math.abs(offset.x) > Math.abs(offset.y)) {
+        // Horizontal (Kanan/Kiri)
         newExit.x = offset.x > 0 ? 300 : -300;
-        newExit.y = 0;
+        newExit.y = 0; // Reset Y agar lurus
       } else {
+        // Vertikal (Bawah/Atas)
         newExit.y = offset.y > 0 ? 300 : -300;
-        newExit.x = 0;
+        newExit.x = 0; // Reset X agar lurus
       }
 
       setExitVariant(newExit);
@@ -107,38 +112,47 @@ const ToastNotification = ({ data, onClose }) => {
   return (
     <motion.div
       layout
-      initial={{ y: 100, opacity: 0, scale: 0.8 }} 
+      initial={{ y: 100, opacity: 0, scale: 0.8 }} // Masuk dari bawah
       animate={{ y: 0, opacity: 1, scale: 1 }}
-      exit={exitVariant}
+      exit={exitVariant} // Keluar sesuai arah swipe atau default (ke atas)
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      drag 
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} 
-      dragElastic={0.7} 
+      drag // Enable drag
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Snap back jika tidak dilempar
+      dragElastic={0.7} // Rasa karet saat ditarik
       onDragEnd={handleDragEnd}
-      // Fixed: w-fit + max-width ensures tight wrapping without fixed min-width
+      // Fixed: Box shape logic and centering
       className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
-      {/* Container: removed min-w, increased p-5 for size, w-auto */}
+      {/* UPDATED: 
+          - Removed min-w/max-w fixed values to allow auto-fitting
+          - Increased padding (p-5) for larger feel
+          - Increased font sizes
+          - w-auto inline-flex ensures it wraps content tightly 
+      */}
       <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
+        {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
         <div className="p-5 flex flex-row items-center gap-5 relative z-10">
           
-          {/* Qty Box */}
+          {/* Left Column: Kotak Putih Transparan + Jumlah Produk (Larger) */}
           <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-4 py-2 min-w-[50px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
             <span className="text-lg font-bold text-white tabular-nums">
               {data.quantity}x
             </span>
           </div>
 
-          {/* Text Content */}
+          {/* Right Column: Nama Produk & Keterangan Sukses */}
           <div className="flex flex-col gap-2 min-w-0">
-             <span className="text-base font-bold text-white leading-snug line-clamp-2 max-w-[60vw]">
+             {/* Nama Produk (Larger Text) */}
+             <span className="text-base font-bold text-white leading-snug line-clamp-2 max-w-[60vw] md:max-w-[400px]">
                 {data.productName}
              </span>
 
+             {/* Separator Line: 55% Transparency */}
              <div className="h-[1px] w-full bg-white/55" />
 
+             {/* Keterangan Sukses (Readable) */}
              <div className="flex items-center gap-2">
                 <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
                    <Check size={14} className="text-white stroke-[4]" />
@@ -148,6 +162,7 @@ const ToastNotification = ({ data, onClose }) => {
                 </span>
              </div>
           </div>
+
         </div>
       </div>
     </motion.div>
@@ -252,6 +267,7 @@ const Hero = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4 w-full">
+              {/* Box 1: Booster */}
               <motion.div 
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -269,6 +285,7 @@ const Hero = () => {
                   </div>
               </motion.div>
 
+              {/* Box 2: Puzzle */}
               <motion.div 
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -286,6 +303,7 @@ const Hero = () => {
                   </div>
               </motion.div>
 
+              {/* Box 3: Monitor/4K */}
               <motion.div 
                  initial={{ opacity: 0, y: 50 }}
                  whileInView={{ opacity: 1, y: 0 }}
@@ -962,13 +980,33 @@ const App = () => {
   return (
     <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200 overflow-x-hidden w-full">
       <style>{`
-        ::-webkit-scrollbar { width: 14px; height: 14px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 7px; border: 3px solid #020617; }
-        ::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
-        ::-webkit-scrollbar-button { display: none !important; width: 0; height: 0; }
-        ::-webkit-scrollbar-corner { background: transparent; }
-        html { scrollbar-width: thin; scrollbar-color: #475569 #020617; }
+        /* Force hide buttons */
+        ::-webkit-scrollbar-button {
+          display: none !important;
+          height: 0;
+          width: 0;
+          background: transparent;
+        }
+        
+        ::-webkit-scrollbar {
+          width: 12px; /* Tebal */
+          background: transparent; /* Track transparan */
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #0f172a; /* Slate 950 - match background */
+          border-radius: 0;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background-color: #334155; /* Slate 700 */
+          border-radius: 6px; /* Rounded */
+          border: 0px solid transparent; /* Hapus border agar menempel full */
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: #475569; /* Slate 600 */
+        }
       `}</style>
       <Header cartCount={cartCount} openCart={() => setIsCartOpen(true)} />
       <Hero />
