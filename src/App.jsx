@@ -73,8 +73,6 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
-  // Optimization: bg-slate-900/80 with backdrop-blur-md restores the glass effect without being too heavy.
-  // transform-gpu ensures the GPU handles the rendering.
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -113,7 +111,6 @@ const Hero = () => {
   };
 
   return (
-    // UPDATED: Changed pb-12 to pb-6 to reduce space towards the next section
     <section className="relative pt-24 pb-12 overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
       <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu"></div>
@@ -138,7 +135,6 @@ const Hero = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
             </span>
           </h1>
-          {/* UPDATED: Description text changed and color set to text-white */}
           <p className="text-white text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-6 font-medium">
             Beli konten premium kreator/artis kesukaanmu dengan biaya lebih terjangkau! Buruan order yawh~! ❤️
           </p>
@@ -158,7 +154,6 @@ const Hero = () => {
             </button>
           </div>
 
-          {/* NEW: FEATURES SECTION - KEUNGGULAN */}
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center justify-center gap-4 mb-8">
               <div className="h-px bg-slate-800 flex-1 max-w-[60px]"></div>
@@ -167,7 +162,6 @@ const Hero = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-2">
-              {/* Feature 1: Tanpa Limit Kecepatan */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -182,7 +176,6 @@ const Hero = () => {
                   <p className="text-pink-100 text-xs leading-relaxed opacity-90">Download file super ngebut tanpa batasan server.</p>
               </motion.div>
 
-              {/* Feature 2: Kompatibel */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -197,7 +190,6 @@ const Hero = () => {
                   <p className="text-violet-100 text-xs leading-relaxed opacity-90">Akses mudah di PC, Laptop, maupun Smartphone.</p>
               </motion.div>
 
-              {/* Feature 3: Kualitas 4K */}
               <motion.div 
                  initial={{ opacity: 0, y: 20 }}
                  whileInView={{ opacity: 1, y: 0 }}
@@ -581,14 +573,27 @@ const ShopSection = ({ addToCart }) => {
     <section id="shop" className="pt-12 pb-20 bg-slate-950 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          <div>
+          {/* UPDATED: Added entry animation to Title section */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
               Koleksi Konten <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-lg shadow-amber-500/20 tracking-wider">PREMIUM</span>
             </h2>
             <p className="text-slate-400">Terlaris bulan ini</p>
-          </div>
+          </motion.div>
           
-          <div className="flex items-center justify-between w-full md:w-auto gap-2">
+          {/* UPDATED: Added entry animation to Controls (Filter + Pagination) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+            className="flex items-center justify-between w-full md:w-auto gap-2"
+          >
             <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
               {showArrows && (
                 <button
@@ -741,7 +746,7 @@ const ShopSection = ({ addToCart }) => {
                 )}
               </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         <AnimatePresence mode='wait'>
