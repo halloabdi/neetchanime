@@ -73,6 +73,8 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
+  // Optimization: bg-slate-900/80 with backdrop-blur-md restores the glass effect without being too heavy.
+  // transform-gpu ensures the GPU handles the rendering.
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -167,6 +169,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
+    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -530,7 +533,7 @@ const ShopSection = ({ addToCart }) => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
-              Koleksi Premium <span className="text-red-500 text-sm border border-red-500/50 px-2 py-0.5 rounded uppercase">Mature</span>
+              Koleksi Premium <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-lg shadow-amber-500/20 tracking-wider">PREMIUM</span>
             </h2>
             <p className="text-slate-400">Terlaris bulan ini</p>
           </div>
