@@ -122,7 +122,8 @@ const ToastNotification = ({ data, onClose }) => {
       // Fixed: Box shape logic
       className="fixed bottom-8 left-4 right-4 md:left-0 md:right-0 md:mx-auto md:w-auto z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto"
     >
-      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-full md:min-w-[380px] md:max-w-[450px] backdrop-blur-xl relative overflow-hidden">
+      {/* UPDATED: Changed width classes to auto and removed large min/max widths to make it shorter/fitted */}
+      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[90vw] md:max-w-[380px] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
@@ -150,7 +151,7 @@ const ToastNotification = ({ data, onClose }) => {
                 <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
                    <Check size={10} className="text-white stroke-[4]" />
                 </div>
-                <span className="font-medium text-xs tracking-wide text-yellow-50/90">
+                <span className="font-medium text-xs tracking-wide text-yellow-50/90 whitespace-nowrap">
                   Sukses Masuk di Keranjang!
                 </span>
              </div>
