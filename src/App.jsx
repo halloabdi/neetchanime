@@ -72,7 +72,7 @@ const FAQS = [
 // --- COMPONENTS ---
 
 // --- TOAST NOTIFICATION COMPONENT ---
-const ToastNotification = ({ message, onClose }) => {
+const ToastNotification = ({ data, onClose }) => {
   // State untuk arah animasi keluar (default: ke atas/fade out)
   const [exitVariant, setExitVariant] = useState({ y: -100, opacity: 0, scale: 0.9 });
 
@@ -119,13 +119,37 @@ const ToastNotification = ({ message, onClose }) => {
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Snap back jika tidak dilempar
       dragElastic={0.7} // Rasa karet saat ditarik
       onDragEnd={handleDragEnd}
-      className="fixed bottom-8 left-0 right-0 mx-auto w-max max-w-[90vw] z-[100] cursor-grab active:cursor-grabbing touch-none"
+      // Fixed: Box shape logic
+      className="fixed bottom-8 left-4 right-4 md:left-0 md:right-0 md:mx-auto md:w-auto z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto"
     >
-      <div className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 text-black px-6 py-3.5 rounded-full font-bold shadow-[0_0_25px_rgba(251,191,36,0.6)] flex items-center gap-3 border border-yellow-500/50 backdrop-blur-md">
-        <div className="bg-black/10 p-1 rounded-full">
-          <Check size={18} className="stroke-3 text-black" />
+      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-full md:min-w-[400px] md:max-w-[450px] backdrop-blur-xl relative overflow-hidden">
+        {/* Shine Effect */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
+        
+        <div className="p-4 flex flex-col gap-2 relative z-10">
+          {/* Header: Success Message */}
+          <div className="flex items-center gap-2.5">
+            <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
+               <Check size={14} className="text-white stroke-[4]" />
+            </div>
+            <span className="font-bold text-sm tracking-wide text-yellow-50 shadow-black drop-shadow-sm">Sukses Masuk di Keranjang!</span>
+          </div>
+
+          {/* Separator Line: 55% Transparency */}
+          <div className="h-[1px] w-full bg-white/55 my-0.5" />
+
+          {/* Body: Product Name & Quantity */}
+          <div className="flex items-center justify-between gap-4 pl-1">
+            <span className="text-xs md:text-sm font-medium text-yellow-100/90 truncate flex-1">
+              {data.productName}
+            </span>
+            <div className="flex items-center justify-center bg-black/30 border border-yellow-500/30 rounded-lg px-2.5 py-1 min-w-[32px]">
+              <span className="text-xs font-bold text-white tabular-nums">
+                {data.quantity}
+              </span>
+            </div>
+          </div>
         </div>
-        <span className="text-sm md:text-base tracking-wide">{message}</span>
       </div>
     </motion.div>
   );
@@ -1142,13 +1166,21 @@ const App = () => {
   const [notification, setNotification] = useState(null); // State notifikasi
 
   const addToCart = (product) => {
+    // UPDATED: Calculate quantity immediately for notification
+    let newQty = 1;
+    const existingItem = cart.find(p => p.id === product.id);
+    if (existingItem) {
+        newQty = existingItem.quantity + 1;
+    }
+
     // Tampilkan notifikasi
     // Reset dulu agar animasi ter-trigger ulang jika user menekan tombol dengan cepat
     setNotification(null);
     setTimeout(() => {
         setNotification({
             id: Date.now(),
-            message: `${product.title} telah ditambahkan ke keranjang!`
+            productName: product.title,
+            quantity: newQty // Pass the quantity
         });
     }, 10);
 
@@ -1195,7 +1227,7 @@ const App = () => {
         {notification && (
           <ToastNotification 
             key={notification.id}
-            message={notification.message} 
+            data={notification} // Pass object data
             onClose={() => setNotification(null)} 
           />
         )}
