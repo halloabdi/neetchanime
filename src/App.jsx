@@ -122,12 +122,6 @@ const ToastNotification = ({ data, onClose }) => {
       // Fixed: Box shape logic and centering
       className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
-      {/* UPDATED: 
-          - Removed min-w/max-w fixed values to allow auto-fitting
-          - Increased padding (p-5) for larger feel
-          - Increased font sizes
-          - w-auto inline-flex ensures it wraps content tightly 
-      */}
       <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
@@ -524,9 +518,10 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
 };
 
 const ShopSection = ({ addToCart }) => {
+  // UPDATED: Initial state to check window width to prevent flash of wrong animation
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [direction, setDirection] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null); 
 
@@ -545,7 +540,9 @@ const ShopSection = ({ addToCart }) => {
       }
     };
 
-    handleResize(); 
+    // Initial check
+    handleResize();
+    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -706,15 +703,18 @@ const ShopSection = ({ addToCart }) => {
           
           {/* UPDATED: Separate animations for controls */}
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
-            {/* Pagination */}
+            {/* Pagination: Animations fixed per request (Left to Right on Mobile, Right to Left on Desktop) */}
             <motion.div 
-              // UPDATED: Desktop: From Right (50), Mobile: From Left (-50)
+              // Desktop (Right to Left): x: 50 -> 0
+              // Mobile (Left to Right): x: -50 -> 0
               initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // UPDATED: Desktop: Delay 0.4 (after filter), Mobile: Delay 0.2 (before/same filter)
-              transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden"
+              // Desktop: Delay 0.5 (appears second)
+              // Mobile: Delay 0.2 (appears with Filter)
+              transition={{ duration: 0.6, ease: "easeOut", delay: isMobile ? 0.2 : 0.5 }}
+              // UPDATED: Added max-width and flex-shrink-0 for mobile stability
+              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden max-w-[80vw] md:max-w-none flex-shrink-0"
             >
               {showArrows && (
                 <button
@@ -773,15 +773,15 @@ const ShopSection = ({ addToCart }) => {
               )}
             </motion.div>
 
-            {/* Filter */}
+            {/* Filter: From Right (Always) */}
             <motion.div 
-              // UPDATED: Always from Right (50)
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // UPDATED: Desktop & Mobile: Delay 0.2 (starts first on Desktop before pagination)
-              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-              className="relative"
+              // Desktop: Delay 0.2 (appears first)
+              // Mobile: Delay 0.2 (appears same time)
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+              className="relative flex-shrink-0"
             >
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
