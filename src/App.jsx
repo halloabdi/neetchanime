@@ -506,15 +506,25 @@ const ShopSection = ({ addToCart }) => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await fetch(GOOGLE_SHEET_API_URL);
+            // Update fetch to avoid caching issues with timestamp
+            const response = await fetch(`${GOOGLE_SHEET_API_URL}?t=${new Date().getTime()}`, {
+                method: "GET",
+                // IMPORTANT: 'no-cors' mode is NOT used here as we need the JSON body.
+                // 'cors' is default. If you get CORS errors, check GAS deployment permissions.
+                // However, adding credentials: 'omit' is a common fix for GAS client-side fetch issues.
+                credentials: 'omit', 
+                redirect: 'follow',
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8",
+                }
+            });
+            
+            if (!response.ok) throw new Error("Network response was not ok");
+
             const data = await response.json();
             if (Array.isArray(data)) {
-                // Tambahkan fallback rating saja, data lain ambil dari sheet
-                const enrichedData = data.map(item => ({
-                    ...item,
-                    rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1)
-                }));
-                setSheetProducts(enrichedData);
+                // Gunakan data dari Sheet langsung, sudah lengkap dari GAS
+                setSheetProducts(data);
             }
         } catch (error) {
             console.error("Failed to fetch sheet data", error);
