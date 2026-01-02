@@ -119,39 +119,44 @@ const ToastNotification = ({ data, onClose }) => {
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Snap back jika tidak dilempar
       dragElastic={0.7} // Rasa karet saat ditarik
       onDragEnd={handleDragEnd}
-      // Fixed: Box shape logic
-      className="fixed bottom-8 left-4 right-4 md:left-0 md:right-0 md:mx-auto md:w-auto z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto"
+      // Fixed: Box shape logic and centering
+      className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
-      {/* UPDATED: Changed width classes to auto and removed large min/max widths to make it shorter/fitted */}
-      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[90vw] md:max-w-[380px] backdrop-blur-xl relative overflow-hidden">
+      {/* UPDATED: 
+          - Removed min-w/max-w fixed values to allow auto-fitting
+          - Increased padding (p-5) for larger feel
+          - Increased font sizes
+          - w-auto inline-flex ensures it wraps content tightly 
+      */}
+      <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
-        <div className="p-4 flex flex-row items-center gap-4 relative z-10">
+        <div className="p-5 flex flex-row items-center gap-5 relative z-10">
           
-          {/* Left Column: Kotak Putih Transparan + Jumlah Produk */}
-          <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-3 py-1.5 min-w-[42px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
-            <span className="text-sm font-bold text-white tabular-nums">
+          {/* Left Column: Kotak Putih Transparan + Jumlah Produk (Larger) */}
+          <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-4 py-2 min-w-[50px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
+            <span className="text-lg font-bold text-white tabular-nums">
               {data.quantity}x
             </span>
           </div>
 
           {/* Right Column: Nama Produk & Keterangan Sukses */}
-          <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-             {/* Nama Produk */}
-             <span className="text-sm font-bold text-white leading-snug line-clamp-2">
+          <div className="flex flex-col gap-2 min-w-0">
+             {/* Nama Produk (Larger Text) */}
+             <span className="text-base font-bold text-white leading-snug line-clamp-2 max-w-[60vw] md:max-w-[400px]">
                 {data.productName}
              </span>
 
              {/* Separator Line: 55% Transparency */}
              <div className="h-[1px] w-full bg-white/55" />
 
-             {/* Keterangan Sukses */}
+             {/* Keterangan Sukses (Readable) */}
              <div className="flex items-center gap-2">
                 <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
-                   <Check size={10} className="text-white stroke-[4]" />
+                   <Check size={14} className="text-white stroke-[4]" />
                 </div>
-                <span className="font-medium text-xs tracking-wide text-yellow-50/90 whitespace-nowrap">
+                <span className="font-medium text-sm tracking-wide text-yellow-50/90 whitespace-nowrap">
                   Sukses Masuk di Keranjang!
                 </span>
              </div>
@@ -202,7 +207,6 @@ const Hero = () => {
   };
 
   return (
-    // UPDATED: Adjusted top padding from pt-36 to pt-32 for balanced spacing
     <section className="relative pt-32 pb-12 overflow-hidden w-full">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
       <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu pointer-events-none"></div>
@@ -218,7 +222,6 @@ const Hero = () => {
             Strictly for Adults (18+)
           </span>
           <h1 className="font-extrabold mb-4 tracking-tighter leading-tight md:leading-none">
-            {/* UPDATED: Reduced padding-bottom (pb-0) and margin-top (mt-0) to bring lines closer */}
             <span className="block text-5xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-0 break-words tracking-tighter">
               NEETCHANIME
             </span>
@@ -263,7 +266,6 @@ const Hero = () => {
               <div className="h-[2px] bg-gradient-to-l from-transparent to-slate-700 flex-1 max-w-[100px]"></div>
             </motion.div>
 
-            {/* Added py-4 to container to ensure glow isn't cut off vertically */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4 w-full">
               {/* Box 1: Booster */}
               <motion.div 
@@ -271,10 +273,8 @@ const Hero = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ delay: 0.1, duration: 0.5 }}
-                // Increased shadow spread and blur for stronger glow, added overflow-visible to safe-guard
                 className="bg-slate-900/40 border border-pink-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(236,72,153,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
               >
-                  {/* UPDATED: Changed flex direction to row for all breakpoints to ensure side-by-side on mobile */}
                   <div className="flex flex-row items-center text-left gap-4 h-full">
                     <div className="bg-pink-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-pink-500/30 shadow-[inset_0_0_10px_rgba(236,72,153,0.2)] group-hover:bg-pink-500/20 transition-colors">
                         <Rocket className="text-pink-500 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" size={32} />
@@ -706,12 +706,14 @@ const ShopSection = ({ addToCart }) => {
           
           {/* UPDATED: Separate animations for controls */}
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
-            {/* Pagination: From Left */}
+            {/* Pagination */}
             <motion.div 
-              initial={{ opacity: 0, x: -50 }}
+              // UPDATED: Desktop: From Right (50), Mobile: From Left (-50)
+              initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              // UPDATED: Desktop: Delay 0.4 (after filter), Mobile: Delay 0.2 (before/same filter)
+              transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
               className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden"
             >
               {showArrows && (
@@ -771,11 +773,13 @@ const ShopSection = ({ addToCart }) => {
               )}
             </motion.div>
 
-            {/* Filter: From Right */}
+            {/* Filter */}
             <motion.div 
+              // UPDATED: Always from Right (50)
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
+              // UPDATED: Desktop & Mobile: Delay 0.2 (starts first on Desktop before pagination)
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="relative"
             >
@@ -1225,6 +1229,45 @@ const App = () => {
   return (
     // FIXED: Added overflow-x-hidden and w-full to prevent horizontal scrolling whitespace
     <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200 overflow-x-hidden w-full">
+      {/* GLOBAL SCROLLBAR STYLE - Modern Minimalist Line */}
+      <style>{`
+        /* Webkit browsers (Chrome, Safari, Edge) */
+        ::-webkit-scrollbar {
+          width: 4px; /* Sangat tipis, hanya garis */
+          height: 4px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: transparent; /* Track benar-benar transparan */
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background-color: #334155; /* Warna garis slate-700 */
+          border-radius: 0; /* Kotak/Garis tegas tanpa lengkungan berlebih */
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: #94a3b8; /* Lebih terang saat di-hover (slate-400) */
+        }
+
+        /* Menghilangkan tombol panah atas/bawah secara eksplisit */
+        ::-webkit-scrollbar-button {
+          display: none;
+          width: 0;
+          height: 0;
+        }
+        
+        ::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+        
+        /* Firefox support */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #334155 transparent;
+        }
+      `}</style>
+      
       <Header cartCount={cartCount} openCart={() => setIsCartOpen(true)} />
       <Hero />
       <ShopSection addToCart={addToCart} />
