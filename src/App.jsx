@@ -46,7 +46,6 @@ const PAYMENT_METHODS = [
   "QRIS", "DANA", "OVO", "BNI", "MANDIRI", "SEABANK", "BSI", "VISA", "PAYPAL"
 ];
 
-// UPDATED: FAQ Content Replaced
 const FAQS = [
   {
     q: "Apa sih NEETCHANIME itu?",
@@ -116,7 +115,7 @@ const Hero = () => {
       <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu"></div>
       <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu"></div>
       
-      <div className="max-w-4xl mx-auto px-4 text-center z-10 relative">
+      <div className="max-w-6xl mx-auto px-4 text-center z-10 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,7 +153,8 @@ const Hero = () => {
             </button>
           </div>
 
-          <div className="max-w-5xl mx-auto">
+          {/* --- NEW SECTION: KEUNGGULAN (FEATURE BOXES) --- */}
+          <div className="max-w-5xl mx-auto mt-16">
             <div className="flex items-center justify-center gap-4 mb-8">
               <div className="h-px bg-slate-800 flex-1 max-w-[60px]"></div>
               <p className="text-slate-400 text-xs font-bold tracking-[0.2em] uppercase">Mengapa Harus NEETCHANIME?</p>
@@ -162,46 +162,52 @@ const Hero = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-2">
+              {/* Box 1: Booster */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="bg-gradient-to-br from-pink-600/90 to-rose-600/90 p-5 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-pink-900/20 group"
+                className="bg-gradient-to-br from-pink-600 to-rose-600 p-6 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-pink-900/20 group relative overflow-hidden"
               >
-                  <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 backdrop-blur-md group-hover:bg-white/30 transition-colors">
-                      <Rocket className="text-white" size={20} />
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                  <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-md group-hover:bg-white/30 transition-colors shadow-inner">
+                      <Rocket className="text-white drop-shadow-md" size={24} />
                   </div>
-                  <h3 className="font-bold text-white text-md mb-1">Tanpa Limit Kecepatan</h3>
-                  <p className="text-pink-100 text-xs leading-relaxed opacity-90">Download file super ngebut tanpa batasan server.</p>
+                  <h3 className="font-bold text-white text-lg mb-2">Tanpa Limit Kecepatan</h3>
+                  <p className="text-pink-100 text-sm leading-relaxed opacity-90 font-medium">Download file super ngebut tanpa batasan server.</p>
               </motion.div>
 
+              {/* Box 2: Puzzle */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-violet-600/90 to-indigo-600/90 p-5 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-violet-900/20 group"
+                className="bg-gradient-to-br from-violet-600 to-indigo-600 p-6 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-violet-900/20 group relative overflow-hidden"
               >
-                  <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 backdrop-blur-md group-hover:bg-white/30 transition-colors">
-                      <Puzzle className="text-white" size={20} />
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                  <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-md group-hover:bg-white/30 transition-colors shadow-inner">
+                      <Puzzle className="text-white drop-shadow-md" size={24} />
                   </div>
-                  <h3 className="font-bold text-white text-md mb-1">Kompatibel Semua Device</h3>
-                  <p className="text-violet-100 text-xs leading-relaxed opacity-90">Akses mudah di PC, Laptop, maupun Smartphone.</p>
+                  <h3 className="font-bold text-white text-lg mb-2">Kompatibel Semua Device</h3>
+                  <p className="text-violet-100 text-sm leading-relaxed opacity-90 font-medium">Akses mudah di PC, Laptop, maupun Smartphone.</p>
               </motion.div>
 
+              {/* Box 3: Monitor/4K */}
               <motion.div 
                  initial={{ opacity: 0, y: 20 }}
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true }}
                  transition={{ delay: 0.3 }}
-                 className="bg-gradient-to-br from-cyan-600/90 to-blue-600/90 p-5 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-cyan-900/20 group"
+                 className="bg-gradient-to-br from-cyan-600 to-blue-600 p-6 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-cyan-900/20 group relative overflow-hidden"
               >
-                  <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 backdrop-blur-md group-hover:bg-white/30 transition-colors">
-                      <Monitor className="text-white" size={20} />
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                  <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-md group-hover:bg-white/30 transition-colors shadow-inner">
+                      <Monitor className="text-white drop-shadow-md" size={24} />
                   </div>
-                  <h3 className="font-bold text-white text-md mb-1">Kualitas Jernih 4K</h3>
-                  <p className="text-cyan-100 text-xs leading-relaxed opacity-90">Visual tajam memanjakan mata (2K hingga 4K).</p>
+                  <h3 className="font-bold text-white text-lg mb-2">Kualitas Jernih 4K</h3>
+                  <p className="text-cyan-100 text-sm leading-relaxed opacity-90 font-medium">Visual tajam memanjakan mata (2K hingga 4K).</p>
               </motion.div>
             </div>
           </div>
@@ -1038,3 +1044,69 @@ Terima Kasih, ditunggu min.`;
     </motion.div>
   );
 }
+
+// --- MAIN APP ---
+const App = () => {
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const addToCart = (product) => {
+    setCart(prev => {
+      const existing = prev.find(p => p.id === product.id);
+      if (existing) {
+        return prev.map(p => p.id === product.id ? {...p, quantity: p.quantity + 1} : p);
+      }
+      return [...prev, {...product, quantity: 1}];
+    });
+  };
+
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQuantity = item.quantity + delta;
+        return newQuantity > 0 ? {...item, quantity: newQuantity} : item;
+      }
+      return item;
+    }));
+  };
+
+  const setCartQuantity = (id, quantity) => {
+    if (quantity < 1) return;
+    setCart(prev => prev.map(item => item.id === id ? {...item, quantity} : item));
+  }
+
+  const removeItem = (id) => {
+    setCart(prev => prev.filter(item => item.id !== id));
+  };
+
+  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  return (
+    <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200">
+      <Header cartCount={cartCount} openCart={() => setIsCartOpen(true)} />
+      <Hero />
+      <ShopSection addToCart={addToCart} />
+      <FAQSection />
+      
+      <AnimatePresence>
+        {isCartOpen && (
+          <CartModal 
+            isOpen={isCartOpen} 
+            onClose={() => setIsCartOpen(false)} 
+            cart={cart}
+            updateQuantity={updateQuantity}
+            removeItem={removeItem}
+            setCartQuantity={setCartQuantity}
+          />
+        )}
+      </AnimatePresence>
+      
+      <footer className="bg-slate-950 py-8 border-t border-slate-900 text-center text-slate-500 text-sm">
+        <p>&copy; 2024 NEETCHANIME. All rights reserved.</p>
+        <p className="mt-2 text-xs">Platform konten digital dewasa terpercaya.</p>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
