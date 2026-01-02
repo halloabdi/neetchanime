@@ -2,8 +2,65 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Filter, Flame, TrendingUp, BookOpen, Rocket, Puzzle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- DATA MOCKUP GENERATOR ---
-const generateProducts = () => {
+// ==========================================
+// CONFIGURATION
+// ==========================================
+const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyj2m_y1QxcKXdWlRKoQKPQcl8tDKf-jVB_GlvcSo4aHPStvYEtoUUczCH5Kh4n9ndIUQ/exec";
+
+// --- UTILS & PARSERS ---
+
+// 1. Parser untuk Deskripsi Kustom
+// Format: <p1>...</p1>;<p2>...</p2>
+// Styles: <b>...</b>, <i>...</i>, <#HEX>...</#HEX>
+const parseCustomDescription = (text) => {
+  if (!text) return <p className="text-slate-400">Tidak ada deskripsi.</p>;
+
+  // Split berdasarkan pemisah paragraf ;
+  const paragraphs = text.split(';');
+
+  return paragraphs.map((paragraph, idx) => {
+    // Bersihkan tag pembungkus <p1>, </p1>, <p2>, </p2>
+    let cleanText = paragraph.replace(/<\/?p[0-9]+>/g, '');
+
+    // Replace <b> -> <strong>
+    cleanText = cleanText.replace(/<b>(.*?)<\/b>/g, '<strong class="text-white">$1</strong>');
+    
+    // Replace <i> -> <em>
+    cleanText = cleanText.replace(/<i>(.*?)<\/i>/g, '<em class="italic">$1</em>');
+    
+    // Replace Color <#000000>text</#000000>
+    cleanText = cleanText.replace(/<#([a-fA-F0-9]{6})>(.*?)<\/#\1>/g, '<span style="color:#$1">$2</span>');
+
+    return (
+      <p 
+        key={idx} 
+        className="mb-3 leading-relaxed text-slate-300"
+        dangerouslySetInnerHTML={{ __html: cleanText }} 
+      />
+    );
+  });
+};
+
+// 2. Cek apakah produk "Terbaru" (Maksimal 3 hari dari input)
+const isProductNew = (dateString) => {
+  if (!dateString) return false;
+  
+  const createdDate = new Date(dateString);
+  const today = new Date();
+  
+  // Set waktu ke 00:00:00 untuk perbandingan tanggal murni
+  createdDate.setHours(0,0,0,0);
+  today.setHours(0,0,0,0);
+  
+  const diffTime = Math.abs(today - createdDate);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  
+  // Jika selisih hari <= 3
+  return diffDays <= 3;
+};
+
+// --- DATA MOCKUP GENERATOR (Data Fake - Cadangan) ---
+const generateMockProducts = () => {
   const types = ['Video', 'Foto'];
   const titles = [
     "Midnight Collection Vol.1", "Secret Voice Pack ASMR", "Private Session Art", 
@@ -21,27 +78,26 @@ const generateProducts = () => {
   // Generate 25 items
   return Array.from({ length: 25 }, (_, i) => {
     const price = (Math.floor(Math.random() * 6) + 45) * 1000; 
-    // Buyers count restricted to 1-5 randomly
     const buyers = Math.floor(Math.random() * 5) + 1;
-    const reviews = Math.floor(Math.random() * buyers) + 1;
     const isNSFW = Math.random() < 0.8; 
 
     return {
-      id: i + 1,
+      id: `MOCK_${i + 1}`,
       title: titles[i % titles.length] + (i > 15 ? ` V${Math.floor(i/5)}` : ''),
       price: price,
       type: types[Math.floor(Math.random() * types.length)],
       image: `https://placehold.co/600x400/1a1a2e/e94560?text=${isNSFW ? 'R-18+Content' : 'Anime+Content'}+${i+1}`,
       buyers: buyers,
-      reviews: reviews,
+      reviews: Math.floor(Math.random() * buyers) + 1,
       rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1),
       isNSFW: isNSFW,
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit."
+      description: "Lorem ipsum dolor sit amet. Ini adalah konten mockup default.",
+      source: 'mock' // Penanda sumber data
     };
   });
 };
 
-const PRODUCTS = generateProducts();
+const MOCK_PRODUCTS = generateMockProducts();
 
 const PAYMENT_METHODS = [
   "QRIS", "DANA", "OVO", "BNI", "MANDIRI", "SEABANK", "BSI", "VISA", "PAYPAL"
@@ -72,14 +128,12 @@ const FAQS = [
 
 // --- COMPONENTS ---
 
-// --- TOAST NOTIFICATION COMPONENT ---
+// --- TOAST NOTIFICATION ---
 const ToastNotification = ({ data, onClose }) => {
-  // State untuk arah animasi keluar (default: ke atas/fade out)
   const [exitVariant, setExitVariant] = useState({ y: -100, opacity: 0, scale: 0.9 });
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Default exit animation (jika timeout)
       setExitVariant({ y: -100, opacity: 0, scale: 0.9 }); 
       onClose();
     }, 5000);
@@ -88,22 +142,18 @@ const ToastNotification = ({ data, onClose }) => {
 
   const handleDragEnd = (event, info) => {
     const { offset } = info;
-    const threshold = 50; // Jarak swipe minimal untuk dismiss
+    const threshold = 50; 
 
     if (Math.abs(offset.x) > threshold || Math.abs(offset.y) > threshold) {
       let newExit = { opacity: 0, scale: 0.9, transition: { duration: 0.3 } };
 
-      // Tentukan arah swipe dominan
       if (Math.abs(offset.x) > Math.abs(offset.y)) {
-        // Horizontal (Kanan/Kiri)
         newExit.x = offset.x > 0 ? 300 : -300;
-        newExit.y = 0; // Reset Y agar lurus
+        newExit.y = 0;
       } else {
-        // Vertikal (Bawah/Atas)
         newExit.y = offset.y > 0 ? 300 : -300;
-        newExit.x = 0; // Reset X agar lurus
+        newExit.x = 0;
       }
-
       setExitVariant(newExit);
       onClose();
     }
@@ -112,51 +162,42 @@ const ToastNotification = ({ data, onClose }) => {
   return (
     <motion.div
       layout
-      initial={{ y: 100, opacity: 0, scale: 0.8 }} // Masuk dari bawah
+      initial={{ y: 100, opacity: 0, scale: 0.8 }} 
       animate={{ y: 0, opacity: 1, scale: 1 }}
-      exit={exitVariant} // Keluar sesuai arah swipe atau default (ke atas)
+      exit={exitVariant}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      drag // Enable drag
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Snap back jika tidak dilempar
-      dragElastic={0.7} // Rasa karet saat ditarik
+      drag 
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} 
+      dragElastic={0.7} 
       onDragEnd={handleDragEnd}
-      // Fixed: Box shape logic and centering
-      className="fixed bottom-8 left-4 right-4 md:left-0 md:right-0 md:mx-auto md:w-auto z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto"
+      className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
-      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-full md:min-w-[380px] md:max-w-[450px] backdrop-blur-xl relative overflow-hidden">
-        {/* Shine Effect */}
+      <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
-        <div className="p-4 flex flex-row items-center gap-4 relative z-10">
-          
-          {/* Left Column: Kotak Putih Transparan + Jumlah Produk */}
-          <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-3 py-1.5 min-w-[42px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
-            <span className="text-sm font-bold text-white tabular-nums">
+        <div className="p-5 flex flex-row items-center gap-5 relative z-10">
+          <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-4 py-2 min-w-[50px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
+            <span className="text-lg font-bold text-white tabular-nums">
               {data.quantity}x
             </span>
           </div>
 
-          {/* Right Column: Nama Produk & Keterangan Sukses */}
-          <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-             {/* Nama Produk */}
-             <span className="text-sm font-bold text-white leading-snug line-clamp-2">
+          <div className="flex flex-col gap-2 min-w-0">
+             <span className="text-base font-bold text-white leading-snug line-clamp-2 max-w-[60vw] md:max-w-[400px]">
                 {data.productName}
              </span>
 
-             {/* Separator Line: 55% Transparency */}
              <div className="h-[1px] w-full bg-white/55" />
 
-             {/* Keterangan Sukses */}
              <div className="flex items-center gap-2">
                 <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
-                   <Check size={10} className="text-white stroke-[4]" />
+                   <Check size={14} className="text-white stroke-[4]" />
                 </div>
-                <span className="font-medium text-xs tracking-wide text-yellow-50/90">
+                <span className="font-medium text-sm tracking-wide text-yellow-50/90 whitespace-nowrap">
                   Sukses Masuk di Keranjang!
                 </span>
              </div>
           </div>
-
         </div>
       </div>
     </motion.div>
@@ -194,15 +235,10 @@ const Hero = () => {
   const smoothScroll = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      // UPDATED: Scroll calculation to account for fixed header (80px) + spacing
       const headerOffset = 100; 
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
     }
   };
 
@@ -213,211 +249,167 @@ const Hero = () => {
       <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu pointer-events-none"></div>
       
       <div className="max-w-6xl mx-auto px-4 text-center z-10 relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-3 inline-block backdrop-blur-sm">
-            Strictly for Adults (18+)
-          </span>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-3 inline-block backdrop-blur-sm">Strictly for Adults (18+)</span>
           <h1 className="font-extrabold mb-4 tracking-tighter leading-tight md:leading-none">
-            <span className="block text-5xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-0 break-words tracking-tighter">
-              NEETCHANIME
-            </span>
+            <span className="block text-5xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-0 break-words tracking-tighter">NEETCHANIME</span>
             <span className="block text-2xl sm:text-4xl md:text-5xl mt-0 md:mt-1 font-extrabold tracking-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-900 mr-2">Platform</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mr-2">R34</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
             </span>
           </h1>
-          <p className="text-white text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-6 font-medium">
-            Beli konten premium kreator/artis kesukaanmu dengan biaya lebih terjangkau! Buruan order yawh~! ❤️
-          </p>
-          
+          <p className="text-white text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-6 font-medium">Beli konten premium kreator/artis kesukaanmu dengan biaya lebih terjangkau! Buruan order yawh~! ❤️</p>
           <div className="flex justify-center gap-4 mb-16">
-            <button 
-              onClick={() => smoothScroll('shop')}
-              className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1 touch-manipulation"
-            >
-              Lihat Koleksi
-            </button>
-            <button 
-              onClick={() => smoothScroll('faq')}
-              className="px-8 py-3 border border-slate-700 text-white rounded-full font-bold hover:border-red-500 hover:text-red-400 transition-all touch-manipulation"
-            >
-              Info Legal
-            </button>
+            <button onClick={() => smoothScroll('shop')} className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1 touch-manipulation">Lihat Koleksi</button>
+            <button onClick={() => smoothScroll('faq')} className="px-8 py-3 border border-slate-700 text-white rounded-full font-bold hover:border-red-500 hover:text-red-400 transition-all touch-manipulation">Info Legal</button>
           </div>
 
-          {/* --- NEW SECTION: KEUNGGULAN (FEATURE BOXES) --- */}
           <div className="max-w-5xl mx-auto mt-24">
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.7 }}
-              className="flex items-center justify-center gap-4 mb-10"
+               // UPDATED: Fixed popup from bottom
+               initial={{ opacity: 0, y: 50 }} 
+               whileInView={{ opacity: 1, y: 0 }} 
+               viewport={{ once: true, amount: 0.5 }} 
+               transition={{ duration: 0.7 }} 
+               className="flex items-center justify-center gap-4 mb-10"
             >
               <div className="h-[2px] bg-gradient-to-r from-transparent to-slate-700 flex-1 max-w-[100px]"></div>
-              <h2 className="text-2xl md:text-4xl font-bold text-white text-center tracking-wide">
-                Mengapa Harus NEETCHANIME?
-              </h2>
+              <h2 className="text-2xl md:text-4xl font-bold text-white text-center tracking-wide">Mengapa Harus NEETCHANIME?</h2>
               <div className="h-[2px] bg-gradient-to-l from-transparent to-slate-700 flex-1 max-w-[100px]"></div>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4 w-full">
-              {/* Box 1: Booster */}
-              <motion.div 
-                // UPDATED: Always popup from bottom (y: 50 -> 0)
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ delay: 0.1, duration: 0.5 }}
-                className="bg-slate-900/40 border border-pink-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(236,72,153,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
-              >
+              <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ delay: 0.1, duration: 0.5 }} className="bg-slate-900/40 border border-pink-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(236,72,153,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm">
                   <div className="flex flex-row items-center text-left gap-4 h-full">
-                    <div className="bg-pink-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-pink-500/30 shadow-[inset_0_0_10px_rgba(236,72,153,0.2)] group-hover:bg-pink-500/20 transition-colors">
-                        <Rocket className="text-pink-500 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" size={32} />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-lg leading-tight">Tanpa Limit Kecepatan Internet</h3>
-                    </div>
+                    <div className="bg-pink-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-pink-500/30 shadow-[inset_0_0_10px_rgba(236,72,153,0.2)] group-hover:bg-pink-500/20 transition-colors"><Rocket className="text-pink-500 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" size={32} /></div>
+                    <div><h3 className="font-bold text-white text-lg leading-tight">Tanpa Limit Kecepatan Internet</h3></div>
                   </div>
               </motion.div>
-
-              {/* Box 2: Puzzle */}
-              <motion.div 
-                // UPDATED: Always popup from bottom (y: 50 -> 0)
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="bg-slate-900/40 border border-violet-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
-              >
+              <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ delay: 0.2, duration: 0.5 }} className="bg-slate-900/40 border border-violet-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm">
                   <div className="flex flex-row items-center text-left gap-4 h-full">
-                    <div className="bg-violet-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-violet-500/30 shadow-[inset_0_0_10px_rgba(139,92,246,0.2)] group-hover:bg-violet-500/20 transition-colors">
-                        <Puzzle className="text-violet-500 drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" size={32} />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-lg leading-tight">Kompatible di Berbagai Perangkat</h3>
-                    </div>
+                    <div className="bg-violet-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-violet-500/30 shadow-[inset_0_0_10px_rgba(139,92,246,0.2)] group-hover:bg-violet-500/20 transition-colors"><Puzzle className="text-violet-500 drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" size={32} /></div>
+                    <div><h3 className="font-bold text-white text-lg leading-tight">Kompatible di Berbagai Perangkat</h3></div>
                   </div>
               </motion.div>
-
-              {/* Box 3: Monitor/4K */}
-              <motion.div 
-                 // UPDATED: Always popup from bottom (y: 50 -> 0)
-                 initial={{ opacity: 0, y: 50 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true, amount: 0.3 }}
-                 transition={{ delay: 0.3, duration: 0.5 }}
-                 className="bg-slate-900/40 border border-cyan-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
-              >
+              <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ delay: 0.3, duration: 0.5 }} className="bg-slate-900/40 border border-cyan-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm">
                   <div className="flex flex-row items-center text-left gap-4 h-full">
-                    <div className="bg-cyan-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.2)] group-hover:bg-cyan-500/20 transition-colors">
-                        <Monitor className="text-cyan-500 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" size={32} />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-lg leading-tight">Kualitas Lebih Jernih (2K hingga 4K)</h3>
-                    </div>
+                    <div className="bg-cyan-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.2)] group-hover:bg-cyan-500/20 transition-colors"><Monitor className="text-cyan-500 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" size={32} /></div>
+                    <div><h3 className="font-bold text-white text-lg leading-tight">Kualitas Lebih Jernih (2K hingga 4K)</h3></div>
                   </div>
               </motion.div>
             </div>
           </div>
-
         </motion.div>
       </div>
     </section>
   );
 };
 
-const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
-  <motion.div 
-    variants={variants}
-    whileHover={{ y: -8 }}
-    onClick={() => onOpenPreview(product)}
-    className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
-  >
-    {/* Image Container */}
-    <div className="relative h-32 md:h-48 overflow-hidden">
-      <img 
-        src={product.image} 
-        alt={product.title} 
-        loading="lazy"
-        decoding="async"
-        className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
-      />
-      
-      <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
-        <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
-          product.type === 'Foto' 
-            ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' 
-            : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' 
-        }`}>
-          {product.type === 'Video' ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
-          {product.type}
-        </span>
-      </div>
+const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
+  const isNew = useMemo(() => {
+    // Only apply NEW badge to Google Sheet products
+    if (product.source === 'google_sheet') {
+      return isProductNew(product.dateCreated);
+    }
+    return false;
+  }, [product]);
 
-      <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
-        {product.isNSFW ? (
-          <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
-            <ShieldAlert size={10} className="md:w-[14px] md:h-[14px]" />
-            18+
-          </span>
-        ) : (
-          <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white shadow-lg backdrop-blur-md bg-gradient-to-r from-blue-400 to-cyan-400 border border-blue-400/30">
-            <ShieldCheck size={10} className="md:w-[14px] md:h-[14px]" />
-            Safe
-          </span>
-        )}
-      </div>
-
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
-    </div>
-
-    {/* Content */}
-    <div className="p-3 md:p-5 flex-1 flex flex-col">
-      <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
-        <div className="flex items-center text-amber-400">
-          <Star size={10} className="md:w-[12px] md:h-[12px]" fill="currentColor" />
-          <span className="ml-1 text-slate-300">{product.rating}</span>
-        </div>
-        <span>•</span>
-        <span>{product.buyers} buyers</span>
-      </div>
-
-      <h3 className="text-slate-100 font-bold text-sm md:text-lg leading-snug mb-1 md:mb-3 line-clamp-2 group-hover:text-red-400 transition-colors">
-        {product.title}
-      </h3>
-
-      <p className="text-slate-500 text-[10px] md:text-xs mb-3 font-mono mt-auto">
-        Artist: <span className="text-slate-400">Anonymous</span>
-      </p>
-
-      <div className="pt-3 md:pt-4 border-t border-slate-800 flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="text-slate-500 text-[8px] md:text-[10px] uppercase tracking-wider">Harga</span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400 font-bold text-sm md:text-lg">
-            Rp{product.price.toLocaleString('id-ID')}
-          </span>
-        </div>
+  return (
+    <motion.div 
+      variants={variants}
+      whileHover={{ y: -8 }}
+      onClick={() => onOpenPreview(product)}
+      className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
+    >
+      <div className="relative h-32 md:h-48 overflow-hidden">
+        {/* Use imageCrop from sheets, fallback to image */}
+        <img 
+          src={product.imageCrop || product.image} 
+          alt={product.title} 
+          loading="lazy"
+          decoding="async"
+          className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
+        />
         
-        <button 
-          onClick={(e) => {
-            e.stopPropagation(); 
-            onAdd(product);
-          }}
-          className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-2 md:p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5 touch-manipulation"
-          title="Tambahkan ke Keranjang"
-        >
-          <ShoppingCart size={16} className="md:w-[18px] md:h-[18px]" />
-        </button>
+        {/* Type Badge */}
+        <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
+          <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
+            (product.type === 'Foto' || product.type === 'foto') 
+              ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' 
+              : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' 
+          }`}>
+            {(product.type === 'Video' || product.type === 'video') ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
+            {product.type}
+          </span>
+        </div>
+
+        {/* Safety Badge */}
+        <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
+          {(product.isNSFW || product.safety === 'NSFW') ? (
+            <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
+              <ShieldAlert size={10} className="md:w-[14px] md:h-[14px]" />
+              18+
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white shadow-lg backdrop-blur-md bg-gradient-to-r from-blue-400 to-cyan-400 border border-blue-400/30">
+              <ShieldCheck size={10} className="md:w-[14px] md:h-[14px]" />
+              Safe
+            </span>
+          )}
+        </div>
+
+        {/* --- TERBARU BADGE (Google Sheets Only) --- */}
+        {isNew && (
+          <div className="absolute bottom-2 left-2 md:left-3 z-10">
+             <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white shadow-[0_0_15px_rgba(59,130,246,0.6)] backdrop-blur-md bg-gradient-to-r from-blue-900 to-blue-800 border border-blue-400/50">
+               <Flame size={10} className="text-blue-300 md:w-[14px] md:h-[14px]" fill="currentColor" />
+               Terbaru
+             </span>
+          </div>
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
       </div>
-    </div>
-  </motion.div>
-);
+      
+      {/* Content */}
+      <div className="p-3 md:p-5 flex-1 flex flex-col">
+        <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
+          <div className="flex items-center text-amber-400">
+            <Star size={10} className="md:w-[12px] md:h-[12px]" fill="currentColor" />
+            <span className="ml-1 text-slate-300">{product.rating}</span>
+          </div>
+          <span>•</span>
+          <span>{product.buyers} buyers</span>
+        </div>
+        <h3 className="text-slate-100 font-bold text-sm md:text-lg leading-snug mb-1 md:mb-3 line-clamp-2 group-hover:text-red-400 transition-colors">
+          {product.title}
+        </h3>
+        <p className="text-slate-500 text-[10px] md:text-xs mb-3 font-mono mt-auto">
+          Artist: <span className="text-slate-400">Anonymous</span>
+        </p>
+        <div className="pt-3 md:pt-4 border-t border-slate-800 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-slate-500 text-[8px] md:text-[10px] uppercase tracking-wider">Harga</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400 font-bold text-sm md:text-lg">
+              Rp{product.price.toLocaleString('id-ID')}
+            </span>
+          </div>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); 
+              onAdd(product);
+            }}
+            className="bg-gradient-to-br from-pink-600 to-violet-700 text-white p-2 md:p-3 rounded-xl transition-all shadow-lg shadow-pink-900/20 hover:shadow-pink-600/40 hover:scale-105 active:scale-95 flex items-center justify-center border border-white/5 touch-manipulation"
+            title="Tambahkan ke Keranjang"
+          >
+            <ShoppingCart size={16} className="md:w-[18px] md:h-[18px]" />
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
   if (!product) return null;
@@ -451,8 +443,9 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
             </button>
 
             <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto aspect-video md:aspect-auto">
+               {/* Use full image from sheets if available */}
                <img
-                  src={product.image}
+                  src={product.imageFull || product.image}
                   alt={product.title}
                   className="w-full h-full object-cover md:absolute md:inset-0"
                />
@@ -472,7 +465,7 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                     <div className="flex items-center gap-2 text-xs text-slate-400 mb-4 pb-3 border-b border-slate-800 flex-wrap">
                         <div className="flex items-center text-amber-400">
                             <Star size={14} fill="currentColor" />
-                            <span className="ml-1 font-bold text-white">{product.rating}</span>
+                            <span className="ml-1 font-bold text-white">{product.rating || '4.5'}</span>
                         </div>
                         <span>•</span>
                         <span>{product.buyers} bought</span>
@@ -481,7 +474,7 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                     </div>
 
                     <div className="prose prose-invert prose-xs text-slate-300 leading-relaxed mb-6 text-sm">
-                        <p>{product.description}</p>
+                        {product.source === 'google_sheet' ? parseCustomDescription(product.description) : <p>{product.description}</p>}
                     </div>
                 </div>
 
@@ -496,17 +489,15 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                     </div>
 
                     <div className="flex gap-3">
-                        {/* Category Button (Left) */}
                         <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
-                            product.type === 'Video' 
+                            (product.type === 'Video' || product.type === 'video') 
                             ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
                             : 'bg-gradient-to-br from-slate-800 to-emerald-900/50 text-emerald-200'
                         }`}>
-                            {product.type === 'Video' ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
+                            {(product.type === 'Video' || product.type === 'video') ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
                             {product.type} Only
                         </div>
 
-                        {/* Add to Cart Button (Right) */}
                         <button
                             onClick={() => {
                                 onAdd(product);
@@ -529,13 +520,42 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
 const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
-  const [isMobile, setIsMobile] = useState(false); // Default to false for hydration
+  const [isMobile, setIsMobile] = useState(false); // Default false, updated in effect
   const [direction, setDirection] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null); 
+  
+  // Data States
+  const [sheetProducts, setSheetProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Filter States
-  const [activeFilters, setActiveFilters] = useState([]); // Array of strings: 'best_selling', 'top_rated', 'newest'
+  const [activeFilters, setActiveFilters] = useState([]); 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Fetch Data from Google Sheets
+  useEffect(() => {
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(GOOGLE_SHEET_API_URL);
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                // Add random rating/buyers
+                const enrichedData = data.map(item => ({
+                    ...item,
+                    rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1),
+                    buyers: Math.floor(Math.random() * 5) + 1
+                }));
+                setSheetProducts(enrichedData);
+            }
+        } catch (error) {
+            console.error("Failed to fetch sheet data", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -547,18 +567,17 @@ const ShopSection = ({ addToCart }) => {
         setItemsPerPage(10); 
       }
     };
-    handleResize(); // Initial call
+
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Filter Logic
   const toggleFilter = (filterType) => {
     if (filterType === 'default') {
       setActiveFilters([]);
       return;
     }
-
     setActiveFilters(prev => {
       const exists = prev.includes(filterType);
       if (exists) {
@@ -573,10 +592,32 @@ const ShopSection = ({ addToCart }) => {
   };
 
   const processedProducts = useMemo(() => {
-    let result = [...PRODUCTS];
+    // 1. Merge: Sheet first, then Mock
+    let result = [...sheetProducts, ...MOCK_PRODUCTS];
+
+    // 2. Sort Logic
+    // Default: Sheet products first (source === 'google_sheet')
+    // If specific sort filters are applied, prioritize sheet logic first, then sort criteria
+    
+    // Base Sort: Sheets on Top
+    result.sort((a, b) => {
+        if (a.source === 'google_sheet' && b.source === 'mock') return -1;
+        if (a.source === 'mock' && b.source === 'google_sheet') return 1;
+        return 0; 
+    });
 
     if (activeFilters.length > 0) {
       result.sort((a, b) => {
+        // Keep Sheet Priority if explicitly filtering? 
+        // Instruction: "prioritaskan produk yang di Google Spreedsheets, sementara produk fake 25 tetap ada namun di belakang"
+        // This implies sorting should happen WITHIN groups, or Sheet Group > Mock Group always.
+        // Let's enforce Sheet > Mock always, then sort inside.
+        
+        if (a.source !== b.source) {
+             return a.source === 'google_sheet' ? -1 : 1;
+        }
+
+        // Secondary Sort based on filters
         for (const filter of activeFilters) {
           let comparison = 0;
           switch (filter) {
@@ -587,7 +628,8 @@ const ShopSection = ({ addToCart }) => {
               comparison = parseFloat(b.rating) - parseFloat(a.rating);
               break;
             case 'newest': 
-              comparison = b.id - a.id;
+              // Already handled by sheet order (date), but for mocks use ID
+              comparison = b.id.toString().localeCompare(a.id.toString());
               break;
             default:
               break;
@@ -596,18 +638,16 @@ const ShopSection = ({ addToCart }) => {
         }
         return 0;
       });
-    } else {
-       result.sort((a, b) => a.id - b.id); 
     }
 
     return result;
-  }, [activeFilters]);
+  }, [activeFilters, sheetProducts]);
   
   const totalPages = Math.ceil(processedProducts.length / itemsPerPage); 
   
   useEffect(() => {
     setPage(1);
-  }, [activeFilters]);
+  }, [activeFilters, sheetProducts]);
 
   const currentProducts = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
@@ -615,11 +655,8 @@ const ShopSection = ({ addToCart }) => {
   }, [page, itemsPerPage, processedProducts]);
 
   const changePage = (newPage) => {
-    if (newPage > page) {
-      setDirection(1); 
-    } else if (newPage < page) {
-      setDirection(-1); 
-    }
+    if (newPage > page) setDirection(1); 
+    else if (newPage < page) setDirection(-1); 
     setPage(newPage);
   };
 
@@ -631,69 +668,19 @@ const ShopSection = ({ addToCart }) => {
     if (endPage - startPage + 1 < maxVisibleButtons) {
         startPage = Math.max(1, endPage - maxVisibleButtons + 1);
     }
-
     return new Array(endPage - startPage + 1).fill().map((_, idx) => startPage + idx);
   };
 
   const paginationGroup = getPaginationGroup();
   const showArrows = isMobile || totalPages > 5;
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08, 
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.9 },
-    show: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 24
-      }
-    }
-  };
-
-  const paginationVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 20 : -20, 
-      opacity: 0,
-      scale: 0.5,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.2 } 
-      }
-    },
-    exit: (direction) => ({
-      zIndex: 0,
-      x: direction > 0 ? -20 : 20, 
-      opacity: 0,
-      scale: 0.5,
-      transition: { duration: 0.2 }
-    })
-  };
+  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
+  const itemVariants = { hidden: { opacity: 0, y: 50, scale: 0.9 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+  const paginationVariants = { enter: (direction) => ({ x: direction > 0 ? 20 : -20, opacity: 0, scale: 0.5 }), center: { zIndex: 1, x: 0, opacity: 1, scale: 1, transition: { x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.2 }, scale: { duration: 0.2 } } }, exit: (direction) => ({ zIndex: 0, x: direction > 0 ? -20 : 20, opacity: 0, scale: 0.5, transition: { duration: 0.2 } }) };
 
   return (
-    // UPDATED: Reduced padding-bottom (pb-8) to decrease space to FAQ
     <section id="shop" className="pt-12 pb-8 bg-slate-950 relative w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          {/* UPDATED: Improved entry animation */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -706,20 +693,20 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </motion.div>
           
-          {/* UPDATED: Separate animations for controls */}
+          {/* UPDATED: Flex container logic for controls */}
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
-            {/* Pagination: Animations fixed per request (Left to Right on Mobile, Right to Left on Desktop) */}
+            
+            {/* Pagination Box */}
             <motion.div 
-              // Desktop (Right to Left): x: 50 -> 0
-              // Mobile (Left to Right): x: -50 -> 0
+              // Desktop: From Right (50), Mobile: From Left (-50)
               initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.4 (appears after filter)
-              // Mobile: Delay 0.2 (appears with Filter)
+              // Desktop: Delay 0.4, Mobile: Delay 0.2
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              // UPDATED: Added max-width and flex-shrink-0 for mobile stability
-              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden max-w-[calc(100%-60px)] md:max-w-none flex-shrink-0"
+              // UPDATED: flex: 1 for mobile to fill space but respect filter, max-width calc ensures filter has room
+              className="flex flex-1 md:flex-none flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden min-w-0"
+              style={{ maxWidth: isMobile ? 'calc(100% - 60px)' : 'none' }} 
             >
               {showArrows && (
                 <button
@@ -778,13 +765,13 @@ const ShopSection = ({ addToCart }) => {
               )}
             </motion.div>
 
-            {/* Filter: From Right (Always) */}
+            {/* Filter Box */}
             <motion.div 
+              // Always from Right (50)
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.2 (appears first)
-              // Mobile: Delay 0.2 (appears same time)
+              // Desktop: Delay 0.2 (First), Mobile: Delay 0.2 (Same start)
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="relative flex-shrink-0"
             >
@@ -813,66 +800,23 @@ const ShopSection = ({ addToCart }) => {
                     transition={{ duration: 0.2 }}
                     className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden"
                   >
+                    {/* ... (Filter Content remains same) ... */}
                     <div className="p-2 space-y-1">
-                       <button
-                          onClick={() => toggleFilter('best_selling')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.includes('best_selling') 
-                              ? 'bg-orange-500/10 text-orange-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} />
-                            <span>Terlaris</span>
-                          </div>
+                       <button onClick={() => toggleFilter('best_selling')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('best_selling') ? 'bg-orange-500/10 text-orange-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} /><span>Terlaris</span></div>
                           {activeFilters.includes('best_selling') && <Check size={14} />}
                         </button>
-
-                        <button
-                          onClick={() => toggleFilter('top_rated')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.includes('top_rated') 
-                              ? 'bg-yellow-500/10 text-yellow-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} />
-                            <span>Terbaik</span>
-                          </div>
+                        <button onClick={() => toggleFilter('top_rated')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('top_rated') ? 'bg-yellow-500/10 text-yellow-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} /><span>Terbaik</span></div>
                           {activeFilters.includes('top_rated') && <Check size={14} />}
                         </button>
-
-                        <button
-                          onClick={() => toggleFilter('newest')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.includes('newest') 
-                              ? 'bg-emerald-500/10 text-emerald-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} />
-                            <span>Terupdate</span>
-                          </div>
+                        <button onClick={() => toggleFilter('newest')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('newest') ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} /><span>Terupdate</span></div>
                           {activeFilters.includes('newest') && <Check size={14} />}
                         </button>
-
                         <div className="h-px bg-slate-800 my-1" />
-
-                        <button
-                          onClick={() => toggleFilter('default')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.length === 0
-                              ? 'bg-amber-500/10 text-amber-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} />
-                            <span>Default</span>
-                          </div>
+                        <button onClick={() => toggleFilter('default')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.length === 0 ? 'bg-amber-500/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} /><span>Default</span></div>
                           {activeFilters.length === 0 && <Check size={14} />}
                         </button>
                     </div>
@@ -883,8 +827,8 @@ const ShopSection = ({ addToCart }) => {
           </div>
         </div>
 
+        {/* ... (Product Grid & Modal Logic same) ... */}
         <AnimatePresence mode='wait'>
-          {/* UPDATED: Changed animate to whileInView to trigger on scroll */}
           <motion.div 
             key={page} 
             variants={containerVariants}
@@ -919,21 +863,7 @@ const ShopSection = ({ addToCart }) => {
 
 const FAQItem = ({ faq }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  // New variants for fast popup animation
-  const faqItemVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    show: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 400, // Makes it fast
-        damping: 20
-      }
-    }
-  };
+  const faqItemVariants = { hidden: { opacity: 0, y: 20, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 400, damping: 20 } } };
 
   return (
     <motion.div 
@@ -975,19 +905,9 @@ const FAQItem = ({ faq }) => {
 };
 
 const FAQSection = () => {
-  // Container variants for staggering the children animations
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1 // Fast stagger
-      }
-    }
-  };
+  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 
   return (
-    // UPDATED: Changed top padding (pt-10) to reduce space from content, bottom remains pb-20
     <section id="faq" className="pt-10 pb-20 bg-slate-950 relative w-full">
       <div className="max-w-3xl mx-auto px-4 relative z-10">
         <div className="text-center mb-12">
@@ -996,13 +916,12 @@ const FAQSection = () => {
           <p className="text-slate-400">Harap dibaca sebelum melakukan transaksi</p>
         </div>
         
-        {/* Animated Container List */}
         <motion.div 
           className="space-y-4"
           variants={containerVariants}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, amount: 0.2 }} // Triggers when 20% is visible
+          viewport={{ once: true, amount: 0.2 }}
         >
           {FAQS.map((faq, idx) => (
             <FAQItem key={idx} faq={faq} />
@@ -1012,6 +931,8 @@ const FAQSection = () => {
     </section>
   );
 };
+
+// ... (CartModal & Footer components remain unchanged) ...
 
 const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQuantity }) => {
   const [formData, setFormData] = useState({ name: '', email: '', payment: '' });
@@ -1130,28 +1051,61 @@ const Footer = () => (
 const App = () => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState(null); // State notifikasi
 
   const addToCart = (product) => {
+    // UPDATED: Calculate quantity immediately for notification
     let newQty = 1;
     const existingItem = cart.find(p => p.id === product.id);
-    if (existingItem) { newQty = existingItem.quantity + 1; }
+    if (existingItem) {
+        newQty = existingItem.quantity + 1;
+    }
+
+    // Tampilkan notifikasi
+    // Reset dulu agar animasi ter-trigger ulang jika user menekan tombol dengan cepat
     setNotification(null);
-    setTimeout(() => { setNotification({ id: Date.now(), productName: product.title, quantity: newQty }); }, 10);
+    setTimeout(() => {
+        setNotification({
+            id: Date.now(),
+            productName: product.title,
+            quantity: newQty // Pass the quantity
+        });
+    }, 10);
+
     setCart(prev => {
       const existing = prev.find(p => p.id === product.id);
-      if (existing) { return prev.map(p => p.id === product.id ? {...p, quantity: p.quantity + 1} : p); }
+      if (existing) {
+        return prev.map(p => p.id === product.id ? {...p, quantity: p.quantity + 1} : p);
+      }
       return [...prev, {...product, quantity: 1}];
     });
   };
 
-  const updateQuantity = (id, delta) => { setCart(prev => prev.map(item => { if (item.id === id) { const newQuantity = item.quantity + delta; return newQuantity > 0 ? {...item, quantity: newQuantity} : item; } return item; })); };
-  const setCartQuantity = (id, quantity) => { if (quantity < 1) return; setCart(prev => prev.map(item => item.id === id ? {...item, quantity} : item)); };
-  const removeItem = (id) => { setCart(prev => prev.filter(item => item.id !== id)); };
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQuantity = item.quantity + delta;
+        return newQuantity > 0 ? {...item, quantity: newQuantity} : item;
+      }
+      return item;
+    }));
+  };
+
+  const setCartQuantity = (id, quantity) => {
+    if (quantity < 1) return;
+    setCart(prev => prev.map(item => item.id === id ? {...item, quantity} : item));
+  }
+
+  const removeItem = (id) => {
+    setCart(prev => prev.filter(item => item.id !== id));
+  };
+
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
+    // FIXED: Added overflow-x-hidden and w-full to prevent horizontal scrolling whitespace
     <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200 overflow-x-hidden w-full">
+      {/* GLOBAL SCROLLBAR STYLE - FORCE OVERRIDE */}
       <style>{`
         /* Force remove buttons (arrows) */
         ::-webkit-scrollbar-button {
@@ -1197,12 +1151,36 @@ const App = () => {
           scrollbar-color: #334155 transparent;
         }
       `}</style>
+      
       <Header cartCount={cartCount} openCart={() => setIsCartOpen(true)} />
       <Hero />
       <ShopSection addToCart={addToCart} />
       <FAQSection />
-      <AnimatePresence>{notification && <ToastNotification key={notification.id} data={notification} onClose={() => setNotification(null)} />}</AnimatePresence>
-      <AnimatePresence>{isCartOpen && <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cart={cart} updateQuantity={updateQuantity} removeItem={removeItem} setCartQuantity={setCartQuantity} />}</AnimatePresence>
+      
+      {/* Toast Notification Container */}
+      <AnimatePresence>
+        {notification && (
+          <ToastNotification 
+            key={notification.id}
+            data={notification} // Pass object data
+            onClose={() => setNotification(null)} 
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isCartOpen && (
+          <CartModal 
+            isOpen={isCartOpen} 
+            onClose={() => setIsCartOpen(false)} 
+            cart={cart}
+            updateQuantity={updateQuantity}
+            removeItem={removeItem}
+            setCartQuantity={setCartQuantity}
+          />
+        )}
+      </AnimatePresence>
+      
       <Footer />
     </div>
   );
