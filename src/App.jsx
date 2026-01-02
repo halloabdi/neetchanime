@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Filter, Flame, TrendingUp, BookOpen } from 'lucide-react';
+import { ShoppingCart, X, Star, Video, Image as ImageIcon, ChevronRight, ChevronLeft, ChevronDown, HelpCircle, AlertCircle, Trash2, ShieldCheck, ShieldAlert, Check, Plus, Minus, Filter, Flame, TrendingUp, BookOpen, Rocket, Puzzle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- DATA MOCKUP GENERATOR ---
@@ -46,6 +46,7 @@ const PAYMENT_METHODS = [
   "QRIS", "DANA", "OVO", "BNI", "MANDIRI", "SEABANK", "BSI", "VISA", "PAYPAL"
 ];
 
+// UPDATED: FAQ Content Replaced
 const FAQS = [
   {
     q: "Apa sih NEETCHANIME itu?",
@@ -72,6 +73,8 @@ const FAQS = [
 // --- COMPONENTS ---
 
 const Header = ({ cartCount, openCart }) => (
+  // Optimization: bg-slate-900/80 with backdrop-blur-md restores the glass effect without being too heavy.
+  // transform-gpu ensures the GPU handles the rendering.
   <nav className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-2xl transform-gpu transition-colors duration-300">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-20">
@@ -111,7 +114,7 @@ const Hero = () => {
 
   return (
     // UPDATED: Changed pb-12 to pb-6 to reduce space towards the next section
-    <section className="relative pt-24 pb-6 overflow-hidden">
+    <section className="relative pt-24 pb-12 overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
       <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu"></div>
       <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu"></div>
@@ -140,7 +143,7 @@ const Hero = () => {
             Beli konten premium kreator/artis kesukaanmu dengan biaya lebih terjangkau! Buruan order yawh~! ❤️
           </p>
           
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 mb-16">
             <button 
               onClick={() => smoothScroll('shop')}
               className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-red-500/25 transition-all transform hover:-translate-y-1 touch-manipulation"
@@ -154,6 +157,63 @@ const Hero = () => {
               Info Legal
             </button>
           </div>
+
+          {/* NEW: FEATURES SECTION - KEUNGGULAN */}
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div className="h-px bg-slate-800 flex-1 max-w-[60px]"></div>
+              <p className="text-slate-400 text-xs font-bold tracking-[0.2em] uppercase">Mengapa Harus NEETCHANIME?</p>
+              <div className="h-px bg-slate-800 flex-1 max-w-[60px]"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-2">
+              {/* Feature 1: Tanpa Limit Kecepatan */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="bg-gradient-to-br from-pink-600/90 to-rose-600/90 p-5 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-pink-900/20 group"
+              >
+                  <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 backdrop-blur-md group-hover:bg-white/30 transition-colors">
+                      <Rocket className="text-white" size={20} />
+                  </div>
+                  <h3 className="font-bold text-white text-md mb-1">Tanpa Limit Kecepatan</h3>
+                  <p className="text-pink-100 text-xs leading-relaxed opacity-90">Download file super ngebut tanpa batasan server.</p>
+              </motion.div>
+
+              {/* Feature 2: Kompatibel */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-br from-violet-600/90 to-indigo-600/90 p-5 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-violet-900/20 group"
+              >
+                  <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 backdrop-blur-md group-hover:bg-white/30 transition-colors">
+                      <Puzzle className="text-white" size={20} />
+                  </div>
+                  <h3 className="font-bold text-white text-md mb-1">Kompatibel Semua Device</h3>
+                  <p className="text-violet-100 text-xs leading-relaxed opacity-90">Akses mudah di PC, Laptop, maupun Smartphone.</p>
+              </motion.div>
+
+              {/* Feature 3: Kualitas 4K */}
+              <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: 0.3 }}
+                 className="bg-gradient-to-br from-cyan-600/90 to-blue-600/90 p-5 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-cyan-900/20 group"
+              >
+                  <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 backdrop-blur-md group-hover:bg-white/30 transition-colors">
+                      <Monitor className="text-white" size={20} />
+                  </div>
+                  <h3 className="font-bold text-white text-md mb-1">Kualitas Jernih 4K</h3>
+                  <p className="text-cyan-100 text-xs leading-relaxed opacity-90">Visual tajam memanjakan mata (2K hingga 4K).</p>
+              </motion.div>
+            </div>
+          </div>
+
         </motion.div>
       </div>
     </section>
@@ -518,12 +578,10 @@ const ShopSection = ({ addToCart }) => {
   };
 
   return (
-    // UPDATED: Changed py-20 to pt-12 pb-20 to reduce top padding specifically
     <section id="shop" className="pt-12 pb-20 bg-slate-950 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            {/* UPDATED: Changed text to "Koleksi Konten" */}
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
               Koleksi Konten <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-lg shadow-amber-500/20 tracking-wider">PREMIUM</span>
             </h2>
@@ -589,6 +647,7 @@ const ShopSection = ({ addToCart }) => {
               )}
             </div>
 
+            {/* MODERN FILTER BUTTON & DROPDOWN */}
             <div className="relative">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -972,248 +1031,5 @@ Terima Kasih, ditunggu min.`;
         </div>
       </motion.div>
     </motion.div>
-  );
-};
-
-const Footer = () => (
-  <footer className="bg-slate-950 border-t border-slate-900 pt-16 pb-8">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-        {/* Left Side: Brand & Copyright */}
-        <div className="text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-            <span className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white">
-              NEETCHANIME
-            </span>
-            <span className="w-2 h-2 rounded-full bg-red-500 mt-2"></span>
-          </div>
-          <p className="text-slate-500 text-sm font-medium">
-            Copyright &copy; 2025 All Rights Reserved.
-          </p>
-        </div>
-
-        {/* Right Side: Social Media Buttons */}
-        <div className="flex flex-wrap justify-center gap-4">
-          {/* YouTube */}
-          <a 
-            href="https://youtube.com/@neetchanime" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c4302b]/20 hover:bg-[#c4302b] text-white transition-all duration-300 hover:scale-105 group border border-[#c4302b]/30 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 group-hover:animate-pulse">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.498-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-            <span className="font-bold text-sm">YouTube</span>
-          </a>
-
-          {/* Instagram */}
-          <a 
-            href="https://instagram.com/neetchanime" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d6249f]/20 hover:bg-gradient-to-tr hover:from-[#fd5949] hover:to-[#d6249f] text-white transition-all duration-300 hover:scale-105 group border border-[#d6249f]/30 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-            </svg>
-            <span className="font-bold text-sm">Instagram</span>
-          </a>
-
-          {/* Twitter / X */}
-          <a 
-            href="https://x.com/neetchanime" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-black text-white transition-all duration-300 hover:scale-105 group border border-slate-700 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-            <span className="font-bold text-sm">Twitter</span>
-          </a>
-
-          {/* Discord */}
-          <a 
-            href="https://discord.com/channels/@me" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#5865F2]/20 hover:bg-[#5865F2] text-white transition-all duration-300 hover:scale-105 group border border-[#5865F2]/30 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z"/>
-            </svg>
-            <span className="font-bold text-sm">Discord</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </footer>
-);
-
-export default function App() {
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [notification, setNotification] = useState(null);
-  
-  // Ref untuk menyimpan ID timeout agar bisa di-reset
-  const notificationTimeoutRef = useRef(null);
-
-  const addToCart = (product) => {
-    // Check if item already exists
-    setCart(prevCart => {
-      const existingItemIndex = prevCart.findIndex(item => item.id === product.id);
-      
-      let newCount = 1;
-      let newCart;
-
-      if (existingItemIndex > -1) {
-        // Item exists, increment quantity
-        newCart = [...prevCart];
-        newCart[existingItemIndex].quantity += 1;
-        newCount = newCart[existingItemIndex].quantity;
-      } else {
-        // New item, add with quantity 1
-        newCart = [...prevCart, { ...product, quantity: 1 }];
-      }
-
-      // Handle notification
-      if (notificationTimeoutRef.current) {
-        clearTimeout(notificationTimeoutRef.current);
-      }
-
-      setNotification({
-        id: Date.now(),
-        title: product.title,
-        count: newCount,
-        image: product.image
-      });
-
-      // Set timeout baru selama 4 detik
-      notificationTimeoutRef.current = setTimeout(() => {
-        setNotification(null);
-      }, 4000);
-
-      return newCart;
-    });
-  };
-
-  const updateQuantity = (id, delta) => {
-    setCart(prevCart => {
-      return prevCart.map(item => {
-        if (item.id === id) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : null;
-        }
-        return item;
-      }).filter(Boolean); 
-    });
-  };
-
-  // NEW: Directly set quantity (for input field)
-  const setCartQuantity = (id, quantity) => {
-    setCart(prevCart => {
-      return prevCart.map(item => {
-        if (item.id === id) {
-          return quantity > 0 ? { ...item, quantity: quantity } : item;
-        }
-        return item;
-      });
-    });
-  };
-
-  const removeItem = (id) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== id));
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-red-500/30">
-      {/* Modern Scrollbar Styles */}
-      <style>{`
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-          background: #334155; 
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: #475569; 
-        }
-        /* Hide arrows in input number */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-          -webkit-appearance: none; 
-          margin: 0; 
-        }
-      `}</style>
-
-      <Header cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)} openCart={() => setIsCartOpen(true)} />
-      
-      <main>
-        <Hero />
-        <ShopSection addToCart={addToCart} />
-        <FAQSection />
-      </main>
-      <Footer />
-      
-      {/* Golden Gradient Notification - Swipeable */}
-      <div className="fixed bottom-6 left-0 right-0 z-[70] flex flex-col items-center justify-end pointer-events-none space-y-2">
-        <AnimatePresence mode="popLayout">
-          {notification && (
-            <motion.div
-              key={notification.id}
-              // Remove layout prop to prevent horizontal shift
-              initial={{ y: 150, opacity: 0, scale: 0.9 }} 
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 150, opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 100 }}
-              dragElastic={0.7}
-              onDragEnd={(e, { offset }) => {
-                if (offset.y > 50) {
-                  setNotification(null);
-                }
-              }}
-              
-              className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 px-5 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-4 w-[90%] max-w-sm pointer-events-auto cursor-grab active:cursor-grabbing touch-none"
-            >
-              <div className="flex-shrink-0 bg-white/30 backdrop-blur-sm w-12 h-12 rounded-xl flex items-center justify-center border border-white/40 shadow-inner">
-                 <span className="font-extrabold text-lg text-amber-900 drop-shadow-sm">{notification.count}x</span>
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                 <p className="text-[10px] font-bold text-amber-900/70 uppercase tracking-widest mb-0.5">Berhasil Ditambahkan</p>
-                 <p className="font-bold text-slate-900 truncate leading-tight">{notification.title}</p>
-              </div>
-
-              <div className="flex-shrink-0 bg-white/20 p-1 rounded-full">
-                <Check size={18} className="text-amber-900" />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <AnimatePresence>
-        {isCartOpen && (
-          <CartModal 
-            isOpen={isCartOpen} 
-            onClose={() => setIsCartOpen(false)} 
-            cart={cart}
-            updateQuantity={updateQuantity}
-            setCartQuantity={setCartQuantity}
-            removeItem={removeItem}
-          />
-        )}
-      </AnimatePresence>
-    </div>
   );
 }
