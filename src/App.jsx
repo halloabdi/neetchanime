@@ -123,12 +123,6 @@ const ToastNotification = ({ data, onClose }) => {
       // Fixed: Box shape logic and centering
       className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
-      {/* UPDATED: 
-          - Removed min-w/max-w fixed values to allow auto-fitting
-          - Increased padding (p-5) for larger feel
-          - Increased font sizes
-          - w-auto inline-flex ensures it wraps content tightly 
-      */}
       <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
@@ -530,6 +524,7 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
 };
 
 const ShopSection = ({ addToCart }) => {
+  // UPDATED: Initial state to check window width to prevent flash of wrong animation
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -551,7 +546,9 @@ const ShopSection = ({ addToCart }) => {
       }
     };
 
-    handleResize(); 
+    // Initial check
+    handleResize();
+    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -723,7 +720,7 @@ const ShopSection = ({ addToCart }) => {
               // Mobile: Delay 0.2 (appears with Filter)
               transition={{ duration: 0.6, ease: "easeOut", delay: isMobile ? 0.2 : 0.5 }}
               // UPDATED: Added max-width and flex-shrink-0 for mobile stability
-              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden max-w-[80vw] md:max-w-none flex-shrink-0"
+              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden max-w-[calc(100%-60px)] md:max-w-none flex-shrink-0"
             >
               {showArrows && (
                 <button
@@ -1260,6 +1257,7 @@ const Footer = () => (
   </footer>
 );
 
+
 // --- MAIN APP ---
 const App = () => {
   const [cart, setCart] = useState([]);
@@ -1322,40 +1320,41 @@ const App = () => {
       <style>{`
         /* Webkit browsers (Chrome, Safari, Edge) */
         ::-webkit-scrollbar {
-          width: 10px; /* Lebar lebih tebal sesuai permintaan */
-          height: 10px;
+          width: 13px !important;
+          height: 13px !important;
         }
         
         ::-webkit-scrollbar-track {
-          background: transparent; 
+          background: #020617; /* match slate-950 or transparent */
+          border-radius: 0px !important;
+          margin: 0px !important;
         }
         
         ::-webkit-scrollbar-thumb {
-          background-color: #334155; /* Slate-700 */
-          border-radius: 10px; /* Rounded corners */
-          border: 2px solid transparent; /* Padding trick */
-          background-clip: content-box;
+          background-color: #475569; /* slate-600 */
+          border-radius: 10px !important;
+          border: 0px none !important; /* No border for no gap */
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background-color: #475569; /* Slate-600 */
+          background-color: #64748b; /* slate-500 */
         }
 
         /* Hapus tombol panah/segitiga secara eksplisit */
         ::-webkit-scrollbar-button {
-          display: none;
-          width: 0;
-          height: 0;
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
         }
         
         ::-webkit-scrollbar-corner {
-          background: transparent;
+          background: transparent !important;
         }
         
         /* Firefox support */
         * {
           scrollbar-width: thin;
-          scrollbar-color: #334155 transparent;
+          scrollbar-color: #475569 #020617;
         }
       `}</style>
       
