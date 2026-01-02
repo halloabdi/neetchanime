@@ -121,37 +121,37 @@ const ToastNotification = ({ data, onClose }) => {
       dragElastic={0.7} // Rasa karet saat ditarik
       onDragEnd={handleDragEnd}
       // Fixed: Box shape logic and centering
-      className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
+      className="fixed bottom-8 left-4 right-4 md:left-0 md:right-0 md:mx-auto md:w-auto z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto"
     >
-      <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-full md:min-w-[380px] md:max-w-[450px] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
-        <div className="p-5 flex flex-row items-center gap-5 relative z-10">
+        <div className="p-4 flex flex-row items-center gap-4 relative z-10">
           
-          {/* Left Column: Kotak Putih Transparan + Jumlah Produk (Larger) */}
-          <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-4 py-2 min-w-[50px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
-            <span className="text-lg font-bold text-white tabular-nums">
+          {/* Left Column: Kotak Putih Transparan + Jumlah Produk */}
+          <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-3 py-1.5 min-w-[42px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
+            <span className="text-sm font-bold text-white tabular-nums">
               {data.quantity}x
             </span>
           </div>
 
           {/* Right Column: Nama Produk & Keterangan Sukses */}
-          <div className="flex flex-col gap-2 min-w-0">
-             {/* Nama Produk (Larger Text) */}
-             <span className="text-base font-bold text-white leading-snug line-clamp-2 max-w-[60vw] md:max-w-[400px]">
+          <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+             {/* Nama Produk */}
+             <span className="text-sm font-bold text-white leading-snug line-clamp-2">
                 {data.productName}
              </span>
 
              {/* Separator Line: 55% Transparency */}
              <div className="h-[1px] w-full bg-white/55" />
 
-             {/* Keterangan Sukses (Readable) */}
+             {/* Keterangan Sukses */}
              <div className="flex items-center gap-2">
                 <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
-                   <Check size={14} className="text-white stroke-[4]" />
+                   <Check size={10} className="text-white stroke-[4]" />
                 </div>
-                <span className="font-medium text-sm tracking-wide text-yellow-50/90 whitespace-nowrap">
+                <span className="font-medium text-xs tracking-wide text-yellow-50/90">
                   Sukses Masuk di Keranjang!
                 </span>
              </div>
@@ -269,6 +269,7 @@ const Hero = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4 w-full">
               {/* Box 1: Booster */}
               <motion.div 
+                // UPDATED: Always popup from bottom (y: 50 -> 0)
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -287,6 +288,7 @@ const Hero = () => {
 
               {/* Box 2: Puzzle */}
               <motion.div 
+                // UPDATED: Always popup from bottom (y: 50 -> 0)
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -305,6 +307,7 @@ const Hero = () => {
 
               {/* Box 3: Monitor/4K */}
               <motion.div 
+                 // UPDATED: Always popup from bottom (y: 50 -> 0)
                  initial={{ opacity: 0, y: 50 }}
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true, amount: 0.3 }}
@@ -686,9 +689,11 @@ const ShopSection = ({ addToCart }) => {
   };
 
   return (
+    // UPDATED: Reduced padding-bottom (pb-8) to decrease space to FAQ
     <section id="shop" className="pt-12 pb-8 bg-slate-950 relative w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          {/* UPDATED: Improved entry animation */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -701,19 +706,20 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </motion.div>
           
+          {/* UPDATED: Separate animations for controls */}
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
-            {/* Pagination Controls */}
-            {/* UPDATED: Fixed animation logic and mobile layout flex-1 */}
+            {/* Pagination: Animations fixed per request (Left to Right on Mobile, Right to Left on Desktop) */}
             <motion.div 
-              // Desktop: Kanan ke Kiri (x: 50 -> 0)
-              // Mobile: Kiri ke Kanan (x: -50 -> 0)
+              // Desktop (Right to Left): x: 50 -> 0
+              // Mobile (Left to Right): x: -50 -> 0
               initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               // Desktop: Delay 0.4 (appears after filter)
-              // Mobile: Delay 0.2 (appears same time/before filter logic depending on need, keep 0.2)
+              // Mobile: Delay 0.2 (appears with Filter)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              className="flex flex-1 md:flex-none flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden min-w-0"
+              // UPDATED: Added max-width and flex-shrink-0 for mobile stability
+              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden max-w-[calc(100%-60px)] md:max-w-none flex-shrink-0"
             >
               {showArrows && (
                 <button
@@ -772,11 +778,8 @@ const ShopSection = ({ addToCart }) => {
               )}
             </motion.div>
 
-            {/* Filter Button */}
-            {/* UPDATED: Added flex-shrink-0 to ensure it's not squeezed out */}
+            {/* Filter: From Right (Always) */}
             <motion.div 
-              // Desktop: Kanan ke Kiri (x: 50 -> 0)
-              // Mobile: Kanan ke Kiri (x: 50 -> 0) - Tetap di kanan
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
@@ -881,6 +884,7 @@ const ShopSection = ({ addToCart }) => {
         </div>
 
         <AnimatePresence mode='wait'>
+          {/* UPDATED: Changed animate to whileInView to trigger on scroll */}
           <motion.div 
             key={page} 
             variants={containerVariants}
@@ -916,8 +920,26 @@ const ShopSection = ({ addToCart }) => {
 const FAQItem = ({ faq }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // New variants for fast popup animation
+  const faqItemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    show: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 400, // Makes it fast
+        damping: 20
+      }
+    }
+  };
+
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden transition-colors duration-300 hover:border-slate-700">
+    <motion.div 
+      variants={faqItemVariants}
+      className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden transition-colors duration-300 hover:border-slate-700"
+    >
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="w-full text-left p-6 flex items-start justify-between gap-4 hover:bg-slate-800/40 transition-colors focus:outline-none touch-manipulation"
@@ -948,26 +970,48 @@ const FAQItem = ({ faq }) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 
-const FAQSection = () => (
-  <section id="faq" className="pt-10 pb-20 bg-slate-950 relative w-full">
-    <div className="max-w-3xl mx-auto px-4 relative z-10">
-      <div className="text-center mb-12">
-        <HelpCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h2 className="text-3xl font-bold text-white mb-4">Informasi Penting</h2>
-        <p className="text-slate-400">Harap dibaca sebelum melakukan transaksi</p>
+const FAQSection = () => {
+  // Container variants for staggering the children animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1 // Fast stagger
+      }
+    }
+  };
+
+  return (
+    // UPDATED: Changed top padding (pt-10) to reduce space from content, bottom remains pb-20
+    <section id="faq" className="pt-10 pb-20 bg-slate-950 relative w-full">
+      <div className="max-w-3xl mx-auto px-4 relative z-10">
+        <div className="text-center mb-12">
+          <HelpCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-3xl font-bold text-white mb-4">Informasi Penting</h2>
+          <p className="text-slate-400">Harap dibaca sebelum melakukan transaksi</p>
+        </div>
+        
+        {/* Animated Container List */}
+        <motion.div 
+          className="space-y-4"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }} // Triggers when 20% is visible
+        >
+          {FAQS.map((faq, idx) => (
+            <FAQItem key={idx} faq={faq} />
+          ))}
+        </motion.div>
       </div>
-      <div className="space-y-4">
-        {FAQS.map((faq, idx) => (
-          <FAQItem key={idx} faq={faq} />
-        ))}
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQuantity }) => {
   const [formData, setFormData] = useState({ name: '', email: '', payment: '' });
@@ -1086,61 +1130,28 @@ const Footer = () => (
 const App = () => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [notification, setNotification] = useState(null); // State notifikasi
+  const [notification, setNotification] = useState(null);
 
   const addToCart = (product) => {
-    // UPDATED: Calculate quantity immediately for notification
     let newQty = 1;
     const existingItem = cart.find(p => p.id === product.id);
-    if (existingItem) {
-        newQty = existingItem.quantity + 1;
-    }
-
-    // Tampilkan notifikasi
-    // Reset dulu agar animasi ter-trigger ulang jika user menekan tombol dengan cepat
+    if (existingItem) { newQty = existingItem.quantity + 1; }
     setNotification(null);
-    setTimeout(() => {
-        setNotification({
-            id: Date.now(),
-            productName: product.title,
-            quantity: newQty // Pass the quantity
-        });
-    }, 10);
-
+    setTimeout(() => { setNotification({ id: Date.now(), productName: product.title, quantity: newQty }); }, 10);
     setCart(prev => {
       const existing = prev.find(p => p.id === product.id);
-      if (existing) {
-        return prev.map(p => p.id === product.id ? {...p, quantity: p.quantity + 1} : p);
-      }
+      if (existing) { return prev.map(p => p.id === product.id ? {...p, quantity: p.quantity + 1} : p); }
       return [...prev, {...product, quantity: 1}];
     });
   };
 
-  const updateQuantity = (id, delta) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQuantity = item.quantity + delta;
-        return newQuantity > 0 ? {...item, quantity: newQuantity} : item;
-      }
-      return item;
-    }));
-  };
-
-  const setCartQuantity = (id, quantity) => {
-    if (quantity < 1) return;
-    setCart(prev => prev.map(item => item.id === id ? {...item, quantity} : item));
-  }
-
-  const removeItem = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  };
-
+  const updateQuantity = (id, delta) => { setCart(prev => prev.map(item => { if (item.id === id) { const newQuantity = item.quantity + delta; return newQuantity > 0 ? {...item, quantity: newQuantity} : item; } return item; })); };
+  const setCartQuantity = (id, quantity) => { if (quantity < 1) return; setCart(prev => prev.map(item => item.id === id ? {...item, quantity} : item)); };
+  const removeItem = (id) => { setCart(prev => prev.filter(item => item.id !== id)); };
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    // FIXED: Added overflow-x-hidden and w-full to prevent horizontal scrolling whitespace
     <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200 overflow-x-hidden w-full">
-      {/* GLOBAL SCROLLBAR STYLE - FORCE OVERRIDE */}
       <style>{`
         /* Force remove buttons (arrows) */
         ::-webkit-scrollbar-button {
@@ -1186,36 +1197,12 @@ const App = () => {
           scrollbar-color: #334155 transparent;
         }
       `}</style>
-      
       <Header cartCount={cartCount} openCart={() => setIsCartOpen(true)} />
       <Hero />
       <ShopSection addToCart={addToCart} />
       <FAQSection />
-      
-      {/* Toast Notification Container */}
-      <AnimatePresence>
-        {notification && (
-          <ToastNotification 
-            key={notification.id}
-            data={notification} // Pass object data
-            onClose={() => setNotification(null)} 
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {isCartOpen && (
-          <CartModal 
-            isOpen={isCartOpen} 
-            onClose={() => setIsCartOpen(false)} 
-            cart={cart}
-            updateQuantity={updateQuantity}
-            removeItem={removeItem}
-            setCartQuantity={setCartQuantity}
-          />
-        )}
-      </AnimatePresence>
-      
+      <AnimatePresence>{notification && <ToastNotification key={notification.id} data={notification} onClose={() => setNotification(null)} />}</AnimatePresence>
+      <AnimatePresence>{isCartOpen && <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cart={cart} updateQuantity={updateQuantity} removeItem={removeItem} setCartQuantity={setCartQuantity} />}</AnimatePresence>
       <Footer />
     </div>
   );
