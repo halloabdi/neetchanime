@@ -122,33 +122,40 @@ const ToastNotification = ({ data, onClose }) => {
       // Fixed: Box shape logic
       className="fixed bottom-8 left-4 right-4 md:left-0 md:right-0 md:mx-auto md:w-auto z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto"
     >
-      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-full md:min-w-[400px] md:max-w-[450px] backdrop-blur-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-full md:min-w-[380px] md:max-w-[450px] backdrop-blur-xl relative overflow-hidden">
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
-        <div className="p-4 flex flex-col gap-2 relative z-10">
-          {/* Header: Success Message */}
-          <div className="flex items-center gap-2.5">
-            <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
-               <Check size={14} className="text-white stroke-[4]" />
-            </div>
-            <span className="font-bold text-sm tracking-wide text-yellow-50 shadow-black drop-shadow-sm">Sukses Masuk di Keranjang!</span>
+        <div className="p-4 flex flex-col gap-3 relative z-10">
+          
+          {/* Top Row: [Qty Box] Product Name */}
+          <div className="flex items-center gap-3">
+             {/* Kotak Putih Transparan + Jumlah Produk */}
+             <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-3 py-1.5 min-w-[42px] backdrop-blur-sm shadow-sm flex-shrink-0">
+                <span className="text-sm font-bold text-white tabular-nums">
+                  {data.quantity}x
+                </span>
+             </div>
+             
+             {/* Nama Produk */}
+             <span className="text-sm font-bold text-white leading-snug line-clamp-2">
+                {data.productName}
+             </span>
           </div>
 
           {/* Separator Line: 55% Transparency */}
-          <div className="h-[1px] w-full bg-white/55 my-0.5" />
+          <div className="h-[1px] w-full bg-white/55" />
 
-          {/* Body: Product Name & Quantity */}
-          <div className="flex items-center justify-between gap-4 pl-1">
-            <span className="text-xs md:text-sm font-medium text-yellow-100/90 truncate flex-1">
-              {data.productName}
-            </span>
-            <div className="flex items-center justify-center bg-black/30 border border-yellow-500/30 rounded-lg px-2.5 py-1 min-w-[32px]">
-              <span className="text-xs font-bold text-white tabular-nums">
-                {data.quantity}
-              </span>
+          {/* Bottom Row: Keterangan Sukses */}
+          <div className="flex items-center gap-2">
+            <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
+               <Check size={12} className="text-white stroke-[4]" />
             </div>
+            <span className="font-medium text-xs md:text-sm tracking-wide text-yellow-50/90">
+              Sukses Masuk di Keranjang!
+            </span>
           </div>
+
         </div>
       </div>
     </motion.div>
