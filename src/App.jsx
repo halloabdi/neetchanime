@@ -21,7 +21,7 @@ const generateProducts = () => {
   // Generate 25 items
   return Array.from({ length: 25 }, (_, i) => {
     const price = (Math.floor(Math.random() * 6) + 45) * 1000; 
-    // UPDATED: Buyers count restricted to 1-5 randomly
+    // Buyers count restricted to 1-5 randomly
     const buyers = Math.floor(Math.random() * 5) + 1;
     const reviews = Math.floor(Math.random() * buyers) + 1;
     const isNSFW = Math.random() < 0.8; 
@@ -74,12 +74,10 @@ const FAQS = [
 
 // --- TOAST NOTIFICATION COMPONENT ---
 const ToastNotification = ({ data, onClose }) => {
-  // State untuk arah animasi keluar (default: ke atas/fade out)
   const [exitVariant, setExitVariant] = useState({ y: -100, opacity: 0, scale: 0.9 });
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Default exit animation (jika timeout)
       setExitVariant({ y: -100, opacity: 0, scale: 0.9 }); 
       onClose();
     }, 5000);
@@ -88,20 +86,17 @@ const ToastNotification = ({ data, onClose }) => {
 
   const handleDragEnd = (event, info) => {
     const { offset } = info;
-    const threshold = 50; // Jarak swipe minimal untuk dismiss
+    const threshold = 50; 
 
     if (Math.abs(offset.x) > threshold || Math.abs(offset.y) > threshold) {
       let newExit = { opacity: 0, scale: 0.9, transition: { duration: 0.3 } };
 
-      // Tentukan arah swipe dominan
       if (Math.abs(offset.x) > Math.abs(offset.y)) {
-        // Horizontal (Kanan/Kiri)
         newExit.x = offset.x > 0 ? 300 : -300;
-        newExit.y = 0; // Reset Y agar lurus
+        newExit.y = 0;
       } else {
-        // Vertikal (Bawah/Atas)
         newExit.y = offset.y > 0 ? 300 : -300;
-        newExit.x = 0; // Reset X agar lurus
+        newExit.x = 0;
       }
 
       setExitVariant(newExit);
@@ -112,47 +107,38 @@ const ToastNotification = ({ data, onClose }) => {
   return (
     <motion.div
       layout
-      initial={{ y: 100, opacity: 0, scale: 0.8 }} // Masuk dari bawah
+      initial={{ y: 100, opacity: 0, scale: 0.8 }} 
       animate={{ y: 0, opacity: 1, scale: 1 }}
-      exit={exitVariant} // Keluar sesuai arah swipe atau default (ke atas)
+      exit={exitVariant}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      drag // Enable drag
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Snap back jika tidak dilempar
-      dragElastic={0.7} // Rasa karet saat ditarik
+      drag 
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} 
+      dragElastic={0.7} 
       onDragEnd={handleDragEnd}
-      // Fixed: Box shape logic and centering
+      // Fixed: w-fit + max-width ensures tight wrapping without fixed min-width
       className="fixed bottom-8 left-0 right-0 mx-auto w-fit z-[100] cursor-grab active:cursor-grabbing touch-none flex justify-center pointer-events-auto px-4"
     >
-      {/* UPDATED: 
-          - Removed min-w/max-w fixed values to allow auto-fitting
-          - Increased padding (p-5) for larger feel
-          - Increased font sizes
-          - w-auto inline-flex ensures it wraps content tightly 
-      */}
+      {/* Container: removed min-w, increased p-5 for size, w-auto */}
       <div className="inline-flex bg-gradient-to-r from-yellow-800 via-amber-700 to-yellow-900 border border-yellow-500/40 text-white rounded-xl shadow-[0_10px_40px_-10px_rgba(180,83,9,0.5)] w-auto max-w-[95vw] backdrop-blur-xl relative overflow-hidden">
-        {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
         <div className="p-5 flex flex-row items-center gap-5 relative z-10">
           
-          {/* Left Column: Kotak Putih Transparan + Jumlah Produk (Larger) */}
+          {/* Qty Box */}
           <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-4 py-2 min-w-[50px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
             <span className="text-lg font-bold text-white tabular-nums">
               {data.quantity}x
             </span>
           </div>
 
-          {/* Right Column: Nama Produk & Keterangan Sukses */}
+          {/* Text Content */}
           <div className="flex flex-col gap-2 min-w-0">
-             {/* Nama Produk (Larger Text) */}
-             <span className="text-base font-bold text-white leading-snug line-clamp-2 max-w-[60vw] md:max-w-[400px]">
+             <span className="text-base font-bold text-white leading-snug line-clamp-2 max-w-[60vw]">
                 {data.productName}
              </span>
 
-             {/* Separator Line: 55% Transparency */}
              <div className="h-[1px] w-full bg-white/55" />
 
-             {/* Keterangan Sukses (Readable) */}
              <div className="flex items-center gap-2">
                 <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
                    <Check size={14} className="text-white stroke-[4]" />
@@ -162,7 +148,6 @@ const ToastNotification = ({ data, onClose }) => {
                 </span>
              </div>
           </div>
-
         </div>
       </div>
     </motion.div>
@@ -251,7 +236,6 @@ const Hero = () => {
             </button>
           </div>
 
-          {/* --- NEW SECTION: KEUNGGULAN (FEATURE BOXES) --- */}
           <div className="max-w-5xl mx-auto mt-24">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
@@ -268,7 +252,6 @@ const Hero = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4 w-full">
-              {/* Box 1: Booster */}
               <motion.div 
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -286,7 +269,6 @@ const Hero = () => {
                   </div>
               </motion.div>
 
-              {/* Box 2: Puzzle */}
               <motion.div 
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -304,7 +286,6 @@ const Hero = () => {
                   </div>
               </motion.div>
 
-              {/* Box 3: Monitor/4K */}
               <motion.div 
                  initial={{ opacity: 0, y: 50 }}
                  whileInView={{ opacity: 1, y: 0 }}
@@ -337,7 +318,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
     onClick={() => onOpenPreview(product)}
     className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
   >
-    {/* Image Container */}
     <div className="relative h-32 md:h-48 overflow-hidden">
       <img 
         src={product.image} 
@@ -346,7 +326,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
         decoding="async"
         className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
       />
-      
       <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
         <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
           product.type === 'Foto' 
@@ -357,7 +336,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
           {product.type}
         </span>
       </div>
-
       <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
         {product.isNSFW ? (
           <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
@@ -371,11 +349,8 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
           </span>
         )}
       </div>
-
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
     </div>
-
-    {/* Content */}
     <div className="p-3 md:p-5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
         <div className="flex items-center text-amber-400">
@@ -385,15 +360,12 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
         <span>•</span>
         <span>{product.buyers} buyers</span>
       </div>
-
       <h3 className="text-slate-100 font-bold text-sm md:text-lg leading-snug mb-1 md:mb-3 line-clamp-2 group-hover:text-red-400 transition-colors">
         {product.title}
       </h3>
-
       <p className="text-slate-500 text-[10px] md:text-xs mb-3 font-mono mt-auto">
         Artist: <span className="text-slate-400">Anonymous</span>
       </p>
-
       <div className="pt-3 md:pt-4 border-t border-slate-800 flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-slate-500 text-[8px] md:text-[10px] uppercase tracking-wider">Harga</span>
@@ -401,7 +373,6 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => (
             Rp{product.price.toLocaleString('id-ID')}
           </span>
         </div>
-        
         <button 
           onClick={(e) => {
             e.stopPropagation(); 
@@ -455,7 +426,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                   className="w-full h-full object-cover md:absolute md:inset-0"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
-               
                {product.isNSFW && (
                   <div className="absolute top-4 left-4 px-3 py-1.5 bg-red-600 text-white text-xs font-extrabold rounded-lg shadow-lg border border-red-400 animate-pulse-slow">
                     18+ CONTENT
@@ -494,7 +464,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                     </div>
 
                     <div className="flex gap-3">
-                        {/* Category Button (Left) */}
                         <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
                             product.type === 'Video' 
                             ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
@@ -503,8 +472,6 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                             {product.type === 'Video' ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
                             {product.type} Only
                         </div>
-
-                        {/* Add to Cart Button (Right) */}
                         <button
                             onClick={() => {
                                 onAdd(product);
@@ -525,15 +492,12 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
 };
 
 const ShopSection = ({ addToCart }) => {
-  // UPDATED: Initial state to check window width to prevent flash of wrong animation
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [direction, setDirection] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null); 
-
-  // Filter States
-  const [activeFilters, setActiveFilters] = useState([]); // Array of strings: 'best_selling', 'top_rated', 'newest'
+  const [activeFilters, setActiveFilters] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
@@ -546,21 +510,16 @@ const ShopSection = ({ addToCart }) => {
         setItemsPerPage(10); 
       }
     };
-
-    // Initial check
     handleResize();
-    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Filter Logic
   const toggleFilter = (filterType) => {
     if (filterType === 'default') {
       setActiveFilters([]);
       return;
     }
-
     setActiveFilters(prev => {
       const exists = prev.includes(filterType);
       if (exists) {
@@ -576,7 +535,6 @@ const ShopSection = ({ addToCart }) => {
 
   const processedProducts = useMemo(() => {
     let result = [...PRODUCTS];
-
     if (activeFilters.length > 0) {
       result.sort((a, b) => {
         for (const filter of activeFilters) {
@@ -601,7 +559,6 @@ const ShopSection = ({ addToCart }) => {
     } else {
        result.sort((a, b) => a.id - b.id); 
     }
-
     return result;
   }, [activeFilters]);
   
@@ -629,73 +586,22 @@ const ShopSection = ({ addToCart }) => {
     const maxVisibleButtons = isMobile ? 3 : 5;
     let startPage = Math.max(1, page - Math.floor(maxVisibleButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
-
     if (endPage - startPage + 1 < maxVisibleButtons) {
         startPage = Math.max(1, endPage - maxVisibleButtons + 1);
     }
-
     return new Array(endPage - startPage + 1).fill().map((_, idx) => startPage + idx);
   };
 
   const paginationGroup = getPaginationGroup();
   const showArrows = isMobile || totalPages > 5;
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08, 
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.9 },
-    show: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 24
-      }
-    }
-  };
-
-  const paginationVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 20 : -20, 
-      opacity: 0,
-      scale: 0.5,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.2 } 
-      }
-    },
-    exit: (direction) => ({
-      zIndex: 0,
-      x: direction > 0 ? -20 : 20, 
-      opacity: 0,
-      scale: 0.5,
-      transition: { duration: 0.2 }
-    })
-  };
+  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
+  const itemVariants = { hidden: { opacity: 0, y: 50, scale: 0.9 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+  const paginationVariants = { enter: (direction) => ({ x: direction > 0 ? 20 : -20, opacity: 0, scale: 0.5 }), center: { zIndex: 1, x: 0, opacity: 1, scale: 1, transition: { x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.2 }, scale: { duration: 0.2 } } }, exit: (direction) => ({ zIndex: 0, x: direction > 0 ? -20 : 20, opacity: 0, scale: 0.5, transition: { duration: 0.2 } }) };
 
   return (
-    // UPDATED: Reduced padding-bottom (pb-8) to decrease space to FAQ
     <section id="shop" className="pt-12 pb-8 bg-slate-950 relative w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          {/* UPDATED: Improved entry animation */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -708,19 +614,12 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </motion.div>
           
-          {/* UPDATED: Separate animations for controls */}
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
-            {/* Pagination: Animations fixed per request (Left to Right on Mobile, Right to Left on Desktop) */}
             <motion.div 
-              // Desktop (Right to Left): x: 50 -> 0
-              // Mobile (Left to Right): x: -50 -> 0
               initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.5 (appears second)
-              // Mobile: Delay 0.2 (appears with Filter)
-              transition={{ duration: 0.6, ease: "easeOut", delay: isMobile ? 0.2 : 0.5 }}
-              // UPDATED: Added max-width and flex-shrink-0 for mobile stability
+              transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
               className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden max-w-[80vw] md:max-w-none flex-shrink-0"
             >
               {showArrows && (
@@ -734,7 +633,6 @@ const ShopSection = ({ addToCart }) => {
                   <ChevronLeft size={18} />
                 </button>
               )}
-
               <div className="flex items-center gap-1 h-9">
                 <AnimatePresence mode='wait' custom={direction} initial={false}>
                     {paginationGroup.map((num) => (
@@ -766,7 +664,6 @@ const ShopSection = ({ addToCart }) => {
                     ))}
                 </AnimatePresence>
               </div>
-
               {showArrows && (
                 <button
                   onClick={() => changePage(Math.min(page + 1, totalPages))}
@@ -780,14 +677,11 @@ const ShopSection = ({ addToCart }) => {
               )}
             </motion.div>
 
-            {/* Filter: From Right (Always) */}
             <motion.div 
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.2 (appears first)
-              // Mobile: Delay 0.2 (appears same time)
-              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="relative flex-shrink-0"
             >
               <button 
@@ -805,7 +699,6 @@ const ShopSection = ({ addToCart }) => {
                   </span>
                 )}
               </button>
-
               <AnimatePresence>
                 {isFilterOpen && (
                   <motion.div
@@ -816,65 +709,21 @@ const ShopSection = ({ addToCart }) => {
                     className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden"
                   >
                     <div className="p-2 space-y-1">
-                       <button
-                          onClick={() => toggleFilter('best_selling')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.includes('best_selling') 
-                              ? 'bg-orange-500/10 text-orange-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} />
-                            <span>Terlaris</span>
-                          </div>
+                       <button onClick={() => toggleFilter('best_selling')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('best_selling') ? 'bg-orange-500/10 text-orange-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} /><span>Terlaris</span></div>
                           {activeFilters.includes('best_selling') && <Check size={14} />}
                         </button>
-
-                        <button
-                          onClick={() => toggleFilter('top_rated')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.includes('top_rated') 
-                              ? 'bg-yellow-500/10 text-yellow-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} />
-                            <span>Terbaik</span>
-                          </div>
+                        <button onClick={() => toggleFilter('top_rated')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('top_rated') ? 'bg-yellow-500/10 text-yellow-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} /><span>Terbaik</span></div>
                           {activeFilters.includes('top_rated') && <Check size={14} />}
                         </button>
-
-                        <button
-                          onClick={() => toggleFilter('newest')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.includes('newest') 
-                              ? 'bg-emerald-500/10 text-emerald-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} />
-                            <span>Terupdate</span>
-                          </div>
+                        <button onClick={() => toggleFilter('newest')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('newest') ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} /><span>Terupdate</span></div>
                           {activeFilters.includes('newest') && <Check size={14} />}
                         </button>
-
                         <div className="h-px bg-slate-800 my-1" />
-
-                        <button
-                          onClick={() => toggleFilter('default')}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            activeFilters.length === 0
-                              ? 'bg-amber-500/10 text-amber-400' 
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} />
-                            <span>Default</span>
-                          </div>
+                        <button onClick={() => toggleFilter('default')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.length === 0 ? 'bg-amber-500/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <div className="flex items-center gap-2"><BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} /><span>Default</span></div>
                           {activeFilters.length === 0 && <Check size={14} />}
                         </button>
                     </div>
@@ -886,7 +735,6 @@ const ShopSection = ({ addToCart }) => {
         </div>
 
         <AnimatePresence mode='wait'>
-          {/* UPDATED: Changed animate to whileInView to trigger on scroll */}
           <motion.div 
             key={page} 
             variants={containerVariants}
@@ -959,7 +807,6 @@ const FAQItem = ({ faq }) => {
 };
 
 const FAQSection = () => (
-  // UPDATED: Changed top padding (pt-10) to reduce space from content, bottom remains pb-20
   <section id="faq" className="pt-10 pb-20 bg-slate-950 relative w-full">
     <div className="max-w-3xl mx-auto px-4 relative z-10">
       <div className="text-center mb-12">
@@ -967,7 +814,6 @@ const FAQSection = () => (
         <h2 className="text-3xl font-bold text-white mb-4">Informasi Penting</h2>
         <p className="text-slate-400">Harap dibaca sebelum melakukan transaksi</p>
       </div>
-      
       <div className="space-y-4">
         {FAQS.map((faq, idx) => (
           <FAQItem key={idx} faq={faq} />
@@ -979,7 +825,6 @@ const FAQSection = () => (
 
 const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQuantity }) => {
   const [formData, setFormData] = useState({ name: '', email: '', payment: '' });
-
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = (e) => {
@@ -988,23 +833,9 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
       alert("Mohon lengkapi semua data!");
       return;
     }
-
-    const itemsList = cart.map((item, idx) => 
-      `${idx + 1}. ${item.title} ${item.isNSFW ? '[18+]' : '[Safe]'} (x${item.quantity})`
-    ).join('\n');
-    
+    const itemsList = cart.map((item, idx) => `${idx + 1}. ${item.title} ${item.isNSFW ? '[18+]' : '[Safe]'} (x${item.quantity})`).join('\n');
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
-    
-    // Perubahan: Hapus 'dst', Bold Total & Payment, format lebih rapi
-    const message = `Hai Mimin NEETCHANIME!
-Saya ${formData.name} dengan email ${formData.email}.
-Saya telah membeli produk berupa:
-${itemsList}
-
-Senilai *${formattedTotal}*
-Saya memilih metode pembayaran *${formData.payment}*.
-Terima Kasih, ditunggu min.`;
-
+    const message = `Hai Mimin NEETCHANIME!\nSaya ${formData.name} dengan email ${formData.email}.\nSaya telah membeli produk berupa:\n${itemsList}\n\nSenilai *${formattedTotal}*\nSaya memilih metode pembayaran *${formData.payment}*.\nTerima Kasih, ditunggu min.`;
     const whatsappUrl = `https://wa.me/6285169992275?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -1023,29 +854,16 @@ Terima Kasih, ditunggu min.`;
         onClick={onClose}
         className="absolute inset-0 bg-black/90 backdrop-blur-sm"
       />
-      
       <motion.div 
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20, transition: { duration: 0.2 } }}
         className="bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl border border-slate-700 shadow-2xl overflow-hidden relative flex flex-col md:flex-row z-10"
       >
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white z-10"
-        >
-          <X size={24} />
-        </button>
-
-        {/* UPDATED: Added flex-col to the container to ensure correct layout */}
+        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white z-10"><X size={24} /></button>
         <div className="flex-1 p-6 overflow-y-auto bg-slate-900 md:border-r border-slate-800 flex flex-col">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <ShoppingCart className="text-red-500" />
-            Keranjang
-          </h2>
-
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><ShoppingCart className="text-red-500" />Keranjang</h2>
           {cart.length === 0 ? (
-            // UPDATED: Used flex-1 and flex-col to center content vertically and horizontally
             <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500 min-h-[300px]">
               <p>Keranjang kosong...</p>
               <button onClick={onClose} className="mt-4 text-red-400 hover:underline text-sm">Lihat Koleksi</button>
@@ -1055,124 +873,32 @@ Terima Kasih, ditunggu min.`;
               {cart.map((item) => (
                 <div key={item.id} className="flex flex-col gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
                   <div className="flex items-center gap-4">
-                    <div className="relative">
-                       <img src={item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
-                       {item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-white text-sm font-medium truncate">{item.title}</h4>
-                      <p className="text-red-400 font-bold text-sm">Rp{item.price.toLocaleString('id-ID')}</p>
-                    </div>
-                    <button 
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors touch-manipulation"
-                      title="Hapus Produk"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div className="relative"><img src={item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />{item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}</div>
+                    <div className="flex-1 min-w-0"><h4 className="text-white text-sm font-medium truncate">{item.title}</h4><p className="text-red-400 font-bold text-sm">Rp{item.price.toLocaleString('id-ID')}</p></div>
+                    <button onClick={() => removeItem(item.id)} className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors touch-manipulation" title="Hapus Produk"><Trash2 size={18} /></button>
                   </div>
-                  
                   <div className="flex items-center justify-between border-t border-slate-700/50 pt-2">
                     <span className="text-xs text-slate-400">Jumlah:</span>
                     <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1">
-                      <button 
-                        onClick={() => updateQuantity(item.id, -1)}
-                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"
-                      >
-                        <Minus size={14} />
-                      </button>
-                      
-                      <input 
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => setCartQuantity(item.id, parseInt(e.target.value) || 1)}
-                        className="w-12 bg-transparent text-center text-sm font-bold text-white focus:outline-none appearance-none"
-                      />
-
-                      <button 
-                        onClick={() => updateQuantity(item.id, 1)}
-                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"
-                      >
-                        <Plus size={14} />
-                      </button>
+                      <button onClick={() => updateQuantity(item.id, -1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"><Minus size={14} /></button>
+                      <input type="number" min="1" value={item.quantity} onChange={(e) => setCartQuantity(item.id, parseInt(e.target.value) || 1)} className="w-12 bg-transparent text-center text-sm font-bold text-white focus:outline-none appearance-none" />
+                      <button onClick={() => updateQuantity(item.id, 1)} className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors touch-manipulation"><Plus size={14} /></button>
                     </div>
                   </div>
                 </div>
               ))}
-              <div className="pt-4 border-t border-slate-800 flex justify-between items-center">
-                <span className="text-slate-400">Total</span>
-                <span className="text-2xl font-bold text-white">Rp{total.toLocaleString('id-ID')}</span>
-              </div>
+              <div className="pt-4 border-t border-slate-800 flex justify-between items-center"><span className="text-slate-400">Total</span><span className="text-2xl font-bold text-white">Rp{total.toLocaleString('id-ID')}</span></div>
             </div>
           )}
         </div>
-
         <div className="flex-1 p-6 bg-slate-950 overflow-y-auto">
           <h2 className="text-xl font-bold text-white mb-6">Konfirmasi Pembeli</h2>
-          
           <form onSubmit={handleCheckout} className="space-y-4">
-            <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg flex gap-3 mb-4">
-              <AlertCircle className="text-red-500 flex-shrink-0" size={20} />
-              <p className="text-[10px] text-red-200/80 leading-relaxed">
-                Dengan melanjutkan, Anda menyatakan bahwa Anda berusia 18 tahun ke atas dan setuju dengan kebijakan privasi kami.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Nama Lengkap</label>
-              <input 
-                type="text" 
-                required
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-500 transition-colors"
-                placeholder="Nama samaran diperbolehkan"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Email</label>
-              <input 
-                type="email" 
-                required
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-500 transition-colors"
-                placeholder="Untuk pengiriman file"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-2">Metode Pembayaran</label>
-              <div className="grid grid-cols-3 gap-2">
-                {PAYMENT_METHODS.map(method => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => setFormData({...formData, payment: method})}
-                    className={`px-2 py-2 text-xs font-bold rounded-lg border transition-all touch-manipulation ${
-                      formData.payment === method 
-                        ? 'bg-red-600 border-red-600 text-white' 
-                        : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
-                    }`}
-                  >
-                    {method}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-6">
-              <button 
-                type="submit"
-                disabled={cart.length === 0}
-                className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
-              >
-                <span>Proses di WhatsApp</span>
-                <ChevronRight size={18} />
-              </button>
-            </div>
+            <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg flex gap-3 mb-4"><AlertCircle className="text-red-500 flex-shrink-0" size={20} /><p className="text-[10px] text-red-200/80 leading-relaxed">Dengan melanjutkan, Anda menyatakan bahwa Anda berusia 18 tahun ke atas dan setuju dengan kebijakan privasi kami.</p></div>
+            <div><label className="block text-xs font-medium text-slate-400 mb-1">Nama Lengkap</label><input type="text" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-500 transition-colors" placeholder="Nama samaran diperbolehkan" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} /></div>
+            <div><label className="block text-xs font-medium text-slate-400 mb-1">Email</label><input type="email" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-500 transition-colors" placeholder="Untuk pengiriman file" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} /></div>
+            <div><label className="block text-xs font-medium text-slate-400 mb-2">Metode Pembayaran</label><div className="grid grid-cols-3 gap-2">{PAYMENT_METHODS.map(method => (<button key={method} type="button" onClick={() => setFormData({...formData, payment: method})} className={`px-2 py-2 text-xs font-bold rounded-lg border transition-all touch-manipulation ${formData.payment === method ? 'bg-red-600 border-red-600 text-white' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}`}>{method}</button>))}</div></div>
+            <div className="pt-6"><button type="submit" disabled={cart.length === 0} className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"><span>Proses di WhatsApp</span><ChevronRight size={18} /></button></div>
           </form>
         </div>
       </motion.div>
@@ -1184,73 +910,25 @@ const Footer = () => (
   <footer className="bg-slate-950 border-t border-slate-900 pt-16 pb-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-        {/* Left Side: Brand & Copyright */}
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-            <span className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white">
-              NEETCHANIME
-            </span>
+            <span className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white">NEETCHANIME</span>
             <span className="w-2 h-2 rounded-full bg-red-500 mt-2"></span>
           </div>
-          <p className="text-slate-500 text-sm font-medium">
-            Copyright &copy; 2025 All Rights Reserved.
-          </p>
+          <p className="text-slate-500 text-sm font-medium">Copyright &copy; 2025 All Rights Reserved.</p>
         </div>
-
-        {/* Right Side: Social Media Buttons */}
         <div className="flex flex-wrap justify-center gap-4">
-          {/* YouTube */}
-          <a 
-            href="https://youtube.com/@neetchanime" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c4302b]/20 hover:bg-[#c4302b] text-white transition-all duration-300 hover:scale-105 group border border-[#c4302b]/30 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 group-hover:animate-pulse">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.498-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-            <span className="font-bold text-sm">YouTube</span>
+          <a href="https://youtube.com/@neetchanime" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c4302b]/20 hover:bg-[#c4302b] text-white transition-all duration-300 hover:scale-105 group border border-[#c4302b]/30 touch-manipulation">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 group-hover:animate-pulse"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.498-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg><span className="font-bold text-sm">YouTube</span>
           </a>
-
-          {/* Instagram */}
-          <a 
-            href="https://instagram.com/neetchanime" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d6249f]/20 hover:bg-gradient-to-tr hover:from-[#fd5949] hover:to-[#d6249f] text-white transition-all duration-300 hover:scale-105 group border border-[#d6249f]/30 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-            </svg>
-            <span className="font-bold text-sm">Instagram</span>
+          <a href="https://instagram.com/neetchanime" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d6249f]/20 hover:bg-gradient-to-tr hover:from-[#fd5949] hover:to-[#d6249f] text-white transition-all duration-300 hover:scale-105 group border border-[#d6249f]/30 touch-manipulation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg><span className="font-bold text-sm">Instagram</span>
           </a>
-
-          {/* Twitter / X */}
-          <a 
-            href="https://x.com/neetchanime" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-black text-white transition-all duration-300 hover:scale-105 group border border-slate-700 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-            <span className="font-bold text-sm">Twitter</span>
+          <a href="https://x.com/neetchanime" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-black text-white transition-all duration-300 hover:scale-105 group border border-slate-700 touch-manipulation">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span className="font-bold text-sm">Twitter</span>
           </a>
-
-          {/* Discord */}
-          <a 
-            href="https://discord.com/channels/@me" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#5865F2]/20 hover:bg-[#5865F2] text-white transition-all duration-300 hover:scale-105 group border border-[#5865F2]/30 touch-manipulation"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z"/>
-            </svg>
-            <span className="font-bold text-sm">Discord</span>
+          <a href="https://discord.com/channels/@me" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#5865F2]/20 hover:bg-[#5865F2] text-white transition-all duration-300 hover:scale-105 group border border-[#5865F2]/30 touch-manipulation">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z"/></svg><span className="font-bold text-sm">Discord</span>
           </a>
         </div>
       </div>
@@ -1258,134 +936,46 @@ const Footer = () => (
   </footer>
 );
 
-// --- MAIN APP ---
 const App = () => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [notification, setNotification] = useState(null); // State notifikasi
+  const [notification, setNotification] = useState(null);
 
   const addToCart = (product) => {
-    // UPDATED: Calculate quantity immediately for notification
     let newQty = 1;
     const existingItem = cart.find(p => p.id === product.id);
-    if (existingItem) {
-        newQty = existingItem.quantity + 1;
-    }
-
-    // Tampilkan notifikasi
-    // Reset dulu agar animasi ter-trigger ulang jika user menekan tombol dengan cepat
+    if (existingItem) { newQty = existingItem.quantity + 1; }
     setNotification(null);
-    setTimeout(() => {
-        setNotification({
-            id: Date.now(),
-            productName: product.title,
-            quantity: newQty // Pass the quantity
-        });
-    }, 10);
-
+    setTimeout(() => { setNotification({ id: Date.now(), productName: product.title, quantity: newQty }); }, 10);
     setCart(prev => {
       const existing = prev.find(p => p.id === product.id);
-      if (existing) {
-        return prev.map(p => p.id === product.id ? {...p, quantity: p.quantity + 1} : p);
-      }
+      if (existing) { return prev.map(p => p.id === product.id ? {...p, quantity: p.quantity + 1} : p); }
       return [...prev, {...product, quantity: 1}];
     });
   };
 
-  const updateQuantity = (id, delta) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQuantity = item.quantity + delta;
-        return newQuantity > 0 ? {...item, quantity: newQuantity} : item;
-      }
-      return item;
-    }));
-  };
-
-  const setCartQuantity = (id, quantity) => {
-    if (quantity < 1) return;
-    setCart(prev => prev.map(item => item.id === id ? {...item, quantity} : item));
-  }
-
-  const removeItem = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  };
-
+  const updateQuantity = (id, delta) => { setCart(prev => prev.map(item => { if (item.id === id) { const newQuantity = item.quantity + delta; return newQuantity > 0 ? {...item, quantity: newQuantity} : item; } return item; })); };
+  const setCartQuantity = (id, quantity) => { if (quantity < 1) return; setCart(prev => prev.map(item => item.id === id ? {...item, quantity} : item)); };
+  const removeItem = (id) => { setCart(prev => prev.filter(item => item.id !== id)); };
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    // FIXED: Added overflow-x-hidden and w-full to prevent horizontal scrolling whitespace
     <div className="bg-slate-950 min-h-screen font-sans selection:bg-red-500/30 text-slate-200 overflow-x-hidden w-full">
-      {/* GLOBAL SCROLLBAR STYLE - Modern Minimalist Line */}
       <style>{`
-        /* Webkit browsers (Chrome, Safari, Edge) */
-        ::-webkit-scrollbar {
-          width: 10px; /* Lebar lebih tebal sesuai permintaan */
-          height: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: transparent; 
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background-color: #334155; /* Slate-700 */
-          border-radius: 10px; /* Rounded corners */
-          border: 2px solid transparent; /* Padding trick */
-          background-clip: content-box;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: #475569; /* Slate-600 */
-        }
-
-        /* Hapus tombol panah/segitiga secara eksplisit */
-        ::-webkit-scrollbar-button {
-          display: none;
-          width: 0;
-          height: 0;
-        }
-        
-        ::-webkit-scrollbar-corner {
-          background: transparent;
-        }
-        
-        /* Firefox support */
-        * {
-          scrollbar-width: thin;
-          scrollbar-color: #334155 transparent;
-        }
+        ::-webkit-scrollbar { width: 14px; height: 14px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 7px; border: 3px solid #020617; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
+        ::-webkit-scrollbar-button { display: none !important; width: 0; height: 0; }
+        ::-webkit-scrollbar-corner { background: transparent; }
+        html { scrollbar-width: thin; scrollbar-color: #475569 #020617; }
       `}</style>
-      
       <Header cartCount={cartCount} openCart={() => setIsCartOpen(true)} />
       <Hero />
       <ShopSection addToCart={addToCart} />
       <FAQSection />
-      
-      {/* Toast Notification Container */}
-      <AnimatePresence>
-        {notification && (
-          <ToastNotification 
-            key={notification.id}
-            data={notification} // Pass object data
-            onClose={() => setNotification(null)} 
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {isCartOpen && (
-          <CartModal 
-            isOpen={isCartOpen} 
-            onClose={() => setIsCartOpen(false)} 
-            cart={cart}
-            updateQuantity={updateQuantity}
-            removeItem={removeItem}
-            setCartQuantity={setCartQuantity}
-          />
-        )}
-      </AnimatePresence>
-      
+      <AnimatePresence>{notification && <ToastNotification key={notification.id} data={notification} onClose={() => setNotification(null)} />}</AnimatePresence>
+      <AnimatePresence>{isCartOpen && <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cart={cart} updateQuantity={updateQuantity} removeItem={removeItem} setCartQuantity={setCartQuantity} />}</AnimatePresence>
       <Footer />
     </div>
   );
