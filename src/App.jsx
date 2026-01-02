@@ -526,12 +526,12 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
 const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false); // Default to false for hydration
   const [direction, setDirection] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null); 
 
   // Filter States
-  const [activeFilters, setActiveFilters] = useState([]); 
+  const [activeFilters, setActiveFilters] = useState([]); // Array of strings: 'best_selling', 'top_rated', 'newest'
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
@@ -544,7 +544,7 @@ const ShopSection = ({ addToCart }) => {
         setItemsPerPage(10); 
       }
     };
-    handleResize();
+    handleResize(); // Initial call
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -555,6 +555,7 @@ const ShopSection = ({ addToCart }) => {
       setActiveFilters([]);
       return;
     }
+
     setActiveFilters(prev => {
       const exists = prev.includes(filterType);
       if (exists) {
@@ -595,6 +596,7 @@ const ShopSection = ({ addToCart }) => {
     } else {
        result.sort((a, b) => a.id - b.id); 
     }
+
     return result;
   }, [activeFilters]);
   
@@ -626,6 +628,7 @@ const ShopSection = ({ addToCart }) => {
     if (endPage - startPage + 1 < maxVisibleButtons) {
         startPage = Math.max(1, endPage - maxVisibleButtons + 1);
     }
+
     return new Array(endPage - startPage + 1).fill().map((_, idx) => startPage + idx);
   };
 
@@ -698,18 +701,19 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </motion.div>
           
-          {/* UPDATED: Flex-row layout for both desktop and mobile to ensure filter visibility */}
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
-            {/* Pagination */}
+            {/* Pagination Controls */}
+            {/* UPDATED: Fixed animation logic and mobile layout flex-1 */}
             <motion.div 
-              // Desktop: From Right (50), Mobile: From Left (-50)
+              // Desktop: Kanan ke Kiri (x: 50 -> 0)
+              // Mobile: Kiri ke Kanan (x: -50 -> 0)
               initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.4 (after filter), Mobile: Delay 0.2
+              // Desktop: Delay 0.4 (appears after filter)
+              // Mobile: Delay 0.2 (appears same time/before filter logic depending on need, keep 0.2)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              // UPDATED: Fixed max-width calculation for mobile to reserve space for filter button (52px + gap)
-              className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden max-w-[calc(100%-60px)] md:max-w-none flex-shrink-0"
+              className="flex flex-1 md:flex-none flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden min-w-0"
             >
               {showArrows && (
                 <button
@@ -768,13 +772,16 @@ const ShopSection = ({ addToCart }) => {
               )}
             </motion.div>
 
-            {/* Filter */}
+            {/* Filter Button */}
+            {/* UPDATED: Added flex-shrink-0 to ensure it's not squeezed out */}
             <motion.div 
-              // Always From Right (50)
+              // Desktop: Kanan ke Kiri (x: 50 -> 0)
+              // Mobile: Kanan ke Kiri (x: 50 -> 0) - Tetap di kanan
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              // Desktop: Delay 0.2 (First), Mobile: Delay 0.2
+              // Desktop: Delay 0.2 (appears first)
+              // Mobile: Delay 0.2 (appears same time)
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="relative flex-shrink-0"
             >
@@ -793,7 +800,7 @@ const ShopSection = ({ addToCart }) => {
                   </span>
                 )}
               </button>
-              {/* Filter Dropdown Logic remains same */}
+
               <AnimatePresence>
                 {isFilterOpen && (
                   <motion.div
@@ -804,21 +811,65 @@ const ShopSection = ({ addToCart }) => {
                     className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden"
                   >
                     <div className="p-2 space-y-1">
-                       <button onClick={() => toggleFilter('best_selling')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('best_selling') ? 'bg-orange-500/10 text-orange-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} /><span>Terlaris</span></div>
+                       <button
+                          onClick={() => toggleFilter('best_selling')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('best_selling') 
+                              ? 'bg-orange-500/10 text-orange-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} />
+                            <span>Terlaris</span>
+                          </div>
                           {activeFilters.includes('best_selling') && <Check size={14} />}
                         </button>
-                        <button onClick={() => toggleFilter('top_rated')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('top_rated') ? 'bg-yellow-500/10 text-yellow-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} /><span>Terbaik</span></div>
+
+                        <button
+                          onClick={() => toggleFilter('top_rated')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('top_rated') 
+                              ? 'bg-yellow-500/10 text-yellow-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} />
+                            <span>Terbaik</span>
+                          </div>
                           {activeFilters.includes('top_rated') && <Check size={14} />}
                         </button>
-                        <button onClick={() => toggleFilter('newest')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('newest') ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} /><span>Terupdate</span></div>
+
+                        <button
+                          onClick={() => toggleFilter('newest')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('newest') 
+                              ? 'bg-emerald-500/10 text-emerald-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} />
+                            <span>Terupdate</span>
+                          </div>
                           {activeFilters.includes('newest') && <Check size={14} />}
                         </button>
+
                         <div className="h-px bg-slate-800 my-1" />
-                        <button onClick={() => toggleFilter('default')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.length === 0 ? 'bg-amber-500/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} /><span>Default</span></div>
+
+                        <button
+                          onClick={() => toggleFilter('default')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.length === 0
+                              ? 'bg-amber-500/10 text-amber-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} />
+                            <span>Default</span>
+                          </div>
                           {activeFilters.length === 0 && <Check size={14} />}
                         </button>
                     </div>
