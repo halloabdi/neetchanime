@@ -110,7 +110,8 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative pt-24 pb-12 overflow-hidden">
+    // UPDATED: Adjusted top padding from pt-36 to pt-32 for balanced spacing
+    <section className="relative pt-32 pb-12 overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
       <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu"></div>
       <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu"></div>
@@ -125,10 +126,11 @@ const Hero = () => {
             Strictly for Adults (18+)
           </span>
           <h1 className="font-extrabold mb-4 tracking-tighter leading-tight md:leading-none">
-            <span className="block text-5xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-2 break-words tracking-tighter">
+            {/* UPDATED: Reduced padding-bottom (pb-0) and margin-top (mt-0) to bring lines closer */}
+            <span className="block text-5xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-0 break-words tracking-tighter">
               NEETCHANIME
             </span>
-            <span className="block text-2xl sm:text-4xl md:text-5xl mt-1 md:mt-2 font-extrabold tracking-tight">
+            <span className="block text-2xl sm:text-4xl md:text-5xl mt-0 md:mt-1 font-extrabold tracking-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-900 mr-2">Platform</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mr-2">R34</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
@@ -154,60 +156,77 @@ const Hero = () => {
           </div>
 
           {/* --- NEW SECTION: KEUNGGULAN (FEATURE BOXES) --- */}
-          <div className="max-w-5xl mx-auto mt-16">
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <div className="h-px bg-slate-800 flex-1 max-w-[60px]"></div>
-              <p className="text-slate-400 text-xs font-bold tracking-[0.2em] uppercase">Mengapa Harus NEETCHANIME?</p>
-              <div className="h-px bg-slate-800 flex-1 max-w-[60px]"></div>
-            </div>
+          <div className="max-w-5xl mx-auto mt-24">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.7 }}
+              className="flex items-center justify-center gap-4 mb-10"
+            >
+              <div className="h-[2px] bg-gradient-to-r from-transparent to-slate-700 flex-1 max-w-[100px]"></div>
+              <h2 className="text-2xl md:text-4xl font-bold text-white text-center tracking-wide">
+                Mengapa Harus NEETCHANIME?
+              </h2>
+              <div className="h-[2px] bg-gradient-to-l from-transparent to-slate-700 flex-1 max-w-[100px]"></div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-2">
+            {/* Added py-4 to container to ensure glow isn't cut off vertically */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-4">
               {/* Box 1: Booster */}
               <motion.div 
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="bg-gradient-to-br from-pink-600 to-rose-600 p-6 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-pink-900/20 group relative overflow-hidden"
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+                // Increased shadow spread and blur for stronger glow, added overflow-visible to safe-guard
+                className="bg-slate-900/40 border border-pink-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(236,72,153,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
               >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                  <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-md group-hover:bg-white/30 transition-colors shadow-inner">
-                      <Rocket className="text-white drop-shadow-md" size={24} />
+                  {/* Changed to items-center for better vertical alignment since description is gone */}
+                  <div className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-4 h-full">
+                    <div className="bg-pink-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-pink-500/30 shadow-[inset_0_0_10px_rgba(236,72,153,0.2)] group-hover:bg-pink-500/20 transition-colors">
+                        <Rocket className="text-pink-500 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" size={32} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg leading-tight">Tanpa Limit Kecepatan Internet</h3>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-white text-lg mb-2">Tanpa Limit Kecepatan</h3>
-                  <p className="text-pink-100 text-sm leading-relaxed opacity-90 font-medium">Download file super ngebut tanpa batasan server.</p>
               </motion.div>
 
               {/* Box 2: Puzzle */}
               <motion.div 
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-violet-600 to-indigo-600 p-6 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-violet-900/20 group relative overflow-hidden"
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="bg-slate-900/40 border border-violet-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
               >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                  <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-md group-hover:bg-white/30 transition-colors shadow-inner">
-                      <Puzzle className="text-white drop-shadow-md" size={24} />
+                  <div className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-4 h-full">
+                    <div className="bg-violet-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-violet-500/30 shadow-[inset_0_0_10px_rgba(139,92,246,0.2)] group-hover:bg-violet-500/20 transition-colors">
+                        <Puzzle className="text-violet-500 drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" size={32} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg leading-tight">Kompatible di Berbagai Perangkat</h3>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-white text-lg mb-2">Kompatibel Semua Device</h3>
-                  <p className="text-violet-100 text-sm leading-relaxed opacity-90 font-medium">Akses mudah di PC, Laptop, maupun Smartphone.</p>
               </motion.div>
 
               {/* Box 3: Monitor/4K */}
               <motion.div 
-                 initial={{ opacity: 0, y: 20 }}
+                 initial={{ opacity: 0, y: 50 }}
                  whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
-                 transition={{ delay: 0.3 }}
-                 className="bg-gradient-to-br from-cyan-600 to-blue-600 p-6 rounded-2xl border border-white/10 text-left hover:scale-105 transition-transform duration-300 shadow-xl shadow-cyan-900/20 group relative overflow-hidden"
+                 viewport={{ once: true, amount: 0.3 }}
+                 transition={{ delay: 0.3, duration: 0.5 }}
+                 className="bg-slate-900/40 border border-cyan-500 p-6 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:scale-105 transition-all duration-300 group relative overflow-visible backdrop-blur-sm"
               >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                  <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-md group-hover:bg-white/30 transition-colors shadow-inner">
-                      <Monitor className="text-white drop-shadow-md" size={24} />
+                  <div className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-4 h-full">
+                    <div className="bg-cyan-500/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.2)] group-hover:bg-cyan-500/20 transition-colors">
+                        <Monitor className="text-cyan-500 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" size={32} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg leading-tight">Kualitas Lebih Jernih (2K hingga 4K)</h3>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-white text-lg mb-2">Kualitas Jernih 4K</h3>
-                  <p className="text-cyan-100 text-sm leading-relaxed opacity-90 font-medium">Visual tajam memanjakan mata (2K hingga 4K).</p>
               </motion.div>
             </div>
           </div>
@@ -530,13 +549,13 @@ const ShopSection = ({ addToCart }) => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.05, 
+        staggerChildren: 0.08, 
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    hidden: { opacity: 0, y: 50, scale: 0.9 },
     show: { 
       opacity: 1, 
       y: 0, 
@@ -576,15 +595,16 @@ const ShopSection = ({ addToCart }) => {
   };
 
   return (
-    <section id="shop" className="pt-12 pb-20 bg-slate-950 relative">
+    // UPDATED: Reduced padding-bottom (pb-8) to decrease space to FAQ
+    <section id="shop" className="pt-12 pb-8 bg-slate-950 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          {/* UPDATED: Added entry animation to Title section */}
+          {/* UPDATED: Improved entry animation */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
               Koleksi Konten <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-lg shadow-amber-500/20 tracking-wider">PREMIUM</span>
@@ -592,12 +612,12 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </motion.div>
           
-          {/* UPDATED: Added entry animation to Controls (Filter + Pagination) */}
+          {/* UPDATED: Improved entry animation */}
           <motion.div 
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
             className="flex items-center justify-between w-full md:w-auto gap-2"
           >
             <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden">
@@ -756,11 +776,13 @@ const ShopSection = ({ addToCart }) => {
         </div>
 
         <AnimatePresence mode='wait'>
+          {/* UPDATED: Changed animate to whileInView to trigger on scroll */}
           <motion.div 
             key={page} 
             variants={containerVariants}
             initial="hidden"
-            animate="show"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
             exit="hidden"
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6 transform-gpu"
           >
@@ -827,7 +849,8 @@ const FAQItem = ({ faq }) => {
 };
 
 const FAQSection = () => (
-  <section id="faq" className="py-20 bg-slate-950 relative">
+  // UPDATED: Changed top padding (pt-10) to reduce space from content, bottom remains pb-20
+  <section id="faq" className="pt-10 pb-20 bg-slate-950 relative">
     <div className="max-w-3xl mx-auto px-4 relative z-10">
       <div className="text-center mb-12">
         <HelpCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
