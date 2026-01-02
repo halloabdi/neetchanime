@@ -110,7 +110,8 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative pt-32 pb-20 overflow-hidden">
+    // UPDATED: Changed pb-12 to pb-6 to reduce space towards the next section
+    <section className="relative pt-24 pb-6 overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
       <div className="absolute top-20 right-0 w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 transform-gpu"></div>
       <div className="absolute bottom-10 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10 transform-gpu"></div>
@@ -121,10 +122,10 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-6 inline-block backdrop-blur-sm">
+          <span className="px-4 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase bg-red-500/10 mb-3 inline-block backdrop-blur-sm">
             Strictly for Adults (18+)
           </span>
-          <h1 className="font-extrabold mb-6 tracking-tighter leading-tight md:leading-none">
+          <h1 className="font-extrabold mb-4 tracking-tighter leading-tight md:leading-none">
             <span className="block text-5xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.25)] pb-2 break-words tracking-tighter">
               NEETCHANIME
             </span>
@@ -134,8 +135,8 @@ const Hero = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Terbaik</span>
             </span>
           </h1>
-          {/* UPDATED: Changed text description and color to white as requested */}
-          <p className="text-white text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8 font-medium">
+          {/* UPDATED: Description text changed and color set to text-white */}
+          <p className="text-white text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-6 font-medium">
             Beli konten premium kreator/artis kesukaanmu dengan biaya lebih terjangkau! Buruan order yawh~! ❤️
           </p>
           
@@ -517,11 +518,12 @@ const ShopSection = ({ addToCart }) => {
   };
 
   return (
-    <section id="shop" className="py-20 bg-slate-950 relative">
+    // UPDATED: Changed py-20 to pt-12 pb-20 to reduce top padding specifically
+    <section id="shop" className="pt-12 pb-20 bg-slate-950 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            {/* UPDATED: Changed "Koleksi Premium" to "Koleksi Konten" */}
+            {/* UPDATED: Changed text to "Koleksi Konten" */}
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
               Koleksi Konten <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-lg shadow-amber-500/20 tracking-wider">PREMIUM</span>
             </h2>
