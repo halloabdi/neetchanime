@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 // ==========================================
 // CONFIGURATION
 // ==========================================
-// PENTING: URL Script Updated ke Versi 4 (Terbaru per 2 Jan 2026)
-const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbw_UIGlOEktoLOEBm-UnM-09ch4OtK__X6LiazsoR4B3NJK_Y7V9y9gm61Z2IUsE_sljw/exec";
+// PENTING: URL Script Updated ke Versi 5 (Terbaru per 2 Jan 2026 22:16)
+const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwGL3Qi0LYj82PqW4QBeGzKOdFI6ZIFW095JJNsMfWeI16WrACYSDEt0sar7LVk03AiJg/exec";
 
 // --- UTILS & PARSERS ---
 
@@ -61,15 +61,7 @@ const generateMockProducts = () => {
   const types = ['Video', 'Foto'];
   const titles = [
     "Midnight Collection Vol.1", "Secret Voice Pack ASMR", "Private Session Art", 
-    "Uncensored Fantasy Pack", "Late Night Vibes", "Forbidden Grimoire",
-    "Adult Model Reference", "Bedroom Backgrounds", "Sensual Poses Pack",
-    "Hidden Folder Material", "Exclusive Fanbox Content", "After Dark Stream",
-    "VIP Member Only Set", "Romantic Scene Assets", "Mature Aura Effect",
-    "Dungeon of Desire Map", "Seductive Eyes Texture", "Body Physics Preset",
-    "Crimson Night Shader", "Hotel Room Assets", "Fantasy Armor (Broken)",
-    "Wet Skin Material", "Pixel Art NSFW Sprites", "Secret Garden Tileset",
-    "Couple Pose Reference", "Love Letter Font", "Retro VHS Filter 18+",
-    "Glitch Effect (Red)", "Heartbeat Overlay", "Visual Novel R-18 UI"
+    "Uncensored Fantasy Pack", "Late Night Vibes", "Forbidden Grimoire"
   ];
 
   return Array.from({ length: 25 }, (_, i) => {
@@ -278,7 +270,7 @@ const Hero = () => {
   );
 };
 
-// --- PRODUCT CARD ---
+// --- UPDATED PRODUCT CARD COMPONENT ---
 const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
   const isNew = useMemo(() => {
     if (product.source === 'google_sheet') {
@@ -295,30 +287,32 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
       className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
     >
       <div className="relative h-32 md:h-48 overflow-hidden">
-        {/* LOGIC: Crop Image Priority */}
+        {/* UPDATED: Gunakan imageCrop (1:1), fallback ke full image, lalu mock */}
         <img 
           src={product.imageCrop || product.imageFull || product.image || 'https://placehold.co/600x400/1a1a2e/e94560?text=No+Image'} 
           alt={product.title} 
           loading="lazy"
           decoding="async"
           onError={(e) => { e.target.src = 'https://placehold.co/600x400/1a1a2e/e94560?text=Image+Error'; }}
-          // STYLE: object-cover + object-top
-          className={`w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
+          // STYLE: aspect-square (1:1) + object-cover + object-top to show faces
+          className={`w-full h-full aspect-square object-cover object-top transform group-hover:scale-110 transition-transform duration-700 ${product.category2 === 'NSFW' || product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
         />
         
+        {/* Type Badge */}
         <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
           <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
-            (product.type === 'Foto' || product.type === 'foto') 
+            (product.category1 === 'Foto' || product.type === 'Foto') 
               ? 'bg-gradient-to-br from-green-800 to-emerald-900 text-white' 
               : 'bg-gradient-to-br from-slate-900 to-purple-900 text-white' 
           }`}>
-            {(product.type === 'Video' || product.type === 'video') ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
-            {product.type}
+            {(product.category1 === 'Video' || product.type === 'Video') ? <Video size={10} className="md:w-[14px] md:h-[14px]" /> : <ImageIcon size={10} className="md:w-[14px] md:h-[14px]" />}
+            {product.category1 || product.type}
           </span>
         </div>
 
+        {/* Safety Badge */}
         <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
-          {(product.isNSFW || product.safety === 'NSFW') ? (
+          {(product.category2 === 'NSFW' || product.isNSFW) ? (
             <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
               <ShieldAlert size={10} className="md:w-[14px] md:h-[14px]" />
               18+
@@ -331,6 +325,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
           )}
         </div>
 
+        {/* --- TERBARU BADGE (Google Sheets Only) --- */}
         {isNew && (
           <div className="absolute bottom-2 left-2 md:left-3 z-10">
              <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white shadow-[0_0_15px_rgba(59,130,246,0.6)] backdrop-blur-md bg-gradient-to-r from-blue-900 to-blue-800 border border-blue-400/50">
@@ -343,6 +338,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
       </div>
       
+      {/* Content */}
       <div className="p-3 md:p-5 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
           <div className="flex items-center text-amber-400">
@@ -350,12 +346,14 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
             <span className="ml-1 text-slate-300">{product.rating || '4.5'}</span>
           </div>
           <span>•</span>
+          {/* UPDATED: Tampilkan Buyers dari Sheet */}
           <span>{product.buyers} buyers</span>
         </div>
         <h3 className="text-slate-100 font-bold text-sm md:text-lg leading-snug mb-1 md:mb-3 line-clamp-2 group-hover:text-red-400 transition-colors">
           {product.title}
         </h3>
         <p className="text-slate-500 text-[10px] md:text-xs mb-3 font-mono mt-auto">
+          {/* UPDATED: Tampilkan Artist dari Sheet */}
           Artist: <span className="text-slate-400">{product.artist || 'Anonymous'}</span>
         </p>
         <div className="pt-3 md:pt-4 border-t border-slate-800 flex items-center justify-between">
@@ -413,16 +411,17 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
             </button>
 
             <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto aspect-video md:aspect-auto">
-               {/* LOGIC: Full Image Priority + Object Contain */}
+               {/* LOGIC: Prioritas Full Image (16:9), fallback ke Crop, lalu Mock */}
                <img
-                  src={product.imageFull || product.image || 'https://placehold.co/600x400/1a1a2e/e94560?text=No+Image'}
+                  src={product.imageFull || product.imageCrop || product.image || 'https://placehold.co/600x400/1a1a2e/e94560?text=No+Image'}
                   alt={product.title}
                   onError={(e) => { e.target.src = 'https://placehold.co/600x400/1a1a2e/e94560?text=Image+Error'; }}
-                  className="w-full h-full object-contain object-center md:absolute md:inset-0"
+                  // Style Object Contain untuk Full Preview (Gambar Utuh di Tengah)
+                  className="w-full h-full object-contain object-center md:absolute md:inset-0 aspect-video"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
                
-               {product.isNSFW && (
+               {(product.category2 === 'NSFW' || product.isNSFW) && (
                   <div className="absolute top-4 left-4 px-3 py-1.5 bg-red-600 text-white text-xs font-extrabold rounded-lg shadow-lg border border-red-400 animate-pulse-slow">
                     18+ CONTENT
                   </div>
@@ -439,8 +438,10 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                             <span className="ml-1 font-bold text-white">{product.rating || '4.5'}</span>
                         </div>
                         <span>•</span>
+                        {/* UPDATED: Tampilkan Buyers dari Sheet */}
                         <span>{product.buyers} bought</span>
                         <span>•</span>
+                        {/* UPDATED: Tampilkan Artist dari Sheet */}
                         <span className="font-mono text-slate-300">{product.artist || 'Anon'}</span>
                     </div>
 
@@ -461,12 +462,12 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
 
                     <div className="flex gap-3">
                         <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
-                            (product.type === 'Video' || product.type === 'video') 
+                            (product.category1 === 'Video' || product.type === 'Video') 
                             ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
                             : 'bg-gradient-to-br from-slate-800 to-emerald-900/50 text-emerald-200'
                         }`}>
-                            {(product.type === 'Video' || product.type === 'video') ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
-                            {product.type} Only
+                            {(product.category1 === 'Video' || product.type === 'Video') ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
+                            {product.category1 || product.type} Only
                         </div>
 
                         <button
@@ -508,8 +509,12 @@ const ShopSection = ({ addToCart }) => {
             const response = await fetch(GOOGLE_SHEET_API_URL);
             const data = await response.json();
             if (Array.isArray(data)) {
-                // Gunakan data dari Sheet langsung, buyers sudah ada dari script
-                setSheetProducts(data);
+                // Tambahkan fallback rating saja, data lain ambil dari sheet
+                const enrichedData = data.map(item => ({
+                    ...item,
+                    rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1)
+                }));
+                setSheetProducts(enrichedData);
             }
         } catch (error) {
             console.error("Failed to fetch sheet data", error);
