@@ -1233,38 +1233,32 @@ const App = () => {
       <style>{`
         /* Webkit browsers (Chrome, Safari, Edge) */
         ::-webkit-scrollbar {
-          width: 4px; /* Sangat tipis, hanya garis */
-          height: 4px;
+          width: 8px; /* Sedikit lebih tebal dari sebelumnya (4px -> 8px) */
+          height: 8px;
         }
         
         ::-webkit-scrollbar-track {
-          background: transparent; /* Track benar-benar transparan */
+          background: transparent; 
         }
         
         ::-webkit-scrollbar-thumb {
-          background-color: #334155; /* Warna garis slate-700 */
-          border-radius: 0; /* Kotak/Garis tegas tanpa lengkungan berlebih */
+          background-color: #475569; /* Slate-600 for better visibility */
+          border-radius: 4px; /* Rounded corners */
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background-color: #94a3b8; /* Lebih terang saat di-hover (slate-400) */
+          background-color: #64748b; /* Slate-500 hover */
         }
 
-        /* Menghilangkan tombol panah atas/bawah secara eksplisit */
+        /* Hapus tombol panah/segitiga */
         ::-webkit-scrollbar-button {
           display: none;
-          width: 0;
-          height: 0;
-        }
-        
-        ::-webkit-scrollbar-corner {
-          background: transparent;
         }
         
         /* Firefox support */
         * {
           scrollbar-width: thin;
-          scrollbar-color: #334155 transparent;
+          scrollbar-color: #475569 transparent;
         }
       `}</style>
       
