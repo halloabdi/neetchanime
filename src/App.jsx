@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // ==========================================
 // CONFIGURATION
 // ==========================================
+// URL Script Updated ke Versi 2
 const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzACphCv9bhXkX0XUXPiiM0VQMxghge3hAnQof7Xhu5VlxqqW6O34gmMG1YjIviFD5xXg/exec";
 
 // --- UTILS & PARSERS ---
@@ -35,7 +36,7 @@ const parseCustomDescription = (text) => {
   );
 };
 
-// 2. Cek apakah produk "Terbaru"
+// 2. Cek apakah produk "Terbaru" (Maksimal 3 hari dari input)
 const isProductNew = (dateString) => {
   if (!dateString) return false;
   
@@ -51,7 +52,7 @@ const isProductNew = (dateString) => {
   return diffDays <= 3;
 };
 
-// --- DATA MOCKUP GENERATOR ---
+// --- DATA MOCKUP GENERATOR (Data Fake - Cadangan) ---
 const generateMockProducts = () => {
   const types = ['Video', 'Foto'];
   const titles = [
@@ -82,7 +83,7 @@ const generateMockProducts = () => {
       reviews: Math.floor(Math.random() * buyers) + 1,
       rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1),
       isNSFW: isNSFW,
-      artist: "Anonymous", 
+      artist: "Anonymous", // Default artist for mock data
       description: "Lorem ipsum dolor sit amet. Ini adalah konten mockup default.",
       source: 'mock' 
     };
@@ -120,6 +121,7 @@ const FAQS = [
 
 // --- COMPONENTS ---
 
+// --- TOAST NOTIFICATION COMPONENT ---
 const ToastNotification = ({ data, onClose }) => {
   const [exitVariant, setExitVariant] = useState({ y: -100, opacity: 0, scale: 0.9 });
 
@@ -272,6 +274,7 @@ const Hero = () => {
   );
 };
 
+// --- UPDATED PRODUCT CARD COMPONENT ---
 const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
   const isNew = useMemo(() => {
     if (product.source === 'google_sheet') {
@@ -288,6 +291,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
       className="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden group shadow-xl hover:shadow-red-900/20 transition-all duration-300 flex flex-col h-full relative transform-gpu cursor-pointer"
     >
       <div className="relative h-32 md:h-48 overflow-hidden">
+        {/* Use imageCrop from sheets, fallback to image */}
         <img 
           src={product.imageCrop || product.image} 
           alt={product.title} 
@@ -295,6 +299,8 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
           decoding="async"
           className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${product.isNSFW ? 'brightness-90 group-hover:brightness-100' : ''}`}
         />
+        
+        {/* Type Badge */}
         <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
           <span className={`flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-lg backdrop-blur-md border border-white/10 ${
             (product.type === 'Foto' || product.type === 'foto') 
@@ -305,6 +311,8 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
             {product.type}
           </span>
         </div>
+
+        {/* Safety Badge */}
         <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10">
           {(product.isNSFW || product.safety === 'NSFW') ? (
             <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-extrabold text-white shadow-lg backdrop-blur-md bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500 border border-yellow-500/30 animate-pulse-slow">
@@ -318,6 +326,8 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
             </span>
           )}
         </div>
+
+        {/* --- TERBARU BADGE (Google Sheets Only) --- */}
         {isNew && (
           <div className="absolute bottom-2 left-2 md:left-3 z-10">
              <span className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white shadow-[0_0_15px_rgba(59,130,246,0.6)] backdrop-blur-md bg-gradient-to-r from-blue-900 to-blue-800 border border-blue-400/50">
@@ -326,8 +336,11 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
              </span>
           </div>
         )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
       </div>
+      
+      {/* Content */}
       <div className="p-3 md:p-5 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-1.5 md:mb-2 text-slate-500 text-[10px] md:text-xs font-medium">
           <div className="flex items-center text-amber-400">
@@ -390,33 +403,77 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
             className="relative bg-slate-900 w-full max-w-6xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row z-50 h-[80vh] md:h-auto md:max-h-[calc(100vh-140px)]"
           >
-            <button onClick={onClose} className="absolute top-3 right-3 z-20 p-2 bg-black/40 hover:bg-red-500/80 rounded-full text-white transition-colors backdrop-blur-sm border border-white/10"><X size={20} /></button>
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 z-20 p-2 bg-black/40 hover:bg-red-500/80 rounded-full text-white transition-colors backdrop-blur-sm border border-white/10"
+            >
+              <X size={20} />
+            </button>
+
             <div className="w-full md:w-[60%] bg-slate-950 flex items-center justify-center p-0 relative overflow-hidden group h-56 md:h-auto aspect-video md:aspect-auto">
-               <img src={product.imageFull || product.image} alt={product.title} className="w-full h-full object-cover md:absolute md:inset-0" />
+               <img
+                  src={product.imageFull || product.image}
+                  alt={product.title}
+                  className="w-full h-full object-cover md:absolute md:inset-0"
+               />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 md:opacity-30"></div>
-               {product.isNSFW && <div className="absolute top-4 left-4 px-3 py-1.5 bg-red-600 text-white text-xs font-extrabold rounded-lg shadow-lg border border-red-400 animate-pulse-slow">18+ CONTENT</div>}
+               
+               {product.isNSFW && (
+                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-red-600 text-white text-xs font-extrabold rounded-lg shadow-lg border border-red-400 animate-pulse-slow">
+                    18+ CONTENT
+                  </div>
+               )}
             </div>
+
             <div className="w-full md:w-[40%] flex flex-col bg-slate-900 overflow-hidden flex-1">
                 <div className="p-5 md:p-6 overflow-y-auto custom-scrollbar flex-1">
                     <h2 className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">{product.title}</h2>
+
                     <div className="flex items-center gap-2 text-xs text-slate-400 mb-4 pb-3 border-b border-slate-800 flex-wrap">
-                        <div className="flex items-center text-amber-400"><Star size={14} fill="currentColor" /><span className="ml-1 font-bold text-white">{product.rating || '4.5'}</span></div>
-                        <span>•</span><span>{product.buyers} bought</span>
-                        <span>•</span><span className="font-mono text-slate-300">{product.artist || 'Anon'}</span>
+                        <div className="flex items-center text-amber-400">
+                            <Star size={14} fill="currentColor" />
+                            <span className="ml-1 font-bold text-white">{product.rating || '4.5'}</span>
+                        </div>
+                        <span>•</span>
+                        <span>{product.buyers} bought</span>
+                        <span>•</span>
+                        <span className="font-mono text-slate-300">{product.artist || 'Anon'}</span>
                     </div>
+
                     <div className="prose prose-invert prose-xs text-slate-300 leading-relaxed mb-6 text-sm">
                         {product.source === 'google_sheet' ? parseCustomDescription(product.description) : <p>{product.description}</p>}
                     </div>
                 </div>
+
                 <div className="px-5 py-3 bg-slate-900/90 border-t border-slate-800 backdrop-blur-sm mt-auto">
                     <div className="flex items-end justify-between mb-3">
-                        <div><p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total</p><p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400">Rp{product.price.toLocaleString('id-ID')}</p></div>
-                    </div>
-                    <div className="flex gap-3">
-                        <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${(product.type === 'Video' || product.type === 'video') ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' : 'bg-gradient-to-br from-slate-800 to-emerald-900/50 text-emerald-200'}`}>
-                            {(product.type === 'Video' || product.type === 'video') ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}{product.type} Only
+                        <div>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total</p>
+                            <p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400">
+                                Rp{product.price.toLocaleString('id-ID')}
+                            </p>
                         </div>
-                        <button onClick={() => { onAdd(product); }} className="flex-1 py-3.5 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white rounded-xl font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"><ShoppingCart size={18} /><span>Add to Cart</span></button>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <div className={`px-5 flex items-center justify-center rounded-xl font-bold text-sm border border-white/10 ${
+                            (product.type === 'Video' || product.type === 'video') 
+                            ? 'bg-gradient-to-br from-slate-800 to-purple-900/50 text-purple-200' 
+                            : 'bg-gradient-to-br from-slate-800 to-emerald-900/50 text-emerald-200'
+                        }`}>
+                            {(product.type === 'Video' || product.type === 'video') ? <Video size={20} className="mr-2"/> : <ImageIcon size={20} className="mr-2"/>}
+                            {product.type} Only
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                onAdd(product);
+                            }}
+                            className="flex-1 py-3.5 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white rounded-xl font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
+                        >
+                            <ShoppingCart size={18} />
+                            <span>Add to Cart</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -467,19 +524,33 @@ const ShopSection = ({ addToCart }) => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile) { setItemsPerPage(6); } else { setItemsPerPage(10); }
+      if (mobile) {
+        setItemsPerPage(6); 
+      } else {
+        setItemsPerPage(10); 
+      }
     };
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const toggleFilter = (filterType) => {
-    if (filterType === 'default') { setActiveFilters([]); return; }
+    if (filterType === 'default') {
+      setActiveFilters([]);
+      return;
+    }
     setActiveFilters(prev => {
       const exists = prev.includes(filterType);
-      if (exists) { return prev.filter(f => f !== filterType); } 
-      else { return prev.length >= 2 ? [...prev.slice(1), filterType] : [...prev, filterType]; }
+      if (exists) {
+        return prev.filter(f => f !== filterType);
+      } else {
+        if (prev.length >= 2) {
+          return [...prev.slice(1), filterType];
+        }
+        return [...prev, filterType];
+      }
     });
   };
 
@@ -494,26 +565,38 @@ const ShopSection = ({ addToCart }) => {
 
     if (activeFilters.length > 0) {
       result.sort((a, b) => {
-        if (a.source !== b.source) { return a.source === 'google_sheet' ? -1 : 1; }
+        if (a.source !== b.source) {
+             return a.source === 'google_sheet' ? -1 : 1;
+        }
         for (const filter of activeFilters) {
           let comparison = 0;
           switch (filter) {
-            case 'best_selling': comparison = b.buyers - a.buyers; break;
-            case 'top_rated': comparison = parseFloat(b.rating) - parseFloat(a.rating); break;
-            case 'newest': comparison = b.id.toString().localeCompare(a.id.toString()); break;
-            default: break;
+            case 'best_selling': 
+              comparison = b.buyers - a.buyers;
+              break;
+            case 'top_rated': 
+              comparison = parseFloat(b.rating) - parseFloat(a.rating);
+              break;
+            case 'newest': 
+              comparison = b.id.toString().localeCompare(a.id.toString());
+              break;
+            default:
+              break;
           }
           if (comparison !== 0) return comparison;
         }
         return 0;
       });
     }
+
     return result;
   }, [activeFilters, sheetProducts]);
   
   const totalPages = Math.ceil(processedProducts.length / itemsPerPage); 
   
-  useEffect(() => { setPage(1); }, [activeFilters, sheetProducts]);
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilters, sheetProducts]);
 
   const currentProducts = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
@@ -530,7 +613,10 @@ const ShopSection = ({ addToCart }) => {
     const maxVisibleButtons = isMobile ? 3 : 5;
     let startPage = Math.max(1, page - Math.floor(maxVisibleButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
-    if (endPage - startPage + 1 < maxVisibleButtons) { startPage = Math.max(1, endPage - maxVisibleButtons + 1); }
+
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+        startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
     return new Array(endPage - startPage + 1).fill().map((_, idx) => startPage + idx);
   };
 
@@ -544,7 +630,12 @@ const ShopSection = ({ addToCart }) => {
     <section id="shop" className="pt-12 pb-8 bg-slate-950 relative w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.7, ease: "easeOut" }}>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
               Koleksi Konten <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-lg shadow-amber-500/20 tracking-wider">PREMIUM</span>
             </h2>
@@ -552,66 +643,172 @@ const ShopSection = ({ addToCart }) => {
           </motion.div>
           
           <div className="flex items-center justify-between w-full md:w-auto gap-2">
+            
+            {/* Pagination Box */}
             <motion.div 
+              // Desktop: From Right (50), Mobile: From Left (-50)
               initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
+              // Desktop: Delay 0.4 (appears after filter)
+              // Mobile: Delay 0.2 (appears same time)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
+              // UPDATED: flex: 1 for mobile to fill space but respect filter, max-width calc ensures filter has room
               className="flex flex-1 md:flex-none flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden min-w-0"
               style={{ maxWidth: isMobile ? 'calc(100% - 60px)' : 'none' }} 
             >
               {showArrows && (
-                <button onClick={() => changePage(Math.max(page - 1, 1))} disabled={page === 1} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+                <button
+                  onClick={() => changePage(Math.max(page - 1, 1))}
+                  disabled={page === 1}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
+                    page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
                   <ChevronLeft size={18} />
                 </button>
               )}
+
               <div className="flex items-center gap-1 h-9">
                 <AnimatePresence mode='wait' custom={direction} initial={false}>
                     {paginationGroup.map((num) => (
-                      <motion.button key={num} layout custom={direction} variants={paginationVariants} initial="enter" animate="center" exit="exit" onClick={() => changePage(num)} className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation overflow-visible">
-                        {page === num && (<motion.div layoutId="activePage" className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg" initial={{ scale: 0.8 }} animate={{ scale: 1.15 }} transition={{ type: "spring", stiffness: 500, damping: 15, mass: 0.5 }} whileTap={{ scale: 0.9 }} />)}
-                        <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>{num}</span>
+                      <motion.button
+                        key={num}
+                        layout
+                        custom={direction}
+                        variants={paginationVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        onClick={() => changePage(num)}
+                        className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation overflow-visible"
+                      >
+                        {page === num && (
+                          <motion.div
+                            layoutId="activePage"
+                            className="absolute inset-0 bg-gradient-to-br from-red-600 to-pink-600 rounded-lg shadow-lg"
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1.15 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 15, mass: 0.5 }}
+                            whileTap={{ scale: 0.9 }}
+                          />
+                        )}
+                        <span className={`relative z-10 ${page === num ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
+                          {num}
+                        </span>
                       </motion.button>
                     ))}
                 </AnimatePresence>
               </div>
+
               {showArrows && (
-                <button onClick={() => changePage(Math.min(page + 1, totalPages))} disabled={page === totalPages} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+                <button
+                  onClick={() => changePage(Math.min(page + 1, totalPages))}
+                  disabled={page === totalPages}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
+                    page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
                   <ChevronRight size={18} />
                 </button>
               )}
             </motion.div>
 
+            {/* Filter Box */}
             <motion.div 
+              // Always from Right (50)
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
+              // Desktop: Delay 0.2 (First), Mobile: Delay 0.2 (Same start)
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="relative flex-shrink-0"
             >
-              <button onClick={() => setIsFilterOpen(!isFilterOpen)} className={`h-[52px] w-[52px] flex items-center justify-center rounded-xl border transition-all ${isFilterOpen || activeFilters.length > 0 ? 'bg-slate-800 border-pink-500/50 text-pink-400 shadow-lg shadow-pink-500/10' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+              <button 
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`h-[52px] w-[52px] flex items-center justify-center rounded-xl border transition-all ${
+                  isFilterOpen || activeFilters.length > 0
+                    ? 'bg-slate-800 border-pink-500/50 text-pink-400 shadow-lg shadow-pink-500/10' 
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
                 <Filter size={20} />
-                {activeFilters.length > 0 && (<span className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">{activeFilters.length}</span>)}
+                {activeFilters.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                    {activeFilters.length}
+                  </span>
+                )}
               </button>
+
               <AnimatePresence>
                 {isFilterOpen && (
-                  <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.2 }} className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden"
+                  >
                     <div className="p-2 space-y-1">
-                       <button onClick={() => toggleFilter('best_selling')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('best_selling') ? 'bg-orange-500/10 text-orange-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} /><span>Terlaris</span></div>
+                       <button
+                          onClick={() => toggleFilter('best_selling')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('best_selling') 
+                              ? 'bg-orange-500/10 text-orange-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Flame size={16} className={activeFilters.includes('best_selling') ? 'fill-orange-400 text-orange-400' : ''} />
+                            <span>Terlaris</span>
+                          </div>
                           {activeFilters.includes('best_selling') && <Check size={14} />}
                         </button>
-                        <button onClick={() => toggleFilter('top_rated')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('top_rated') ? 'bg-yellow-500/10 text-yellow-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} /><span>Terbaik</span></div>
+
+                        <button
+                          onClick={() => toggleFilter('top_rated')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('top_rated') 
+                              ? 'bg-yellow-500/10 text-yellow-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Star size={16} className={activeFilters.includes('top_rated') ? 'fill-yellow-400 text-yellow-400' : ''} />
+                            <span>Terbaik</span>
+                          </div>
                           {activeFilters.includes('top_rated') && <Check size={14} />}
                         </button>
-                        <button onClick={() => toggleFilter('newest')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.includes('newest') ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} /><span>Terupdate</span></div>
+
+                        <button
+                          onClick={() => toggleFilter('newest')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.includes('newest') 
+                              ? 'bg-emerald-500/10 text-emerald-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <TrendingUp size={16} className={activeFilters.includes('newest') ? 'text-emerald-400' : ''} />
+                            <span>Terupdate</span>
+                          </div>
                           {activeFilters.includes('newest') && <Check size={14} />}
                         </button>
+
                         <div className="h-px bg-slate-800 my-1" />
-                        <button onClick={() => toggleFilter('default')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeFilters.length === 0 ? 'bg-amber-500/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <div className="flex items-center gap-2"><BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} /><span>Default</span></div>
+
+                        <button
+                          onClick={() => toggleFilter('default')}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeFilters.length === 0
+                              ? 'bg-amber-500/10 text-amber-400' 
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <BookOpen size={16} className={activeFilters.length === 0 ? 'text-amber-400' : ''} />
+                            <span>Default</span>
+                          </div>
                           {activeFilters.length === 0 && <Check size={14} />}
                         </button>
                     </div>
