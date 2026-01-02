@@ -126,34 +126,34 @@ const ToastNotification = ({ data, onClose }) => {
         {/* Shine Effect */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         
-        <div className="p-4 flex flex-col gap-3 relative z-10">
+        <div className="p-4 flex flex-row items-center gap-4 relative z-10">
           
-          {/* Top Row: [Qty Box] Product Name */}
-          <div className="flex items-center gap-3">
-             {/* Kotak Putih Transparan + Jumlah Produk */}
-             <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-3 py-1.5 min-w-[42px] backdrop-blur-sm shadow-sm flex-shrink-0">
-                <span className="text-sm font-bold text-white tabular-nums">
-                  {data.quantity}x
-                </span>
-             </div>
-             
+          {/* Left Column: Kotak Putih Transparan + Jumlah Produk */}
+          <div className="flex items-center justify-center bg-white/20 border border-white/30 rounded-lg px-3 py-1.5 min-w-[42px] backdrop-blur-sm shadow-sm flex-shrink-0 self-center">
+            <span className="text-sm font-bold text-white tabular-nums">
+              {data.quantity}x
+            </span>
+          </div>
+
+          {/* Right Column: Nama Produk & Keterangan Sukses */}
+          <div className="flex flex-col gap-1.5 flex-1 min-w-0">
              {/* Nama Produk */}
              <span className="text-sm font-bold text-white leading-snug line-clamp-2">
                 {data.productName}
              </span>
-          </div>
 
-          {/* Separator Line: 55% Transparency */}
-          <div className="h-[1px] w-full bg-white/55" />
+             {/* Separator Line: 55% Transparency */}
+             <div className="h-[1px] w-full bg-white/55" />
 
-          {/* Bottom Row: Keterangan Sukses */}
-          <div className="flex items-center gap-2">
-            <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
-               <Check size={12} className="text-white stroke-[4]" />
-            </div>
-            <span className="font-medium text-xs md:text-sm tracking-wide text-yellow-50/90">
-              Sukses Masuk di Keranjang!
-            </span>
+             {/* Keterangan Sukses */}
+             <div className="flex items-center gap-2">
+                <div className="bg-green-500 rounded-full p-0.5 shadow-lg shadow-green-500/30">
+                   <Check size={10} className="text-white stroke-[4]" />
+                </div>
+                <span className="font-medium text-xs tracking-wide text-yellow-50/90">
+                  Sukses Masuk di Keranjang!
+                </span>
+             </div>
           </div>
 
         </div>
@@ -1164,7 +1164,7 @@ Terima Kasih, ditunggu min.`;
       </motion.div>
     </motion.div>
   );
-}
+};
 
 // --- MAIN APP ---
 const App = () => {
