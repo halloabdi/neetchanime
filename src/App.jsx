@@ -668,8 +668,8 @@ const ShopSection = ({ addToCart }) => {
               viewport={{ once: true, amount: 0.1 }}
               // Desktop: Filter appears first (0.2s), then Pagination (0.4s)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              // LAYOUT FIX: Flex-1 fills available space, min-w-0 allows shrinking, overflow-x-auto handles content.
-              className="flex-1 min-w-0 flex items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto scrollbar-hide mask-image-scroll"
+              // LAYOUT FIX: Changed flex-1 to w-auto to prevent stretching, kept min-w-0 for safety.
+              className="w-auto min-w-0 flex items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto scrollbar-hide mask-image-scroll"
             >
               {showArrows && (
                 <button
