@@ -347,7 +347,7 @@ const ProductCard = ({ product, onAdd, onOpenPreview, variants }) => {
           </div>
           <span>•</span>
           {/* UPDATED: Tampilkan Buyers dari Sheet */}
-          <span>{product.buyers} buyers</span>
+          <span>{String(product.buyers)} buyers</span>
         </div>
         <h3 className="text-slate-100 font-bold text-sm md:text-lg leading-snug mb-1 md:mb-3 line-clamp-2 group-hover:text-red-400 transition-colors">
           {product.title}
@@ -440,7 +440,7 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
                         </div>
                         <span>•</span>
                         {/* UPDATED: Tampilkan Buyers dari Sheet */}
-                        <span>{product.buyers} bought</span>
+                        <span>{String(product.buyers)} bought</span>
                         <span>•</span>
                         {/* UPDATED: Tampilkan Artist dari Sheet */}
                         <span className="font-mono text-slate-300">{product.artist || 'Anon'}</span>
@@ -658,18 +658,18 @@ const ShopSection = ({ addToCart }) => {
             <p className="text-slate-400">Terlaris bulan ini</p>
           </motion.div>
           
-          <div className="flex items-center justify-between w-full md:w-auto gap-2">
+          <div className="flex items-center justify-between w-full md:w-auto gap-2 relative">
             
             {/* Pagination Box */}
             <motion.div 
               // LOGIC: Mobile (Left to Right) vs Desktop (Right to Left)
-              initial={{ opacity: 0, x: isMobile ? -50 : 50 }}
+              initial={{ opacity: 0, x: isMobile ? -20 : 50 }} // Reduce initial offset for better visibility
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
+              viewport={{ once: true, amount: 0.1 }}
               // Desktop: Filter appears first (0.2s), then Pagination (0.4s)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              // LAYOUT FIX: Remove flex-1 to auto width, added max-w to prevent overflow, and flex-shrink-1 to allow shrinking if needed
-              className="flex flex-none items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto min-w-0 max-w-[calc(100%-60px)] md:max-w-none scrollbar-hide mask-image-scroll"
+              // LAYOUT FIX: Flex-1 fills available space, min-w-0 allows shrinking, overflow-x-auto handles content.
+              className="flex-1 min-w-0 flex items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto scrollbar-hide mask-image-scroll"
             >
               {showArrows && (
                 <button
@@ -731,13 +731,13 @@ const ShopSection = ({ addToCart }) => {
             {/* Filter Box */}
             <motion.div 
               // LOGIC: Mobile (Right to Left) vs Desktop (Right to Left)
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: 20 }} // Reduce offset to ensure it's not off-screen
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
+              viewport={{ once: true, amount: 0.1 }}
               // Desktop: Delay 0.2 (First), Mobile: Delay 0.2 (Same start as pagination)
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-              // LAYOUT: flex-shrink-0 ensures it never shrinks/disappears
-              className="relative flex-shrink-0 ml-auto"
+              // LAYOUT: flex-none ensures it keeps its size. z-10 for layering safety.
+              className="flex-none z-10"
             >
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -868,6 +868,7 @@ const ShopSection = ({ addToCart }) => {
   );
 };
 
+// --- RESTORED FAQ ITEM COMPONENT ---
 const FAQItem = ({ faq }) => {
   const [isOpen, setIsOpen] = useState(false);
   const faqItemVariants = { hidden: { opacity: 0, y: 20, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 400, damping: 20 } } };
@@ -989,8 +990,8 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
               {cart.map((item) => (
                 <div key={item.id} className="flex flex-col gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
                   <div className="flex items-center gap-4">
-                    {/* UPDATED: Image uses crop url first, consistent with product card */}
                     <div className="relative">
+                      {/* UPDATED: Image uses crop url first, consistent with product card */}
                       <img src={item.imageCrop || item.imageFull || item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
                       {item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}
                     </div>
