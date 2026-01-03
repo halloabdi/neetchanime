@@ -663,7 +663,7 @@ const ShopSection = ({ addToCart }) => {
             {/* Pagination Box */}
             <motion.div 
               // LOGIC: Mobile (Left to Right) vs Desktop (Right to Left)
-              initial={{ opacity: 0, x: isMobile ? -20 : 50 }} // Reduce initial offset for better visibility
+              initial={{ opacity: 0, x: isMobile ? -50 : 50 }} // Reduce initial offset for better visibility
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.1 }}
               // Desktop: Filter appears first (0.2s), then Pagination (0.4s)
@@ -731,7 +731,7 @@ const ShopSection = ({ addToCart }) => {
             {/* Filter Box */}
             <motion.div 
               // LOGIC: Mobile (Right to Left) vs Desktop (Right to Left)
-              initial={{ opacity: 0, x: 20 }} // Reduce offset to ensure it's not off-screen
+              initial={{ opacity: 0, x: 50 }} // Reduce offset to ensure it's not off-screen
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.1 }}
               // Desktop: Delay 0.2 (First), Mobile: Delay 0.2 (Same start as pagination)
@@ -868,7 +868,6 @@ const ShopSection = ({ addToCart }) => {
   );
 };
 
-// --- RESTORED FAQ ITEM COMPONENT ---
 const FAQItem = ({ faq }) => {
   const [isOpen, setIsOpen] = useState(false);
   const faqItemVariants = { hidden: { opacity: 0, y: 20, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 400, damping: 20 } } };
