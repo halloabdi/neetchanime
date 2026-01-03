@@ -952,7 +952,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
       alert("Mohon lengkapi semua data!");
       return;
     }
-    const itemsList = cart.map((item, idx) => `${idx + 1}. ${item.title} ${item.isNSFW ? '[18+]' : '[Safe]'} (x${item.quantity})`).join('\n');
+    const itemsList = cart.map((item, idx) => `${idx + 1}. ${item.title} ${(item.category2 === 'NSFW' || item.isNSFW) ? '[18+]' : '[Safe]'} (x${item.quantity})`).join('\n');
     const formattedTotal = `Rp${total.toLocaleString('id-ID')}`;
     const message = `Hai Mimin NEETCHANIME!\nSaya ${formData.name} dengan email ${formData.email}.\nSaya telah membeli produk berupa:\n${itemsList}\n\nSenilai *${formattedTotal}*\nSaya memilih metode pembayaran *${formData.payment}*.\nTerima Kasih, ditunggu min.`;
     const whatsappUrl = `https://wa.me/6285169992275?text=${encodeURIComponent(message)}`;
