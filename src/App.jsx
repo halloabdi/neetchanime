@@ -668,9 +668,8 @@ const ShopSection = ({ addToCart }) => {
               viewport={{ once: true, amount: 0.5 }}
               // Desktop: Filter appears first (0.2s), then Pagination (0.4s)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              // LAYOUT: flex-1 ensures it takes available space on mobile, prevents filter push-out
-              // FIX: flex-nowrap to keep buttons in one line, overflow-x-auto to handle overflow
-              className="flex flex-1 md:flex-none flex-nowrap items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto md:overflow-visible min-w-0 scrollbar-hide mask-image-scroll"
+              // LAYOUT FIX: Remove flex-1 to auto width, added max-w to prevent overflow, and flex-shrink-1 to allow shrinking if needed
+              className="flex flex-none items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto min-w-0 max-w-[calc(100%-60px)] md:max-w-none scrollbar-hide mask-image-scroll"
             >
               {showArrows && (
                 <button
@@ -731,14 +730,14 @@ const ShopSection = ({ addToCart }) => {
 
             {/* Filter Box */}
             <motion.div 
-              // Always from Right (50)
+              // LOGIC: Mobile (Right to Left) vs Desktop (Right to Left)
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               // Desktop: Delay 0.2 (First), Mobile: Delay 0.2 (Same start as pagination)
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               // LAYOUT: flex-shrink-0 ensures it never shrinks/disappears
-              className="relative flex-shrink-0"
+              className="relative flex-shrink-0 ml-auto"
             >
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -990,7 +989,11 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeItem, setCartQ
               {cart.map((item) => (
                 <div key={item.id} className="flex flex-col gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
                   <div className="flex items-center gap-4">
-                    <div className="relative"><img src={item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />{item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}</div>
+                    {/* UPDATED: Image uses crop url first, consistent with product card */}
+                    <div className="relative">
+                      <img src={item.imageCrop || item.imageFull || item.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                      {item.isNSFW && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>}
+                    </div>
                     <div className="flex-1 min-w-0"><h4 className="text-white text-sm font-medium truncate">{item.title}</h4><p className="text-red-400 font-bold text-sm">Rp{item.price.toLocaleString('id-ID')}</p></div>
                     <button onClick={() => removeItem(item.id)} className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors touch-manipulation" title="Hapus Produk"><Trash2 size={18} /></button>
                   </div>
