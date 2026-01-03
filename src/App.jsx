@@ -493,7 +493,8 @@ const ProductPreviewModal = ({ product, isOpen, onClose, onAdd }) => {
 const ShopSection = ({ addToCart }) => {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 
-  const [isMobile, setIsMobile] = useState(false); 
+  // FIX: Initialize isMobile correctly to avoid animation flash
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [direction, setDirection] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null); 
   
@@ -669,8 +670,8 @@ const ShopSection = ({ addToCart }) => {
               viewport={{ once: true, amount: 0.1 }}
               // Desktop: Filter appears first (0.2s), then Pagination (0.4s)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
-              // LAYOUT FIX: w-auto ensures auto width, min-w-0 for shrinking if needed
-              className="w-auto min-w-0 flex items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto scrollbar-hide mask-image-scroll"
+              // LAYOUT FIX: w-fit ensures it only takes necessary width (auto), min-w-0 for shrinking if needed
+              className="w-fit min-w-0 flex items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto scrollbar-hide mask-image-scroll"
             >
               {showArrows && (
                 <button
