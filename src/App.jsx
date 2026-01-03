@@ -669,13 +669,14 @@ const ShopSection = ({ addToCart }) => {
               // Desktop: Filter appears first (0.2s), then Pagination (0.4s)
               transition={{ duration: 0.7, ease: "easeOut", delay: isMobile ? 0.2 : 0.4 }}
               // LAYOUT: flex-1 ensures it takes available space on mobile, prevents filter push-out
-              className="flex flex-1 md:flex-none flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl overflow-hidden min-w-0"
+              // FIX: flex-nowrap to keep buttons in one line, overflow-x-auto to handle overflow
+              className="flex flex-1 md:flex-none flex-nowrap items-center gap-1 md:gap-2 bg-slate-900 border border-slate-800 p-1 md:p-1.5 rounded-xl overflow-x-auto md:overflow-visible min-w-0 scrollbar-hide mask-image-scroll"
             >
               {showArrows && (
                 <button
                   onClick={() => changePage(Math.max(page - 1, 1))}
                   disabled={page === 1}
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
+                  className={`w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
                     page === 1 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
                   }`}
                 >
@@ -695,7 +696,7 @@ const ShopSection = ({ addToCart }) => {
                         animate="center"
                         exit="exit"
                         onClick={() => changePage(num)}
-                        className="relative w-9 h-9 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation overflow-visible"
+                        className="relative w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-sm touch-manipulation overflow-visible"
                       >
                         {page === num && (
                           <motion.div
@@ -719,7 +720,7 @@ const ShopSection = ({ addToCart }) => {
                 <button
                   onClick={() => changePage(Math.min(page + 1, totalPages))}
                   disabled={page === totalPages}
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
+                  className={`w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center transition-all touch-manipulation ${
                     page === totalPages ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-slate-800'
                   }`}
                 >
